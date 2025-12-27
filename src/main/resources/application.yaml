@@ -9,9 +9,18 @@ quarkus:
   flyway:
     migrate-at-start: true
 
-quarkus.hibernate-orm.active=true
-quarkus.hibernate-orm.log.sql=true
-quarkus.flyway.migrate-at-start=true
+  # REST Client configuration
+  rest-client:
+    yhfinance-api:
+      url: ${yhfinance.api.base-url}
+      scope: jakarta.inject.Singleton
+      connect-timeout: 5000
+      read-timeout: 30000
+
+yhfinance:
+  api:
+    key: '47V6xQ2zoF7cimj8UKKid5UfhYtyamBb6fI2GV1d'
+    base-url: 'https://yfapi.net'
 
 #link to yhfinance API:
 #  https://financeapi.net/
