@@ -1,4 +1,4 @@
-## Plan dziaøana aplikacji do analizy spółek
+## Plan działana aplikacji do analizy spółek
 
 Założenia:
  - znalizuję tylko rynek USA
@@ -10,7 +10,6 @@ Założenia:
 
 Przepływ danych i logika aplikacji:
 1. Filtrowanie bazowe:
-   1. if not US market -> odrzuć
    2. if sector in [Financials, Real Estate, Energy, Utilities, Basic Materials, Unknown] -> odrzuć
    3. if marketCap < 3 mld USD -> odrzuć
 
@@ -88,7 +87,3 @@ public class AnalysisReport {
     private AnalystRecomendation analystRecommendation; // ocena analityków (tak doatkowo, bo warto)
 }
 ```
-
-TODO: dodaj shcemat bazy danych dla encji zapisywanych raz na kwartał/miesiąc i ew. dzień
-
-
