@@ -12,16 +12,13 @@
 pobierane raz na zawsze XD
  - ticker
  - sector (enum)
- - main data source (api name) ??
- - secondary data source ??
-
 
 pobierane raz na kwartał (90 dni)
     marketCap ???
     quickRatio
     totalDebt
     totalAssets
-    interestConverageRatio
+    interestConverageRatio    <- ebit / interestExpense
     revenue
     operativeCashFlow
     netIncome
@@ -39,14 +36,14 @@ pobierane codzinnie / na potrzebe analizy:
     peRatio
     psCurrent
     currentPrice
-    pegRatio - obliczane na podstawie peRatio/forwardEpsGrowth2Y (jako liczba całkowita)
+    pegRatio - obliczane na podstawie peRatio/eps (jako liczba całkowita)
 
 
 marketCap
 quickRatio
 totalDebt
 totalAssets
-interestConverageRatio
+interestConverageRatio    <- ebit / interestExpense
 altmanZScore
 revenue (lube revenueGrowthMean3Years)
 forwardRevenueGrowth2Y
@@ -61,9 +58,26 @@ currentPrice
 analystRatings - strongbuy, buy, hold, sell, strong sell, counts
 
 
+finhub.io
+quote - currentPrice
+Recommendation Trends - analystRatings
 
-TODO przeczytaj oceny chatów:
-https://gemini.google.com/app/d8a726b4779a68ce?hl=pl
-https://chatgpt.com/c/69541458-40a4-8332-88e1-b8816f94f92f
-https://www.perplexity.ai/search/przeszukaj-internet-i-wskaz-ap-KwowuPZ9QEuLo72E4h87mQ
-https://claude.ai/chat/742e6ce1-4da4-4114-8a81-43d4c1e66ba1
+
+
+api yh finance - https://rapidapi.com/3b-data-3b-data-default/api/yahoo-finance-real-time1
+recomendation trend - analystRatings (można odrazu za 3 miesiące)
+balance sheet:
+- forwardPE
+- totalAssets - annualTotalAssets[-1].reportedValue.raw
+- marketCap - summaryDetail.marketCap or price.marketCap
+- revenue - incomeStatementHistory.incomeStatementHistory[0].totalRevenue.raw or financialsChart.quaterly.revenue   <- możeliwe też załadowanie danymi z yearly
+- netIncome - incomeStatementHistory.incomeStatementHistory[0].netIncome.raw
+
+
+
+Okej, jak na razie stanęło na tym, żę jednk zostaje yhFinance i ew. pomocniczy finhub, bo ma fajne recomendations
+Jeszcze walczę z gemini jakie dokładnie dane najlepiej z którego api
+https://gemini.google.com/app/def9d35b6be9c839?hl=pl
+
+
+alpha vantage też ma baardzo dobre api, ale tylko 25req/day - a to zdecydowanie za mało
