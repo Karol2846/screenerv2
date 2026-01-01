@@ -39,20 +39,20 @@ pobierane codzinnie / na potrzebe analizy:
     pegRatio - obliczane na podstawie peRatio/eps (jako liczba całkowita)
 
 
-marketCap
-quickRatio
-totalDebt
-totalAssets
+marketCap - quoteSummary.marketCap or price.marketCap
+quickRatio - financialData.quickRatio
+totalDebt - financialData.totalDebt
+totalAssets - summaryDetails.totalAssets or defaultKeyStatistics.totalAssets
 interestConverageRatio    <- ebit / interestExpense
 altmanZScore
 revenue (lube revenueGrowthMean3Years)
 forwardRevenueGrowth2Y
-forwardEpsGrowth2Y
+forwardEpsGrowth2Y     - defaultKeyStatistics.forwardEps
 operativeCashFlow
 netIncome
 psCurrent
 historicalPs (do liczenia mediany)
-peRatio (jeśli forward to nawet lepiej)
+peRatio (jeśli forward to nawet lepiej)   - defaultKeyStatistics.forwardPE
 targetPrice (mean target price od analityków)
 currentPrice
 analystRatings - strongbuy, buy, hold, sell, strong sell, counts
@@ -74,10 +74,7 @@ balance sheet:
 - netIncome - incomeStatementHistory.incomeStatementHistory[0].netIncome.raw
 
 
-
-Okej, jak na razie stanęło na tym, żę jednk zostaje yhFinance i ew. pomocniczy finhub, bo ma fajne recomendations
-Jeszcze walczę z gemini jakie dokładnie dane najlepiej z którego api
+tutaj udało mi się ustalić na prawdę spoko rzeczy:
 https://gemini.google.com/app/def9d35b6be9c839?hl=pl
 
 
-alpha vantage też ma baardzo dobre api, ale tylko 25req/day - a to zdecydowanie za mało
