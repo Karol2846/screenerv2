@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS forward_estimates (
         target_price DECIMAL(19, 4),
         forecast_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_estimates_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE,
+    CONSTRAINT fk_estimates_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE
 );
 
 
