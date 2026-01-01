@@ -2,6 +2,7 @@ package com.stock.screener.domain.entity;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,12 +12,13 @@ import java.time.LocalDate;
 public class ForwardEstimates extends PanacheEntity {
 
     @ManyToOne
-    @JoinColumn(name = "stock_ticker", nullable = false, unique = true)
+    @JoinColumn(name = "stock_ticker", nullable = false)
     public Stock stock;
 
-    public BigDecimal forwardRevenueGrowth2Y;
-    public BigDecimal forwardEpsGrowth2Y;
+    public BigDecimal forwardRevenueGrowth;
+    public BigDecimal forwardEpsGrowth;
     public BigDecimal targetPrice;
 
+    @CreationTimestamp
     public LocalDate forecastDate; // Data kiedy pobrano prognozę
 }

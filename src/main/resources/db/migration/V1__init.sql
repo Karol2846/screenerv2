@@ -11,20 +11,23 @@ CREATE TABLE IF NOT EXISTS stock  (
         last_updated TIMESTAMP
 );
 
--- FIXME przez coś forecast_date nie jest poprawnie odczytywane - walidacja hibarnate się wywala
+
+CREATE SEQUENCE IF NOT EXISTS forward_estimates_seq START WITH 1 INCREMENT BY 50;
 CREATE TABLE IF NOT EXISTS forward_estimates (
         id BIGINT PRIMARY KEY,
         stock_ticker VARCHAR(10) NOT NULL,
 
-        forward_revenue_growth_2y DECIMAL(10, 4), -- np. 0.1500 (15%)
-        forward_eps_growth_2y DECIMAL(10, 4),
+        forward_revenue_growth DECIMAL(10, 4), -- np. 0.1500 (15%)
+        forward_eps_growth DECIMAL(10, 4),
         target_price DECIMAL(19, 4),
         forecast_date DATE DEFAULT CURRENT_DATE,
 
-    CONSTRAINT fk_estimates_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE
+    CONSTRAINT fk_estimates_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE,
+    CONSTRAINT uq_estimates_stock_date UNIQUE (stock_ticker, forecast_date)
 );
 
 
+CREATE SEQUENCE IF NOT EXISTS quarterly_report_seq START WITH 1 INCREMENT BY 50;
 CREATE TABLE IF NOT EXISTS quarterly_report (
         id BIGINT PRIMARY KEY,
         stock_ticker VARCHAR(10) NOT NULL,
