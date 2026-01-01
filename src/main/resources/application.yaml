@@ -6,6 +6,8 @@ quarkus:
     active: true
     log:
       sql: true
+    schema-management:
+      strategy: validate
   flyway:
     migrate-at-start: true
 
