@@ -77,4 +77,5 @@ balance sheet:
 tutaj udało mi się ustalić na prawdę spoko rzeczy:
 https://gemini.google.com/app/def9d35b6be9c839?hl=pl
 
-
+i tutaj fajna rozpiska co skąd brać:
+https://docs.google.com/spreadsheets/d/1bqiRxCcWwADv6OdTYUyjw4_D0TAGLnE4hmxwwRExeu0/edit?gid=268937394#gid=268937394
