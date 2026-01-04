@@ -1,0 +1,19 @@
+package com.stock.screener.adapter.web.out.yhfinance.model;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
+
+@Builder
+@Jacksonized
+@JsonIgnoreProperties(ignoreUnknown = true)
+public record EpsRevisions(
+        RawFmtValue upLast7days,
+        RawFmtValue upLast30days,
+        RawFmtValue downLast30days,
+        RawFmtValue downLast7Days,
+        RawFmtValue downLast90days,
+        String epsRevisionsCurrency
+) {
+}
+
