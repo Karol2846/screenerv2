@@ -12,18 +12,19 @@ CREATE TABLE IF NOT EXISTS stock  (
 );
 
 
-CREATE SEQUENCE IF NOT EXISTS forward_estimates_seq START WITH 1 INCREMENT BY 50;
-CREATE TABLE IF NOT EXISTS forward_estimates (
+CREATE SEQUENCE IF NOT EXISTS monthly_report_seq START WITH 1 INCREMENT BY 50;
+CREATE TABLE IF NOT EXISTS monthly_report (
         id BIGINT PRIMARY KEY,
         stock_ticker VARCHAR(10) NOT NULL,
 
         forward_revenue_growth DECIMAL(10, 4), -- np. 0.1500 (15%)
         forward_eps_growth DECIMAL(10, 4),
         target_price DECIMAL(19, 4),
+        ps_ratio DECIMAL(10, 4),      -- dla wyliczania mediany
         forecast_date DATE DEFAULT CURRENT_DATE,
 
-    CONSTRAINT fk_estimates_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE,
-    CONSTRAINT uq_estimates_stock_date UNIQUE (stock_ticker, forecast_date)
+    CONSTRAINT fk_monthly_report_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE,
+    CONSTRAINT uq_monthly_report_stock_date UNIQUE (stock_ticker, forecast_date)
 );
 
 
@@ -70,5 +71,5 @@ CREATE INDEX idx_report_date
     ON quarterly_report(stock_ticker, fiscal_date_ending);
 
 CREATE INDEX idx_estimates_date
-    ON forward_estimates(stock_ticker, forecast_date);
+    ON monthly_report(stock_ticker, forecast_date);
 

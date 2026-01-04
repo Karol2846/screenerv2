@@ -25,8 +25,8 @@ Przepływ danych i logika aplikacji:
     - nie: pobierz z api i zaktualizuj bazę
    
    `Co zrobić, gdy dane nie są dostępne ani w bazie, ani w api?`
-      - spróbuj pobrać dane z alternatywnego api (jeśli dostępne)?
-      - oznaczyć spółke jako 'insufficient data' i odrzucić ją z analizy?
+      - spróbuj pobrać dane z alternatywnego api - alpha vantege
+      - oznaczyć spółkę flagą `MISSING_DATA` i przejść dalej (jeśli to możliwe)
 
 3. Analysis Pipeline (Scoring engine)
 Spółki będą oceniane w skali od 0-100 punktów. <br>
@@ -46,9 +46,9 @@ w przypadku braku jakichkolwiek danych do obliczenia danego kryterium:
            - [10, 50] - punkty w zależności od wyniku (10 - 20)
            - [0, 10%] - punkty w zależności od wyniku (max 10)
            - < 0 - REJECT. ujemny wzrost to dyskfalifikacja
-       - forwardRevenueGrowth2Y > 0 = +5
-       - forwardEpsGrowth2Y > 10% = +10           (cena podąża za zyskami)
-       - operating_cash_flow > net_income = +3    else FLAGA `CASH_FLOW_LESS_THAN_NET_INCOME`
+       - forwardRevenueGrowth > 0 = +5
+       - forwardEpsGrowth > 10% = +10           (cena podąża za zyskami)
+       - OperatingCashFlow / NetIncome = +3     else FLAGA `CASH_FLOW_LESS_THAN_NET_INCOME`
 
     3. Wycena spółki - czy wchodzić teraz? (max 30)
        - zależność od wskaźnika P/S (price to sales) w stosunku do mediany z ostatnich 4 lat

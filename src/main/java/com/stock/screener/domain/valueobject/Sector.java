@@ -6,6 +6,8 @@ public enum Sector {
     FINANCE,
     ENERGY,
     CONSUMER_DISCRETIONARY,
-    // ...
+    REAL_ESTATE,
+    UTILITIES,
+    MINING,
     OTHER
 }

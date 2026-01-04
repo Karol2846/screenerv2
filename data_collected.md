@@ -79,3 +79,14 @@ https://gemini.google.com/app/def9d35b6be9c839?hl=pl
 
 i tutaj fajna rozpiska co skąd brać:
 https://docs.google.com/spreadsheets/d/1bqiRxCcWwADv6OdTYUyjw4_D0TAGLnE4hmxwwRExeu0/edit?gid=268937394#gid=268937394
+
+
+3. Obliczanie Altman Z''-Score (Dla firm nieprodukcyjnych/Tech)
+   Wzór: Z'' = 6.56*T1 + 3.26*T2 + 6.72*T3 + 1.05*T4
+
+Do tego potrzebujesz danych, których kompletnie nie ma w Twoim YH JSON:
+
+T1 = (Current Assets - Current Liabilities) / Total Assets -> Wszystkie 3 składniki musisz wziąć z Alpha Vantage.
+T2 = Retained Earnings / Total Assets -> Oba z Alpha Vantage.
+T3 = EBIT / Total Assets -> Oba z Alpha Vantage.
+T4 = Book Value of Equity / Total Liabilities -> Total Liabilities z Alpha Vantage.

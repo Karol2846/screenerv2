@@ -1,6 +1,8 @@
 quarkus:
   live-reload:
     instrumentation: true
+  analytics:
+    disabled: false
 
   hibernate-orm:
     active: true
@@ -8,7 +10,7 @@ quarkus:
       sql: true
     schema-management:
       strategy: validate
-  physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
   flyway:
     migrate-at-start: true
 

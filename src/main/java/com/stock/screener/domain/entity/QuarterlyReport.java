@@ -28,7 +28,7 @@ public class QuarterlyReport extends PanacheEntity {
     // --- P&L (Source: YH + AV fallback) ---
     public BigDecimal totalRevenue;
     public BigDecimal netIncome;
-    public BigDecimal ebit;            // Critical for Interest Cov.
+    public BigDecimal ebit;            // Critical for interestConverageRatio
     public BigDecimal interestExpense;
 
     // --- Balance Sheet (Source: AV mainly) ---
@@ -46,4 +46,6 @@ public class QuarterlyReport extends PanacheEntity {
 
     @UpdateTimestamp
     public LocalDateTime updatedAt;
+
+    //TODO: funkcja do wyliczania altman-Z score, wzór w pliku data_collected.md
 }

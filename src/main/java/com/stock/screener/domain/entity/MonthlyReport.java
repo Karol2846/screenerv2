@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "forward_estimates")
-public class ForwardEstimates extends PanacheEntity {
+@Table(name = "monthly_report")
+public class MonthlyReport extends PanacheEntity {
 
     @ManyToOne
     @JoinColumn(name = "stock_ticker", nullable = false)
@@ -18,6 +18,7 @@ public class ForwardEstimates extends PanacheEntity {
     public BigDecimal forwardRevenueGrowth;
     public BigDecimal forwardEpsGrowth;
     public BigDecimal targetPrice;
+    public BigDecimal psRatio;
 
     @CreationTimestamp
     public LocalDate forecastDate; // Data kiedy pobrano prognozę

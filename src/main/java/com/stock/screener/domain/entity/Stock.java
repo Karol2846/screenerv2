@@ -23,7 +23,7 @@ public class Stock extends PanacheEntityBase {
     public MarketData marketData;
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
-    public List<ForwardEstimates> currentEstimates;
+    public List<MonthlyReport> currentEstimates;
 
     @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<QuarterlyReport> quarterlyReports = new ArrayList<>();
