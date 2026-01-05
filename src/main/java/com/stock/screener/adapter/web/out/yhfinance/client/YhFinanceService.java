@@ -24,9 +24,9 @@ public class YhFinanceService {
         this.apiClient = apiClient;
     }
 
-    public QuoteSummaryResult getFinancialData(@NonNull String symbol) {
-        QuoteSummaryResponse response = apiClient.getQuoteSummary(symbol, DEFAULT_MODULES, DEFAULT_LANG, DEFAULT_REGION);
-        validateClientResponse(symbol, response);
+    public QuoteSummaryResult getFinancialData(@NonNull String ticker) {
+        QuoteSummaryResponse response = apiClient.getQuoteSummary(ticker, DEFAULT_MODULES, DEFAULT_LANG, DEFAULT_REGION);
+        validateClientResponse(ticker, response);
 
         List<QuoteSummaryResult> results = response.quoteSummary().result();
         return results.getFirst();
