@@ -39,6 +39,8 @@ public class QuarterlyReport extends PanacheEntity {
     public BigDecimal retainedEarnings;
 
     // --- Cash Flow ---
+    //TODO: użyję innego pola z alpha vantage - pogadaj z chatem które najlepsze.
+    // to do sprawdzenia operatingCashFlow/netIncome, ale może jest lepszy sposób
     public BigDecimal operatingCashFlow;
 
     @CreationTimestamp

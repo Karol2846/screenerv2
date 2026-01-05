@@ -1,5 +1,6 @@
 package com.stock.screener.domain.entity;
 
+import com.stock.screener.domain.valueobject.AnalystRatings;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -19,6 +20,9 @@ public class MonthlyReport extends PanacheEntity {
     public BigDecimal forwardEpsGrowth;
     public BigDecimal targetPrice;
     public BigDecimal psRatio;
+
+    @Embedded
+    public AnalystRatings analystRatings;
 
     @CreationTimestamp
     public LocalDate forecastDate; // Data kiedy pobrano prognozę
