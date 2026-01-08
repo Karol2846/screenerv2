@@ -1,5 +1,6 @@
 package com.stock.screener.adapter.web.out.yhfinance.client;
 
+import com.stock.screener.adapter.web.out.yhfinance.exception.ClientException;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResponse;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResult;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,7 +16,7 @@ public class YhFinanceService {
 
     private final YhFinanceApiClient apiClient;
 
-    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData";
+    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData,assetProfile";
     String DEFAULT_LANG = "en";
     String DEFAULT_REGION = "US";
 

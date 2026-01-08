@@ -1,4 +1,4 @@
-package com.stock.screener.adapter.web.out.yhfinance.client;
+package com.stock.screener.adapter.web.out.yhfinance.exception;
 
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;

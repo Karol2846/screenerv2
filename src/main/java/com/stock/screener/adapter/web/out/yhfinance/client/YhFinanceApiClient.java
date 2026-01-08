@@ -1,5 +1,6 @@
 package com.stock.screener.adapter.web.out.yhfinance.client;
 
+import com.stock.screener.adapter.web.out.yhfinance.exception.YhFinanceExceptionMapper;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResponse;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.ws.rs.GET;
