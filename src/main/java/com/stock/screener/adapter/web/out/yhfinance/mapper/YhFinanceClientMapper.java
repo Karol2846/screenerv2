@@ -18,7 +18,7 @@ public class YhFinanceClientMapper {
         return QuoteSummaryCommand.builder()
                 .ticker(ticker)
                 .sector(Sector.fromString(assetProfile.sectorKey()))
-                .currentPrice(map(summaryDetail.open()))
+                .currentPrice(map(financialData.currentPrice()))
                 .marketCap(map(summaryDetail.marketCap()))
                 .forwardPeRatio(map(summaryDetail.forwardPE()))
                 //FIXME: I dont want to have trailing 12 months...it's not current.
