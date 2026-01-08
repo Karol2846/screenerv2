@@ -11,7 +11,8 @@ public record QuoteSummaryResult(
         AssetProfile assetProfile,
         EarningsTrend earningsTrend,
         FinancialData financialData,
-        RecommendationTrend recommendationTrend
+        RecommendationTrend recommendationTrend,
+        SummaryDetail summaryDetail
 ) {
 }
 
