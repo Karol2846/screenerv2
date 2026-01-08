@@ -16,7 +16,7 @@ public class YhFinanceService {
 
     private final YhFinanceApiClient apiClient;
 
-    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData,assetProfile";
+    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData,assetProfile,summary";
     String DEFAULT_LANG = "en";
     String DEFAULT_REGION = "US";
 

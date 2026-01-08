@@ -2,10 +2,12 @@ package com.stock.screener.application.port.out.command;
 
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.Sector;
+import lombok.Builder;
 
 import java.math.BigDecimal;
 
-//kwartalne będą pobierane tylko z alphaVantage
+//quaterly data will be fetched from alphaVantage api
+@Builder
 public record QuoteSummaryCommand(
     String ticker,
     Sector sector,
