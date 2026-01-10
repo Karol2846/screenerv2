@@ -6,7 +6,6 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 
-//quaterly data will be fetched from alphaVantage api
 @Builder
 public record QuoteSummaryCommand(
     String ticker,
@@ -19,5 +18,7 @@ public record QuoteSummaryCommand(
     BigDecimal forwardRevenueGrowth,
     BigDecimal forwardEpsGrowth,
     BigDecimal targetPrice,
-    AnalystRatings analystRatings
+    AnalystRatings analystRatings,
+
+    BigDecimal operatingCashFlow
 ) {}
