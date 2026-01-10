@@ -9,6 +9,10 @@ import java.math.BigDecimal;
 public class YhFinanceClientMapper {
 
     QuoteSummaryCommand toCommand(String ticker, QuoteSummaryResult result) {
+
+        //FIXME: if company is not (nativly) from US
+        // - financialData are in different currency -> field financialCurrency
+        // -> it need to be racalculated to USD (for now from properties)
         AssetProfile assetProfile = result.assetProfile();
         SummaryDetail summaryDetail = result.summaryDetail();
         EarningsTrend earningsTrend = result.earningsTrend();
@@ -21,11 +25,13 @@ public class YhFinanceClientMapper {
                 .currentPrice(map(financialData.currentPrice()))
                 .marketCap(map(summaryDetail.marketCap()))
                 .forwardPeRatio(map(summaryDetail.forwardPE()))
-                //FIXME: I dont want to have trailing 12 months...it's not current.
+                // FIXME: based on yhFinance data I can have or TTM or forward.
+                //  I prefer forward, but it needs to ba calculated (with possible currency adjustments)
                 .psRatio(map(summaryDetail.priceToSalesTrailing12Months()))
 
 
-                //FIXME: remove this, mapping not finished
+
+                .operatingCashFlow(map(financialData.operatingCashflow()))      //recalculate to proper value
                 .build();
     }
 
