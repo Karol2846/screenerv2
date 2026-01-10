@@ -13,7 +13,7 @@ public record QuoteSummaryCommand(
     BigDecimal currentPrice,
     BigDecimal marketCap,
     BigDecimal forwardPeRatio,
-    BigDecimal psRatio,
+    BigDecimal forwardRevenue,  //forwardPs = marketCap / forwardRevenue`
 
     BigDecimal forwardRevenueGrowth,
     BigDecimal forwardEpsGrowth,
