@@ -1,4 +1,6 @@
 quarkus:
+  config:
+    locations: config/currency-mapping.yaml
   live-reload:
     instrumentation: true
   analytics:

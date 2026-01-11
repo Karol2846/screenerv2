@@ -1,14 +1,8 @@
-exahnge-rates:
+exchange-rates:
   rates:
-    - USD: 1.0
-    - TWD: 31.5
-    - CNY: 6.67
-    - EUR: 0.85
-    - JPY: 150.0
-    - GBP: 0.75
-
-#  AUD: 1.35
-#  CAD: 1.25
-#  CHF: 0.92
-#  SEK: 8.6
-#  NZD: 1.4
+    USD: 1.0
+    TWD: 31.5
+    CNY: 6.67
+    EUR: 0.85
+    JPY: 150.0
+    GBP: 0.75

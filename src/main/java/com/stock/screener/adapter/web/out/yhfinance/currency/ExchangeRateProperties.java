@@ -5,7 +5,7 @@ import io.smallrye.config.ConfigMapping;
 import java.math.BigDecimal;
 import java.util.Map;
 
-@ConfigMapping(prefix = "exahnge-rates")
+@ConfigMapping(prefix = "exchange-rates")
 public interface ExchangeRateProperties {
 
     Map<String, BigDecimal> rates();
@@ -13,5 +13,6 @@ public interface ExchangeRateProperties {
     default BigDecimal getRateFor(String currency) {
         return rates().get(currency);
     }
+
 
 }
