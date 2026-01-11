@@ -1,4 +1,4 @@
-package com.stock.screener.adapter.web.out.yhfinance.client;
+package com.stock.screener.adapter.web.out.yhfinance;
 
 import com.stock.screener.adapter.web.out.yhfinance.exception.YhFinanceExceptionMapper;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResponse;

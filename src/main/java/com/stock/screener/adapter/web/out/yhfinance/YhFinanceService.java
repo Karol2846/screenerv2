@@ -1,36 +1,39 @@
-package com.stock.screener.adapter.web.out.yhfinance.client;
+package com.stock.screener.adapter.web.out.yhfinance;
 
 import com.stock.screener.adapter.web.out.yhfinance.exception.ClientException;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResponse;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResult;
+import com.stock.screener.application.port.out.command.QuoteSummaryCommand;
+import com.stock.screener.application.port.out.command.YahooFinanceClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jspecify.annotations.NonNull;
-
 import java.util.List;
 
-
 @ApplicationScoped
-public class YhFinanceService {
+public class YhFinanceService implements YahooFinanceClient {
 
     private final YhFinanceApiClient apiClient;
+    private final YhFinanceClientMapper mapper;
 
-    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData,assetProfile,summary";
+    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData,assetProfile,summaryDetail";
     String DEFAULT_LANG = "en";
     String DEFAULT_REGION = "US";
 
     @Inject
-    public YhFinanceService(@RestClient YhFinanceApiClient apiClient) {
+    public YhFinanceService(@RestClient YhFinanceApiClient apiClient, YhFinanceClientMapper mapper) {
         this.apiClient = apiClient;
+        this.mapper = mapper;
     }
 
-    public QuoteSummaryResult getFinancialData(@NonNull String ticker) {
+    @Override
+    public QuoteSummaryCommand getQuoteSummary(@NonNull String ticker) {
         QuoteSummaryResponse response = apiClient.getQuoteSummary(ticker, DEFAULT_MODULES, DEFAULT_LANG, DEFAULT_REGION);
         validateClientResponse(ticker, response);
 
         List<QuoteSummaryResult> results = response.quoteSummary().result();
-        return results.getFirst();
+        return mapper.toCommand(ticker, results.getFirst());
     }
 
     private static void validateClientResponse(String symbol, QuoteSummaryResponse response) {

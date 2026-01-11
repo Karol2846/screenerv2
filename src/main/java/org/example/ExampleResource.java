@@ -1,6 +1,7 @@
 package org.example;
 
-import com.stock.screener.adapter.web.out.yhfinance.currency.ExchangeRateProperties;
+import com.stock.screener.application.port.out.command.QuoteSummaryCommand;
+import com.stock.screener.application.port.out.command.YahooFinanceClient;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -8,18 +9,15 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import lombok.RequiredArgsConstructor;
 
-import java.math.BigDecimal;
-
-@Path("/hello")
+@Path("/stock/{ticker}")
 @RequiredArgsConstructor
 public class ExampleResource {
 
-    private final ExchangeRateProperties properties;
+    private final YahooFinanceClient client;
 
     @GET
-    @Path("/{currency}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String hello(@PathParam("currency") String currency) {
-        return properties.getRateFor(currency).toString();
+    @Produces(MediaType.APPLICATION_JSON)
+    public QuoteSummaryCommand hello(@PathParam("ticker") String ticker) {
+        return client.getQuoteSummary(ticker);
     }
 }
