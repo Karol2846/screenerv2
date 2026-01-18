@@ -4,10 +4,9 @@ CREATE TABLE IF NOT EXISTS stock  (
 
         current_price       DECIMAL(19, 4),
         market_cap          DECIMAL(25, 2), -- Market capy są ogromne (np. 3T USD)
-        pe_ratio            DECIMAL(10, 4),
         forward_pe_ratio    DECIMAL(10, 4),
-        ps_ratio            DECIMAL(10, 4),
         forward_peg_ratio   DECIMAL(10, 4),
+        ps_ratio            DECIMAL(10, 4),
         last_updated        TIMESTAMP
 );
 
@@ -20,7 +19,8 @@ CREATE TABLE IF NOT EXISTS monthly_report (
         forward_revenue_growth  DECIMAL(10, 4), -- np. 0.1500 (15%)
         forward_eps_growth      DECIMAL(10, 4),
         target_price            DECIMAL(19, 4),
-        ps_ratio                DECIMAL(10, 4),      -- dla wyliczania mediany
+        ps_ratio                DECIMAL(10, 4),      -- snapshoot to calculate median PS ratio
+        -- anlayst ratings
         strong_buy              INT,
         buy                     INT,
         hold                    INT,

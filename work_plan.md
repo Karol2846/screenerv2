@@ -39,6 +39,7 @@ w przypadku braku jakichkolwiek danych do obliczenia danego kryterium:
        - totalDebt/totalAssets < 0.5 = +3  
        - interestConverageRatio >= 3.0 - punkty zależnie od wyniku (im wyższy tym lepiej) +3
        - altmanZScore in [1.8, 3.0] punkty zależenie od wyniku (im wyższy tym lepiej) +3          altman-Z score < 1.8 -> REJECT
+            lub też: in [1.1, 2.6], altmanZScore < 1.1 -> REJECT (dla firm tech)
 
     2. Wzrost spółki (max 28):
        - revenueGrowthMean za ostatnie 3 lata <- jeśli rośnie spółka otrzymuje punkty w zależności od tempa wzrostu
@@ -46,7 +47,7 @@ w przypadku braku jakichkolwiek danych do obliczenia danego kryterium:
            - [10, 50] - punkty w zależności od wyniku (10 - 20)
            - [0, 10%] - punkty w zależności od wyniku (max 10)
            - < 0 - REJECT. ujemny wzrost to dyskfalifikacja
-       - forwardRevenueGrowth > 0 = +5
+       - forwardRevenueGrowth > 10 = +5
        - forwardEpsGrowth > 10% = +10           (cena podąża za zyskami)
        - OperatingCashFlow / NetIncome = +3     else FLAGA `CASH_FLOW_LESS_THAN_NET_INCOME`
 
