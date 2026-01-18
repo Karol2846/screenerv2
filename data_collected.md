@@ -38,24 +38,30 @@ pobierane codzinnie / na potrzebe analizy:
     currentPrice
     pegRatio - obliczane na podstawie peRatio/eps (jako liczba całkowita)
 
-
-marketCap - quoteSummary.marketCap or price.marketCap
-quickRatio - financialData.quickRatio
-totalDebt - financialData.totalDebt
-totalAssets - summaryDetails.totalAssets or defaultKeyStatistics.totalAssets
-interestConverageRatio    <- ebit / interestExpense
+ticker
+sector
+marketCap
+quickRatio
+totalDebt
+totalAssets
+interestConverageRatio
 altmanZScore
-revenue (lube revenueGrowthMean3Years)
-forwardRevenueGrowth2Y
-forwardEpsGrowth2Y     - defaultKeyStatistics.forwardEps
+revenue
+forwardRevenueGrowth
+forwardEpsGrowth
 operativeCashFlow
 netIncome
 psCurrent
-historicalPs (do liczenia mediany)
-peRatio (jeśli forward to nawet lepiej)   - defaultKeyStatistics.forwardPE
-targetPrice (mean target price od analityków)
-currentPrice
+peratio (jeśli forward nawet lepiej)
+peRatio (jeśli forward to nawet lepiej)
+targetPrice
+currentPrice - moze być z yhFinance
+
+// będzie pobierane z innego API
 analystRatings - strongbuy, buy, hold, sell, strong sell, counts
+
+//FIXME: obawiam się, że yhFInance jest zbyt niestabilne i nie mogę z nieg pobierać danych :(
+// ale być może alphaVantege będzie lepsze - wtedy mogę poierać z kilku tokenów na raz 
 
 
 finhub.io
