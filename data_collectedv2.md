@@ -7,10 +7,12 @@ totalAssets
 interestConverageRatio
 altmanZScore
 revenue                     - do liczenia historii wzrostu
-forwardRevenueGrowth
-forwardEpsGrowth
+forwardRevenueGrowth        - yhFinance - earningsTrend.revenueEstimate
+forwardEpsGrowth            - yhFinance - earningsTrend.earningsEstimate
 operativeCashFlow           (operatingCashFlow)
 netIncome
+
+//SPRRAWDZONE DOTĄD 0 z excelem B)
 psCurrent                   - potrzebne aktualne + będzie liczona mediana z 4 lat
 forwardPEG
 forwardPE
