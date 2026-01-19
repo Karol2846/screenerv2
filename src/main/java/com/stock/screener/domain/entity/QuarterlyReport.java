@@ -50,9 +50,8 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    /**
-     * Calculates and stores Quick Ratio.
-     */
+    //FIXME: to be honest I think if I already have value objects - entities should use them instead of BigDecimal directly
+
     public QuickRatio calculateQuickRatio(BigDecimal totalCurrentAssets,
                                           BigDecimal inventory,
                                           BigDecimal totalCurrentLiabilities) {
@@ -61,18 +60,12 @@ public class QuarterlyReport extends PanacheEntity {
         return ratio;
     }
 
-    /**
-     * Calculates and stores Interest Coverage Ratio.
-     */
     public InterestCoverageRatio calculateInterestCoverageRatio(BigDecimal ebit, BigDecimal interestExpense) {
         InterestCoverageRatio ratio = InterestCoverageRatio.calculate(ebit, interestExpense);
         this.interestCoverageRatio = ratio != null ? ratio.value() : null;
         return ratio;
     }
 
-    /**
-     * Calculates and stores Altman Z''-Score.
-     */
     public AltmanZScore calculateAltmanZScore(BigDecimal totalCurrentAssets,
                                               BigDecimal totalCurrentLiabilities,
                                               BigDecimal retainedEarnings,
@@ -89,23 +82,5 @@ public class QuarterlyReport extends PanacheEntity {
                 totalLiabilities);
         this.altmanZScore = score != null ? score.value() : null;
         return score;
-    }
-
-    public QuickRatio getQuickRatioVO() {
-        return quickRatio != null ? new QuickRatio(quickRatio) : null;
-    }
-
-    /**
-     * Returns Value Object with domain logic for ICR interpretation.
-     */
-    public InterestCoverageRatio getInterestCoverageRatioVO() {
-        return interestCoverageRatio != null ? new InterestCoverageRatio(interestCoverageRatio) : null;
-    }
-
-    /**
-     * Returns Value Object with domain logic for Z-Score interpretation.
-     */
-    public AltmanZScore getAltmanZScoreVO() {
-        return altmanZScore != null ? new AltmanZScore(altmanZScore) : null;
     }
 }
