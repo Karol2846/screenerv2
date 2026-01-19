@@ -26,6 +26,11 @@ analystRatings              - strongbuy, buy, hold, sell, strong sell, counts
 
 **Obliczanie Altman Z''-Score (Dla firm nieprodukcyjnych/Tech)**
         Z'' = 6.56*T1 + 3.26*T2 + 6.72*T3 + 1.05*T4
+T1 = (totalCurrentAssets - totalCurrentLiabilities) / totalAssets
+T2 = retainedEarnings / totalAssets    ← alternatywnie dla retainedEarnings: totalShareholderEquity - (commonStock + additionalPaidInCapital)
+T3 = EBIT / totalAssets
+T4 = totalShareholderEquity / totalLiabilities
 
-opis jest w pliku alpha_vantage_plan na dysku
+
+rozpiska od gemini tutaj:
 https://docs.google.com/spreadsheets/d/1rUkWL9rVZo66Zlli0_L7dWfBYrdXTv9_O_wT6KcLfVI/edit?gid=1650940839#gid=1650940839

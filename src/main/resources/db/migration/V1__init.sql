@@ -1,12 +1,11 @@
-CREATE TABLE IF NOT EXISTS stock  (
+CREATE TABLE IF NOT EXISTS stock (
         ticker              VARCHAR(10) PRIMARY KEY,
         sector              VARCHAR(50),
-
+        market_cap          DECIMAL(25, 2),
         current_price       DECIMAL(19, 4),
-        market_cap          DECIMAL(25, 2), -- Market capy są ogromne (np. 3T USD)
+        ps_ratio            DECIMAL(10, 4),
         forward_pe_ratio    DECIMAL(10, 4),
         forward_peg_ratio   DECIMAL(10, 4),
-        ps_ratio            DECIMAL(10, 4),
         last_updated        TIMESTAMP
 );
 
@@ -19,8 +18,10 @@ CREATE TABLE IF NOT EXISTS monthly_report (
         forward_revenue_growth  DECIMAL(10, 4), -- np. 0.1500 (15%)
         forward_eps_growth      DECIMAL(10, 4),
         target_price            DECIMAL(19, 4),
-        ps_ratio                DECIMAL(10, 4),      -- snapshoot to calculate median PS ratio
-        -- anlayst ratings
+        ps_ratio                DECIMAL(10, 4),      -- snapshot to calculate median PS ratio
+        forward_pe_ratio        DECIMAL(10, 4),
+        forward_peg_ratio       DECIMAL(10, 4),
+        -- analyst ratings
         strong_buy              INT,
         buy                     INT,
         hold                    INT,
@@ -35,34 +36,25 @@ CREATE TABLE IF NOT EXISTS monthly_report (
 
 CREATE SEQUENCE IF NOT EXISTS quarterly_report_seq START WITH 1 INCREMENT BY 50;
 CREATE TABLE IF NOT EXISTS quarterly_report (
-        id                          BIGINT PRIMARY KEY,
-        stock_ticker                VARCHAR(10) NOT NULL,
-        fiscal_date_ending          DATE NOT NULL,
+        id                      BIGINT PRIMARY KEY,
+        stock_ticker            VARCHAR(10) NOT NULL,
+        fiscal_date_ending      DATE NOT NULL,
+        integrity_status        VARCHAR(30) NOT NULL,
 
-        -- Status raportu (enum)
-        integrity_status            VARCHAR(30) NOT NULL,
+        total_revenue           DECIMAL(25, 2),
+        net_income              DECIMAL(25, 2),
+        operating_cash_flow     DECIMAL(25, 2),
+        total_debt              DECIMAL(25, 2),
+        total_assets            DECIMAL(25, 2),
+        quick_ratio             DECIMAL(10, 4),         -- (totalCurrentAssets - inventory) / totalCurrentLiabilities
+        interest_coverage_ratio DECIMAL(10, 4),
+        altman_z_score          DECIMAL(10, 4),         -- wzór na obliczenie w pliku data_collectedv2.md
 
-        -- Income Statement
-        total_revenue               DECIMAL(25, 2),
-        net_income                  DECIMAL(25, 2),
-        ebit                        DECIMAL(25, 2),
-        interest_expense            DECIMAL(25, 2),
+        created_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updated_at              TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-        -- Balance Sheet (Kluczowe dla Z-Score)
-        total_assets                DECIMAL(25, 2),
-        total_current_assets        DECIMAL(25, 2),
-        total_liabilities           DECIMAL(25, 2),
-        total_current_liabilities   DECIMAL(25, 2),
-        retained_earnings           DECIMAL(25, 2),
-
-        -- Cash Flow
-        operating_cash_flow          DECIMAL(25, 2),
-
-        created_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        updated_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-CONSTRAINT fk_report_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE,
-CONSTRAINT uq_report_stock_date UNIQUE (stock_ticker, fiscal_date_ending)
+        CONSTRAINT fk_report_stock FOREIGN KEY (stock_ticker) REFERENCES stock(ticker) ON DELETE CASCADE,
+        CONSTRAINT uq_report_stock_date UNIQUE (stock_ticker, fiscal_date_ending)
 );
 
 
