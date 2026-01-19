@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 public record MarketData(
         BigDecimal currentPrice,
         BigDecimal marketCap,
-        BigDecimal forwardPeRatio,
         BigDecimal psRatio,
+        BigDecimal forwardPeRatio,
         BigDecimal forwardPegRatio,
         LocalDateTime lastUpdated
 ) {}

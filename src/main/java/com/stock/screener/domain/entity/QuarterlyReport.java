@@ -1,5 +1,8 @@
 package com.stock.screener.domain.entity;
 
+import com.stock.screener.domain.valueobject.AltmanZScore;
+import com.stock.screener.domain.valueobject.InterestCoverageRatio;
+import com.stock.screener.domain.valueobject.QuickRatio;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
@@ -25,21 +28,21 @@ public class QuarterlyReport extends PanacheEntity {
     @Column(nullable = false)
     public ReportIntegrityStatus integrityStatus;
 
-    // --- P&L (Source: AV ) ---
+    // --- P&L ---
     public BigDecimal totalRevenue;
     public BigDecimal netIncome;
-    public BigDecimal ebit;            // Critical for interestConverageRatio
-    public BigDecimal interestExpense;
 
-    // --- Balance Sheet (Source: AV mainly) ---
+    // --- Balance Sheet ---
+    public BigDecimal totalDebt;
     public BigDecimal totalAssets;
-    public BigDecimal totalCurrentAssets;
-    public BigDecimal totalLiabilities;
-    public BigDecimal totalCurrentLiabilities;
-    public BigDecimal retainedEarnings;
 
     // --- Cash Flow ---
     public BigDecimal operatingCashFlow;
+
+    // --- Calculated Ratios (stored as BigDecimal for DB) ---
+    public BigDecimal quickRatio;
+    public BigDecimal interestCoverageRatio;
+    public BigDecimal altmanZScore;
 
     @CreationTimestamp
     public LocalDateTime createdAt;
@@ -47,5 +50,62 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    //TODO: funkcja do wyliczania altman-Z score, wzór w pliku data_collected.md
+    /**
+     * Calculates and stores Quick Ratio.
+     */
+    public QuickRatio calculateQuickRatio(BigDecimal totalCurrentAssets,
+                                          BigDecimal inventory,
+                                          BigDecimal totalCurrentLiabilities) {
+        QuickRatio ratio = QuickRatio.calculate(totalCurrentAssets, inventory, totalCurrentLiabilities);
+        this.quickRatio = ratio != null ? ratio.value() : null;
+        return ratio;
+    }
+
+    /**
+     * Calculates and stores Interest Coverage Ratio.
+     */
+    public InterestCoverageRatio calculateInterestCoverageRatio(BigDecimal ebit, BigDecimal interestExpense) {
+        InterestCoverageRatio ratio = InterestCoverageRatio.calculate(ebit, interestExpense);
+        this.interestCoverageRatio = ratio != null ? ratio.value() : null;
+        return ratio;
+    }
+
+    /**
+     * Calculates and stores Altman Z''-Score.
+     */
+    public AltmanZScore calculateAltmanZScore(BigDecimal totalCurrentAssets,
+                                              BigDecimal totalCurrentLiabilities,
+                                              BigDecimal retainedEarnings,
+                                              BigDecimal ebit,
+                                              BigDecimal totalShareholderEquity,
+                                              BigDecimal totalLiabilities) {
+        AltmanZScore score = AltmanZScore.calculate(
+                totalCurrentAssets,
+                totalCurrentLiabilities,
+                this.totalAssets,
+                retainedEarnings,
+                ebit,
+                totalShareholderEquity,
+                totalLiabilities);
+        this.altmanZScore = score != null ? score.value() : null;
+        return score;
+    }
+
+    public QuickRatio getQuickRatioVO() {
+        return quickRatio != null ? new QuickRatio(quickRatio) : null;
+    }
+
+    /**
+     * Returns Value Object with domain logic for ICR interpretation.
+     */
+    public InterestCoverageRatio getInterestCoverageRatioVO() {
+        return interestCoverageRatio != null ? new InterestCoverageRatio(interestCoverageRatio) : null;
+    }
+
+    /**
+     * Returns Value Object with domain logic for Z-Score interpretation.
+     */
+    public AltmanZScore getAltmanZScoreVO() {
+        return altmanZScore != null ? new AltmanZScore(altmanZScore) : null;
+    }
 }
