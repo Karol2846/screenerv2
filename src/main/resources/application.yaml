@@ -13,6 +13,9 @@ quarkus:
     schema-management:
       strategy: validate
     physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+    mapping:
+      format:
+        global: ignore
   flyway:
     migrate-at-start: true
 
