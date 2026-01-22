@@ -5,6 +5,11 @@ import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
 
+//TODO: oddziel logikę walidacji od logiki biznesowej - może tez jakiś interface dla wspólnego kodu?
+// trzeba zrobić dla wszystkich metod testy jednostkowe
+// a potem zastosować result pattern też dla klas z MonthlyReport
+// wtedy właściwie wszystko będzie gotowe i będzie mozna implementować alpha avntage API
+
 @Embeddable
 public record QuickRatio(BigDecimal value) implements FinancialMetric {
 
