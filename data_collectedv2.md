@@ -17,8 +17,8 @@ psCurrent                   - potrzebne aktualne + będzie liczona mediana z 4 l
 forwardPEG
 forwardPE
 targetPrice                 - trzeba przechowywać dane 1/m
-currentPrice                - do oblczenia upside
-analystRatings              - strongbuy, buy, hold, sell, strong sell, counts
+currentPrice                - yhFinance - do oblczenia upside
+analystRatings              - yhFinance - strongbuy, buy, hold, sell, strong sell, counts
 
 **obliczanie current PS**
     PS = marketCap / revenue (TTM)

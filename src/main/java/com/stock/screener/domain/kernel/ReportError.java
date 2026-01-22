@@ -9,9 +9,6 @@ public record ReportError(
         LocalDateTime occurredAt
 ) {
 
-    /**
-     * Factory method do tworzenia ReportError z CalculationResult.Failure.
-     */
     public static ReportError fromFailure(String metricName, CalculationResult.Failure<?> failure) {
         return new ReportError(
                 metricName,
@@ -19,13 +16,6 @@ public record ReportError(
                 failure.type(),
                 LocalDateTime.now()
         );
-    }
-
-    /**
-     * Uproszczona factory method.
-     */
-    public static ReportError of(String metric, String reason, CalculationErrorType type) {
-        return new ReportError(metric, reason, type, LocalDateTime.now());
     }
 }
 

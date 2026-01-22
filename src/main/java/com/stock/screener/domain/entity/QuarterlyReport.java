@@ -17,7 +17,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static com.stock.screener.domain.kernel.ReportError.fromFailure;
 
 @Entity
 @Table(name = "quarterly_report")
@@ -59,7 +63,7 @@ public class QuarterlyReport extends PanacheEntity {
     // --- Error Logging (JSONB) ---
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    public List<ReportError> calculationErrors = new ArrayList<>();
+    public Set<ReportError> calculationErrors = new HashSet<>();
 
     @CreationTimestamp
     public LocalDateTime createdAt;
@@ -67,35 +71,6 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    //TODO: idziemy w dobrą stronę z tym podejściem, ale jeszcze sporo pracy
-    // - trzeba je zastosować la reszty metryk i encji - poczytaj to: https://gemini.google.com/app/68ea4aa143b25bd4?hl=pl
-    // - trzeba wprowadzić dodatkowe wartości do integroty Status
-    // Po implementacji pamiętaj o porządnych testach jednostkowych!
-
-    // --- Business Methods with Result Pattern ---
-    public void updateQuickRatio(BigDecimal totalCurrentAssets,
-                                 BigDecimal inventory,
-                                 BigDecimal totalCurrentLiabilities) {
-        CalculationResult<QuickRatio> result = QuickRatio.compute(
-                totalCurrentAssets,
-                inventory,
-                totalCurrentLiabilities
-        );
-
-        result
-                .onSuccess(qr -> this.quickRatio = qr)
-                .onFailure(failure -> {
-                    this.quickRatio = null;
-                    this.calculationErrors.add(ReportError.fromFailure("QuickRatio", failure));
-                });
-
-        updateIntegrityStatus();
-    }
-
-    /**
-     * Aktualizuje wszystkie metryki na podstawie danych wejściowych.
-     * Błędy są logowane, nie rzucane.
-     */
     public void updateMetrics(BigDecimal totalCurrentAssets,
                               BigDecimal inventory,
                               BigDecimal totalCurrentLiabilities,
@@ -107,20 +82,65 @@ public class QuarterlyReport extends PanacheEntity {
         this.calculationErrors.clear();
 
         updateQuickRatio(totalCurrentAssets, inventory, totalCurrentLiabilities);
+        updateInterestCoverageRatio(ebit, interestExpense);
+        updateAltmanZScore(totalCurrentAssets, totalCurrentLiabilities, retainedEarnings,
+                ebit, totalShareholderEquity, totalLiabilities);
 
-        // Interest Coverage Ratio (zachowane dla kompatybilności - TODO: migracja do Result Pattern)
-        this.interestCoverageRatio = InterestCoverageRatio.calculate(ebit, interestExpense);
+        updateIntegrityStatus();
+    }
 
-        // Altman Z-Score (zachowane dla kompatybilności - TODO: migracja do Result Pattern)
-        this.altmanZScore = AltmanZScore.calculate(
+    void updateQuickRatio(BigDecimal totalCurrentAssets,
+                                 BigDecimal inventory,
+                                 BigDecimal totalCurrentLiabilities) {
+        CalculationResult<QuickRatio> result = QuickRatio.compute(
+                totalCurrentAssets,
+                inventory,
+                totalCurrentLiabilities);
+
+        result.onSuccess(qr -> this.quickRatio = qr)
+                .onFailure(failure -> {
+                    this.quickRatio = null;
+                    this.calculationErrors.add(fromFailure(QuickRatio.METRIC_NAME, failure));
+                });
+        updateIntegrityStatus();
+    }
+
+    void updateInterestCoverageRatio(BigDecimal ebit, BigDecimal interestExpense) {
+        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(
+                ebit,
+                interestExpense
+        );
+
+        result.onSuccess(icr -> this.interestCoverageRatio = icr)
+                .onFailure(failure -> {
+                    this.interestCoverageRatio = null;
+                    this.calculationErrors.add(fromFailure(InterestCoverageRatio.METRIC_NAME, failure));
+                });
+
+        updateIntegrityStatus();
+    }
+
+    void updateAltmanZScore(BigDecimal totalCurrentAssets,
+                                    BigDecimal totalCurrentLiabilities,
+                                    BigDecimal retainedEarnings,
+                                    BigDecimal ebit,
+                                    BigDecimal totalShareholderEquity,
+                                    BigDecimal totalLiabilities) {
+        CalculationResult<AltmanZScore> result = AltmanZScore.compute(
                 totalCurrentAssets,
                 totalCurrentLiabilities,
                 this.totalAssets,
                 retainedEarnings,
                 ebit,
                 totalShareholderEquity,
-                totalLiabilities
-        );
+                totalLiabilities);
+
+        result
+                .onSuccess(az -> this.altmanZScore = az)
+                .onFailure(failure -> {
+                    this.altmanZScore = null;
+                    this.calculationErrors.add(fromFailure(AltmanZScore.METRIC_NAME, failure));
+                });
 
         updateIntegrityStatus();
     }
@@ -133,7 +153,7 @@ public class QuarterlyReport extends PanacheEntity {
             if (isComplete()) {
                 this.integrityStatus = ReportIntegrityStatus.COMPLETE;
             } else {
-                this.integrityStatus = ReportIntegrityStatus.YH_PARTIAL;
+                this.integrityStatus = ReportIntegrityStatus.AV_FETCHED;
             }
         } else {
             this.integrityStatus = ReportIntegrityStatus.STALE_MISSING_DATA;
@@ -162,41 +182,5 @@ public class QuarterlyReport extends PanacheEntity {
     public void addError(ReportError error) {
         this.calculationErrors.add(error);
         updateIntegrityStatus();
-    }
-
-    // --- Legacy methods (deprecated) ---
-
-    /**
-     * @deprecated Użyj {@link #updateQuickRatio} z Result Pattern.
-     */
-    @Deprecated(forRemoval = true)
-    @SuppressWarnings("removal")
-    public QuickRatio calculateQuickRatio(BigDecimal totalCurrentAssets,
-                                          BigDecimal inventory,
-                                          BigDecimal totalCurrentLiabilities) {
-        this.quickRatio = QuickRatio.calculate(totalCurrentAssets, inventory, totalCurrentLiabilities);
-        return quickRatio;
-    }
-
-    public InterestCoverageRatio calculateInterestCoverageRatio(BigDecimal ebit, BigDecimal interestExpense) {
-        this.interestCoverageRatio = InterestCoverageRatio.calculate(ebit, interestExpense);
-        return this.interestCoverageRatio;
-    }
-
-    public AltmanZScore calculateAltmanZScore(BigDecimal totalCurrentAssets,
-                                              BigDecimal totalCurrentLiabilities,
-                                              BigDecimal retainedEarnings,
-                                              BigDecimal ebit,
-                                              BigDecimal totalShareholderEquity,
-                                              BigDecimal totalLiabilities) {
-        this.altmanZScore = AltmanZScore.calculate(
-                totalCurrentAssets,
-                totalCurrentLiabilities,
-                this.totalAssets,
-                retainedEarnings,
-                ebit,
-                totalShareholderEquity,
-                totalLiabilities);
-        return this.altmanZScore;
     }
 }

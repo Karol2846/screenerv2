@@ -1,5 +1,6 @@
 package com.stock.screener.domain.valueobject;
 
+import com.stock.screener.domain.kernel.CalculationResult;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
@@ -9,25 +10,51 @@ import static com.stock.screener.domain.valueobject.FinancialMetric.*;
 @Embeddable
 public record AltmanZScore(BigDecimal value) implements FinancialMetric {
 
+    public static final String METRIC_NAME = "AltmanZScore";
+
     private static final BigDecimal COEF_T1 = new BigDecimal("6.56");
     private static final BigDecimal COEF_T2 = new BigDecimal("3.26");
     private static final BigDecimal COEF_T3 = new BigDecimal("6.72");
     private static final BigDecimal COEF_T4 = new BigDecimal("1.05");
 
-    public static AltmanZScore calculate(BigDecimal totalCurrentAssets,
-                                         BigDecimal totalCurrentLiabilities,
-                                         BigDecimal totalAssets,
-                                         BigDecimal retainedEarnings,
-                                         BigDecimal ebit,
-                                         BigDecimal totalShareholderEquity,
-                                         BigDecimal totalLiabilities) {
-        if (isZeroOrNull(totalAssets) || isZeroOrNull(totalLiabilities)) {
-            return null;
+    public static CalculationResult<AltmanZScore> compute(BigDecimal totalCurrentAssets,
+                                                           BigDecimal totalCurrentLiabilities,
+                                                           BigDecimal totalAssets,
+                                                           BigDecimal retainedEarnings,
+                                                           BigDecimal ebit,
+                                                           BigDecimal totalShareholderEquity,
+                                                           BigDecimal totalLiabilities) {
+        // Walidacja wymaganych pól
+        if (totalCurrentAssets == null) {
+            return CalculationResult.missingData("totalCurrentAssets");
         }
-        if (totalCurrentAssets == null || totalCurrentLiabilities == null ||
-            retainedEarnings == null || ebit == null || totalShareholderEquity == null) {
-            return null;
+        if (totalCurrentLiabilities == null) {
+            return CalculationResult.missingData("totalCurrentLiabilities");
         }
+        if (totalAssets == null) {
+            return CalculationResult.missingData("totalAssets");
+        }
+        if (retainedEarnings == null) {
+            return CalculationResult.missingData("retainedEarnings");
+        }
+        if (ebit == null) {
+            return CalculationResult.missingData("ebit");
+        }
+        if (totalShareholderEquity == null) {
+            return CalculationResult.missingData("totalShareholderEquity");
+        }
+        if (totalLiabilities == null) {
+            return CalculationResult.missingData("totalLiabilities");
+        }
+
+        // Walidacja mianowników
+        if (totalAssets.compareTo(BigDecimal.ZERO) == 0) {
+            return CalculationResult.divisionByZero("totalAssets");
+        }
+        if (totalLiabilities.compareTo(BigDecimal.ZERO) == 0) {
+            return CalculationResult.divisionByZero("totalLiabilities");
+        }
+
         BigDecimal workingCapital = totalCurrentAssets.subtract(totalCurrentLiabilities);
 
         // T1 = Working Capital / Total Assets
@@ -42,17 +69,13 @@ public record AltmanZScore(BigDecimal value) implements FinancialMetric {
         // T4 = Total Shareholder Equity / Total Liabilities
         BigDecimal t4 = divide(totalShareholderEquity, totalLiabilities);
 
-        if (t1 == null || t2 == null || t3 == null || t4 == null) {
-            return null;
-        }
-
         BigDecimal score = COEF_T1.multiply(t1)
                 .add(COEF_T2.multiply(t2))
                 .add(COEF_T3.multiply(t3))
                 .add(COEF_T4.multiply(t4))
                 .setScale(SCALE, ROUNDING);
 
-        return new AltmanZScore(score);
+        return CalculationResult.success(new AltmanZScore(score));
     }
 }
 
