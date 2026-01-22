@@ -3,13 +3,11 @@ package com.stock.screener.domain.valueobject;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+
+import static com.stock.screener.domain.valueobject.FinancialMetric.*;
 
 @Embeddable
-public record AltmanZScore(BigDecimal value) {
-
-    private static final int SCALE = 4;
-    private static final RoundingMode ROUNDING = RoundingMode.HALF_UP;
+public record AltmanZScore(BigDecimal value) implements FinancialMetric {
 
     private static final BigDecimal COEF_T1 = new BigDecimal("6.56");
     private static final BigDecimal COEF_T2 = new BigDecimal("3.26");
@@ -30,19 +28,23 @@ public record AltmanZScore(BigDecimal value) {
             retainedEarnings == null || ebit == null || totalShareholderEquity == null) {
             return null;
         }
+        BigDecimal workingCapital = totalCurrentAssets.subtract(totalCurrentLiabilities);
 
         // T1 = Working Capital / Total Assets
-        BigDecimal workingCapital = totalCurrentAssets.subtract(totalCurrentLiabilities);
-        BigDecimal t1 = workingCapital.divide(totalAssets, SCALE, ROUNDING);
+        BigDecimal t1 = divide(workingCapital, totalAssets);
 
         // T2 = Retained Earnings / Total Assets
-        BigDecimal t2 = retainedEarnings.divide(totalAssets, SCALE, ROUNDING);
+        BigDecimal t2 = divide(retainedEarnings, totalAssets);
 
         // T3 = EBIT / Total Assets
-        BigDecimal t3 = ebit.divide(totalAssets, SCALE, ROUNDING);
+        BigDecimal t3 = divide(ebit, totalAssets);
 
         // T4 = Total Shareholder Equity / Total Liabilities
-        BigDecimal t4 = totalShareholderEquity.divide(totalLiabilities, SCALE, ROUNDING);
+        BigDecimal t4 = divide(totalShareholderEquity, totalLiabilities);
+
+        if (t1 == null || t2 == null || t3 == null || t4 == null) {
+            return null;
+        }
 
         BigDecimal score = COEF_T1.multiply(t1)
                 .add(COEF_T2.multiply(t2))
@@ -51,10 +53,6 @@ public record AltmanZScore(BigDecimal value) {
                 .setScale(SCALE, ROUNDING);
 
         return new AltmanZScore(score);
-    }
-
-    private static boolean isZeroOrNull(BigDecimal val) {
-        return val == null || val.compareTo(BigDecimal.ZERO) == 0;
     }
 }
 
