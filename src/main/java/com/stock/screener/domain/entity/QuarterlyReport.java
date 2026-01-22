@@ -25,7 +25,6 @@ public class QuarterlyReport extends PanacheEntity {
     public LocalDate fiscalDateEnding;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     public ReportIntegrityStatus integrityStatus;
 
     // --- P&L ---
@@ -39,10 +38,18 @@ public class QuarterlyReport extends PanacheEntity {
     // --- Cash Flow ---
     public BigDecimal operatingCashFlow;
 
-    // --- Calculated Ratios (stored as BigDecimal for DB) ---
-    public BigDecimal quickRatio;
-    public BigDecimal interestCoverageRatio;
-    public BigDecimal altmanZScore;
+    // --- Calculated Ratios (Value Objects as @Embeddable records) ---
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "quick_ratio"))
+    public QuickRatio quickRatio;
+
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "interest_coverage_ratio"))
+    public InterestCoverageRatio interestCoverageRatio;
+
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "altman_z_score"))
+    public AltmanZScore altmanZScore;
 
     @CreationTimestamp
     public LocalDateTime createdAt;
@@ -50,20 +57,16 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    //FIXME: to be honest I think if I already have value objects - entities should use them instead of BigDecimal directly
-
     public QuickRatio calculateQuickRatio(BigDecimal totalCurrentAssets,
                                           BigDecimal inventory,
                                           BigDecimal totalCurrentLiabilities) {
-        QuickRatio ratio = QuickRatio.calculate(totalCurrentAssets, inventory, totalCurrentLiabilities);
-        this.quickRatio = ratio != null ? ratio.value() : null;
-        return ratio;
+        this.quickRatio = QuickRatio.calculate(totalCurrentAssets, inventory, totalCurrentLiabilities);
+        return quickRatio;
     }
 
     public InterestCoverageRatio calculateInterestCoverageRatio(BigDecimal ebit, BigDecimal interestExpense) {
-        InterestCoverageRatio ratio = InterestCoverageRatio.calculate(ebit, interestExpense);
-        this.interestCoverageRatio = ratio != null ? ratio.value() : null;
-        return ratio;
+        this.interestCoverageRatio = InterestCoverageRatio.calculate(ebit, interestExpense);
+        return this.interestCoverageRatio;
     }
 
     public AltmanZScore calculateAltmanZScore(BigDecimal totalCurrentAssets,
@@ -72,7 +75,7 @@ public class QuarterlyReport extends PanacheEntity {
                                               BigDecimal ebit,
                                               BigDecimal totalShareholderEquity,
                                               BigDecimal totalLiabilities) {
-        AltmanZScore score = AltmanZScore.calculate(
+        this.altmanZScore = AltmanZScore.calculate(
                 totalCurrentAssets,
                 totalCurrentLiabilities,
                 this.totalAssets,
@@ -80,7 +83,6 @@ public class QuarterlyReport extends PanacheEntity {
                 ebit,
                 totalShareholderEquity,
                 totalLiabilities);
-        this.altmanZScore = score != null ? score.value() : null;
-        return score;
+        return this.altmanZScore;
     }
 }

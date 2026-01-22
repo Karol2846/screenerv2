@@ -22,9 +22,16 @@ public class MonthlyReport extends PanacheEntity {
     public BigDecimal forwardRevenueGrowth;
     public BigDecimal forwardEpsGrowth;
     public BigDecimal targetPrice;
-    public BigDecimal psRatio;
+
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "ps_ratio"))
+    public PsRatio psRatio;
+
     public BigDecimal forwardPeRatio;
-    public BigDecimal forwardPegRatio;
+
+    @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "forward_peg_ratio"))
+    public ForwardPeg forwardPegRatio;
 
     @Embedded
     public AnalystRatings analystRatings;
@@ -33,15 +40,13 @@ public class MonthlyReport extends PanacheEntity {
     public LocalDate forecastDate;
 
     public PsRatio calculatePsRatio(BigDecimal marketCap, BigDecimal revenueTTM) {
-        PsRatio ratio = PsRatio.calculate(marketCap, revenueTTM);
-        this.psRatio = ratio != null ? ratio.value() : null;
-        return ratio;
+        this.psRatio = PsRatio.calculate(marketCap, revenueTTM);
+        return this.psRatio;
     }
 
     public ForwardPeg calculateForwardPeg() {
-        ForwardPeg peg = ForwardPeg.calculate(forwardPeRatio, forwardEpsGrowth);
-        this.forwardPegRatio = peg != null ? peg.value() : null;
-        return peg;
+        this.forwardPegRatio = ForwardPeg.calculate(forwardPeRatio, forwardEpsGrowth);
+        return this.forwardPegRatio;
     }
 
     public UpsidePotential calculateUpsidePotential(BigDecimal currentPrice) {

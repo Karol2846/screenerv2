@@ -1,8 +1,11 @@
 package com.stock.screener.domain.valueobject;
 
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+@Embeddable
 public record PsRatio(BigDecimal value) {
 
     private static final int SCALE = 4;

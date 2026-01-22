@@ -1,5 +1,7 @@
 package com.stock.screener.domain.valueobject;
 
+import jakarta.persistence.Embeddable;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -7,6 +9,7 @@ import java.math.RoundingMode;
  * Quick Ratio = (totalCurrentAssets - inventory) / totalCurrentLiabilities
  * Measures short-term liquidity without relying on inventory.
  */
+@Embeddable
 public record QuickRatio(BigDecimal value) {
 
     private static final int SCALE = 4;
