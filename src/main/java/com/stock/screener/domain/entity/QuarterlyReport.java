@@ -3,6 +3,7 @@ package com.stock.screener.domain.entity;
 import com.stock.screener.domain.kernel.CalculationResult;
 import com.stock.screener.domain.kernel.ReportError;
 import com.stock.screener.domain.valueobject.AltmanZScore;
+import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
 import com.stock.screener.domain.valueobject.InterestCoverageRatio;
 import com.stock.screener.domain.valueobject.QuickRatio;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
@@ -16,11 +17,10 @@ import org.hibernate.type.SqlTypes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import static com.stock.screener.domain.kernel.MetricType.*;
 import static com.stock.screener.domain.kernel.ReportError.fromFailure;
 
 @Entity
@@ -71,75 +71,63 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    public void updateMetrics(BigDecimal totalCurrentAssets,
-                              BigDecimal inventory,
-                              BigDecimal totalCurrentLiabilities,
-                              BigDecimal ebit,
-                              BigDecimal interestExpense,
-                              BigDecimal retainedEarnings,
-                              BigDecimal totalShareholderEquity,
-                              BigDecimal totalLiabilities) {
+    public void updateMetrics(FinancialDataSnapshot snapshot) {
         this.calculationErrors.clear();
 
-        updateQuickRatio(totalCurrentAssets, inventory, totalCurrentLiabilities);
-        updateInterestCoverageRatio(ebit, interestExpense);
-        updateAltmanZScore(totalCurrentAssets, totalCurrentLiabilities, retainedEarnings,
-                ebit, totalShareholderEquity, totalLiabilities);
+        FinancialDataSnapshot enrichedSnapshot = enrichWithEntityData(snapshot);
+
+        updateQuickRatio(enrichedSnapshot);
+        updateInterestCoverageRatio(enrichedSnapshot);
+        updateAltmanZScore(enrichedSnapshot);
 
         updateIntegrityStatus();
     }
 
-    void updateQuickRatio(BigDecimal totalCurrentAssets,
-                                 BigDecimal inventory,
-                                 BigDecimal totalCurrentLiabilities) {
-        CalculationResult<QuickRatio> result = QuickRatio.compute(
-                totalCurrentAssets,
-                inventory,
-                totalCurrentLiabilities);
+    private FinancialDataSnapshot enrichWithEntityData(FinancialDataSnapshot snapshot) {
+        return FinancialDataSnapshot.builder()
+                .totalCurrentAssets(snapshot.totalCurrentAssets())
+                .totalCurrentLiabilities(snapshot.totalCurrentLiabilities())
+                .totalAssets(snapshot.totalAssets() != null ? snapshot.totalAssets() : this.totalAssets)
+                .totalLiabilities(snapshot.totalLiabilities())
+                .retainedEarnings(snapshot.retainedEarnings())
+                .ebit(snapshot.ebit())
+                .interestExpense(snapshot.interestExpense())
+                .totalShareholderEquity(snapshot.totalShareholderEquity())
+                .inventory(snapshot.inventory())
+                .build();
+    }
+
+    void updateQuickRatio(FinancialDataSnapshot snapshot) {
+        CalculationResult<QuickRatio> result = QuickRatio.compute(snapshot);
 
         result.onSuccess(qr -> this.quickRatio = qr)
                 .onFailure(failure -> {
                     this.quickRatio = null;
-                    this.calculationErrors.add(fromFailure(QuickRatio.METRIC_NAME, failure));
+                    this.calculationErrors.add(fromFailure(QUICK_RATIO, failure));
                 });
         updateIntegrityStatus();
     }
 
-    void updateInterestCoverageRatio(BigDecimal ebit, BigDecimal interestExpense) {
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(
-                ebit,
-                interestExpense
-        );
+    void updateInterestCoverageRatio(FinancialDataSnapshot snapshot) {
+        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
         result.onSuccess(icr -> this.interestCoverageRatio = icr)
                 .onFailure(failure -> {
                     this.interestCoverageRatio = null;
-                    this.calculationErrors.add(fromFailure(InterestCoverageRatio.METRIC_NAME, failure));
+                    this.calculationErrors.add(fromFailure(INTEREST_COVERAGE_RATIO, failure));
                 });
 
         updateIntegrityStatus();
     }
 
-    void updateAltmanZScore(BigDecimal totalCurrentAssets,
-                                    BigDecimal totalCurrentLiabilities,
-                                    BigDecimal retainedEarnings,
-                                    BigDecimal ebit,
-                                    BigDecimal totalShareholderEquity,
-                                    BigDecimal totalLiabilities) {
-        CalculationResult<AltmanZScore> result = AltmanZScore.compute(
-                totalCurrentAssets,
-                totalCurrentLiabilities,
-                this.totalAssets,
-                retainedEarnings,
-                ebit,
-                totalShareholderEquity,
-                totalLiabilities);
+    void updateAltmanZScore(FinancialDataSnapshot snapshot) {
+        CalculationResult<AltmanZScore> result = AltmanZScore.compute(snapshot);
 
         result
                 .onSuccess(az -> this.altmanZScore = az)
                 .onFailure(failure -> {
                     this.altmanZScore = null;
-                    this.calculationErrors.add(fromFailure(AltmanZScore.METRIC_NAME, failure));
+                    this.calculationErrors.add(fromFailure(ALTMAN_Z_SCORE, failure));
                 });
 
         updateIntegrityStatus();
@@ -167,20 +155,5 @@ public class QuarterlyReport extends PanacheEntity {
         return quickRatio != null
                 && interestCoverageRatio != null
                 && altmanZScore != null;
-    }
-
-    /**
-     * Czy raport zawiera błędy kalkulacji?
-     */
-    public boolean hasErrors() {
-        return !calculationErrors.isEmpty();
-    }
-
-    /**
-     * Dodaje pojedynczy błąd do listy.
-     */
-    public void addError(ReportError error) {
-        this.calculationErrors.add(error);
-        updateIntegrityStatus();
     }
 }
