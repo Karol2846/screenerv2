@@ -1,21 +1,34 @@
 package com.stock.screener.domain.entity;
 
+import com.stock.screener.domain.kernel.CalculationResult;
+import com.stock.screener.domain.kernel.ReportError;
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.ForwardPeg;
 import com.stock.screener.domain.valueobject.PsRatio;
+import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
 import com.stock.screener.domain.valueobject.UpsidePotential;
+import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.stock.screener.domain.kernel.MetricType.*;
+import static com.stock.screener.domain.kernel.ReportError.fromFailure;
 
 @Entity
 @Table(name = "monthly_report")
 public class MonthlyReport extends PanacheEntity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "stock_ticker", nullable = false)
     public Stock stock;
 
@@ -34,22 +47,71 @@ public class MonthlyReport extends PanacheEntity {
     public ForwardPeg forwardPegRatio;
 
     @Embedded
+    @AttributeOverride(name = "value", column = @Column(name = "upside_potential"))
+    public UpsidePotential upsidePotential;
+
+    @Embedded
     public AnalystRatings analystRatings;
+
+    @Enumerated(EnumType.STRING)
+    public ReportIntegrityStatus integrityStatus;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    public Set<ReportError> calculationErrors = new HashSet<>();
 
     @CreationTimestamp
     public LocalDate forecastDate;
 
-    public PsRatio calculatePsRatio(BigDecimal marketCap, BigDecimal revenueTTM) {
-        this.psRatio = PsRatio.calculate(marketCap, revenueTTM);
-        return this.psRatio;
+    @UpdateTimestamp
+    public LocalDateTime updatedAt;
+
+    //TODO: przejżyj te klasy czy nie da się czegoś poprawić
+    public void updateMetrics(MarketDataSnapshot snapshot) {
+        this.calculationErrors.clear();
+
+        updatePsRatio(snapshot);
+        updateForwardPeg(snapshot);
+        updateUpsidePotential(snapshot);
+
+        updateIntegrityStatus();
     }
 
-    public ForwardPeg calculateForwardPeg() {
-        this.forwardPegRatio = ForwardPeg.calculate(forwardPeRatio, forwardEpsGrowth);
-        return this.forwardPegRatio;
+    void updatePsRatio(MarketDataSnapshot snapshot) {
+        CalculationResult<PsRatio> result = PsRatio.compute(snapshot);
+
+        result.onSuccess(ps -> this.psRatio = ps)
+                .onFailure(failure -> {
+                    this.psRatio = null;
+                    this.calculationErrors.add(fromFailure(PS_RATIO, failure));
+                });
     }
 
-    public UpsidePotential calculateUpsidePotential(BigDecimal currentPrice) {
-        return UpsidePotential.calculate(targetPrice, currentPrice);
+    void updateForwardPeg(MarketDataSnapshot snapshot) {
+        CalculationResult<ForwardPeg> result = ForwardPeg.compute(snapshot);
+
+        result.onSuccess(peg -> this.forwardPegRatio = peg)
+                .onFailure(failure -> {
+                    this.forwardPegRatio = null;
+                    this.calculationErrors.add(fromFailure(FORWARD_PEG, failure));
+                });
+    }
+
+    void updateUpsidePotential(MarketDataSnapshot snapshot) {
+        CalculationResult<UpsidePotential> result = UpsidePotential.compute(snapshot);
+
+        result.onSuccess(up -> this.upsidePotential = up)
+                .onFailure(failure -> {
+                    this.upsidePotential = null;
+                    this.calculationErrors.add(fromFailure(UPSIDE_POTENTIAL, failure));
+                });
+    }
+
+    private void updateIntegrityStatus() {
+        if (calculationErrors.isEmpty()) {
+            this.integrityStatus = ReportIntegrityStatus.COMPLETE;
+        } else {
+            this.integrityStatus = ReportIntegrityStatus.STALE_MISSING_DATA;
+        }
     }
 }
