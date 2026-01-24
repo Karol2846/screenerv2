@@ -3,15 +3,15 @@ package com.stock.screener.domain.kernel;
 import java.time.LocalDateTime;
 
 public record ReportError(
-        String metric,
+        MetricType metric,
         String reason,
         CalculationErrorType errorType,
         LocalDateTime occurredAt
 ) {
 
-    public static ReportError fromFailure(String metricName, CalculationResult.Failure<?> failure) {
+    public static ReportError fromFailure(MetricType metric, CalculationResult.Failure<?> failure) {
         return new ReportError(
-                metricName,
+                metric,
                 failure.reason(),
                 failure.type(),
                 LocalDateTime.now()
