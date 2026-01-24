@@ -141,10 +141,10 @@ public class QuarterlyReport extends PanacheEntity {
             if (isComplete()) {
                 this.integrityStatus = ReportIntegrityStatus.COMPLETE;
             } else {
-                this.integrityStatus = ReportIntegrityStatus.AV_FETCHED;
+                this.integrityStatus = ReportIntegrityStatus.AV_FETCHED_COMPLETED;
             }
         } else {
-            this.integrityStatus = ReportIntegrityStatus.STALE_MISSING_DATA;
+            this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
         }
     }
 

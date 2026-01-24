@@ -7,6 +7,8 @@ import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.FinancialMetric.divide;
+
 @Embeddable
 public record PsRatio(BigDecimal value) implements FinancialMetric {
 
@@ -18,20 +20,8 @@ public record PsRatio(BigDecimal value) implements FinancialMetric {
     }
 
     private static PsRatio calculateRatio(MarketDataSnapshot snapshot) {
-        BigDecimal result = FinancialMetric.divide(snapshot.marketCap(), snapshot.revenueTTM());
+        BigDecimal result = divide(snapshot.marketCap(), snapshot.revenueTTM());
         return new PsRatio(result);
-    }
-
-    /**
-     * @deprecated Use {@link #compute(MarketDataSnapshot)} instead
-     */
-    @Deprecated(forRemoval = true)
-    public static PsRatio calculate(BigDecimal marketCap, BigDecimal revenueTTM) {
-        if (FinancialMetric.isZeroOrNull(marketCap)) {
-            return null;
-        }
-        BigDecimal result = FinancialMetric.divide(marketCap, revenueTTM);
-        return result != null ? new PsRatio(result) : null;
     }
 }
 

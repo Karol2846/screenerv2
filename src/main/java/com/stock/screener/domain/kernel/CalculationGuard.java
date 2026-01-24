@@ -19,13 +19,6 @@ public final class CalculationGuard<T> {
         return new CalculationGuard<>(snapshot);
     }
 
-    /**
-     * Requires that the field extracted by getter is not null.
-     *
-     * @param fieldName Human-readable field name for error messages
-     * @param getter    Function to extract the field value
-     * @return this for chaining
-     */
     public CalculationGuard<T> require(String fieldName, Function<T, BigDecimal> getter) {
         BigDecimal value = getter.apply(snapshot);
         if (value == null) {
@@ -34,53 +27,12 @@ public final class CalculationGuard<T> {
         return this;
     }
 
-    /**
-     * Requires that the field value is not null and not zero (for denominators).
-     *
-     * @param fieldName Human-readable field name for error messages
-     * @param getter    Function to extract the field value
-     * @return this for chaining
-     */
     public CalculationGuard<T> ensureNonZero(String fieldName, Function<T, BigDecimal> getter) {
         BigDecimal value = getter.apply(snapshot);
         if (value == null) {
             errors.add(new ValidationError(fieldName, CalculationErrorType.MISSING_DATA));
         } else if (value.compareTo(BigDecimal.ZERO) == 0) {
             errors.add(new ValidationError(fieldName, CalculationErrorType.DIVISION_BY_ZERO));
-        }
-        return this;
-    }
-
-    /**
-     * Requires that the field value is positive (> 0).
-     *
-     * @param fieldName Human-readable field name for error messages
-     * @param getter    Function to extract the field value
-     * @return this for chaining
-     */
-    public CalculationGuard<T> requirePositive(String fieldName, Function<T, BigDecimal> getter) {
-        BigDecimal value = getter.apply(snapshot);
-        if (value == null) {
-            errors.add(new ValidationError(fieldName, CalculationErrorType.MISSING_DATA));
-        } else if (value.compareTo(BigDecimal.ZERO) <= 0) {
-            errors.add(new ValidationError(fieldName, CalculationErrorType.NEGATIVE_VALUE));
-        }
-        return this;
-    }
-
-    /**
-     * Requires that the field value is non-negative (>= 0).
-     *
-     * @param fieldName Human-readable field name for error messages
-     * @param getter    Function to extract the field value
-     * @return this for chaining
-     */
-    public CalculationGuard<T> requireNonNegative(String fieldName, Function<T, BigDecimal> getter) {
-        BigDecimal value = getter.apply(snapshot);
-        if (value == null) {
-            errors.add(new ValidationError(fieldName, CalculationErrorType.MISSING_DATA));
-        } else if (value.compareTo(BigDecimal.ZERO) < 0) {
-            errors.add(new ValidationError(fieldName, CalculationErrorType.NEGATIVE_VALUE));
         }
         return this;
     }
@@ -100,27 +52,6 @@ public final class CalculationGuard<T> {
         return CalculationResult.success(calculation.apply(snapshot));
     }
 
-    /**
-     * Returns all validation errors (for logging/debugging).
-     *
-     * @return List of all collected errors
-     */
-    public List<ValidationError> getErrors() {
-        return List.copyOf(errors);
-    }
-
-    /**
-     * Checks if validation passed without errors.
-     *
-     * @return true if no errors
-     */
-    public boolean isValid() {
-        return errors.isEmpty();
-    }
-
-    /**
-     * Internal record for tracking validation errors.
-     */
     public record ValidationError(String fieldName, CalculationErrorType type) {
     }
 }

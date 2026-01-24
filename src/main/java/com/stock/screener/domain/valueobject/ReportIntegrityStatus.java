@@ -1,8 +1,8 @@
 package com.stock.screener.domain.valueobject;
 
 public enum ReportIntegrityStatus {
-    YH_FETCHED,
-    AV_FETCHED,
+    AV_FETCHED_COMPLETED,
+    YH_FETCHED_COMPLETED,
     COMPLETE,
-    STALE_MISSING_DATA,
+    MISSING_DATA
 }

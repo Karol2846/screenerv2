@@ -69,7 +69,8 @@ public class MonthlyReport extends PanacheEntity {
     //TODO: przejżyj te klasy czy nie da się czegoś poprawić
     public void updateMetrics(MarketDataSnapshot snapshot) {
         this.calculationErrors.clear();
-
+        //TODO: snapshoot musi być zaktualizowany przed wywołaniem tej metody - nie powinien forwardEpsGrowth
+        // pola revenue, eps i anlaystRating będą brane z yhFinance <- to musi być pierwsze
         updatePsRatio(snapshot);
         updateForwardPeg(snapshot);
         updateUpsidePotential(snapshot);
@@ -108,10 +109,30 @@ public class MonthlyReport extends PanacheEntity {
     }
 
     private void updateIntegrityStatus() {
-        if (calculationErrors.isEmpty()) {
-            this.integrityStatus = ReportIntegrityStatus.COMPLETE;
+        if (!calculationErrors.isEmpty()) {
+            if (isAVFetchingCompleted() && isYHFinanceFetchingCompleted()) {
+                this.integrityStatus = ReportIntegrityStatus.COMPLETE;
+            } else if(isAVFetchingCompleted()) {
+                this.integrityStatus = ReportIntegrityStatus.AV_FETCHED_COMPLETED;
+            } else if (isYHFinanceFetchingCompleted()){
+                this.integrityStatus = ReportIntegrityStatus.YH_FETCHED_COMPLETED;
+            } else {
+                this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
+            }
         } else {
-            this.integrityStatus = ReportIntegrityStatus.STALE_MISSING_DATA;
+            this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
         }
+    }
+
+    private boolean isYHFinanceFetchingCompleted() {
+        return analystRatings != null &&
+                forwardRevenueGrowth != null &&
+                forwardEpsGrowth != null;
+    }
+
+    private boolean isAVFetchingCompleted() {
+        return psRatio != null
+                && forwardPegRatio != null
+                && upsidePotential != null;
     }
 }

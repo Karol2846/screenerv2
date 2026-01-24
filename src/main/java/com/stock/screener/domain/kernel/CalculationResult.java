@@ -8,26 +8,6 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
     record Success<T>(T value) implements CalculationResult<T> {
 
         @Override
-        public boolean isSuccess() {
-            return true;
-        }
-
-        @Override
-        public boolean isFailure() {
-            return false;
-        }
-
-        @Override
-        public T getOrNull() {
-            return value;
-        }
-
-        @Override
-        public <U> CalculationResult<U> map(Function<T, U> mapper) {
-            return new Success<>(mapper.apply(value));
-        }
-
-        @Override
         public CalculationResult<T> onSuccess(Consumer<T> action) {
             action.accept(value);
             return this;
@@ -40,26 +20,6 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
     }
 
     record Failure<T>(String reason, CalculationErrorType type) implements CalculationResult<T> {
-
-        @Override
-        public boolean isSuccess() {
-            return false;
-        }
-
-        @Override
-        public boolean isFailure() {
-            return true;
-        }
-
-        @Override
-        public T getOrNull() {
-            return null;
-        }
-
-        @Override
-        public <U> CalculationResult<U> map(Function<T, U> mapper) {
-            return new Failure<>(reason, type);
-        }
 
         @Override
         public CalculationResult<T> onSuccess(Consumer<T> action) {
@@ -96,14 +56,6 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
                 CalculationErrorType.DIVISION_BY_ZERO
         );
     }
-
-    boolean isSuccess();
-
-    boolean isFailure();
-
-    T getOrNull();
-
-    <U> CalculationResult<U> map(Function<T, U> mapper);
 
     CalculationResult<T> onSuccess(Consumer<T> action);
 
