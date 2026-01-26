@@ -1,6 +1,5 @@
 package com.stock.screener.domain.entity;
 
-import com.stock.screener.domain.kernel.CalculationResult;
 import com.stock.screener.domain.kernel.ReportError;
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.ForwardPeg;
@@ -66,42 +65,50 @@ public class MonthlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    //TODO: przejżyj te klasy czy nie da się czegoś poprawić
     public void updateMetrics(MarketDataSnapshot snapshot) {
         this.calculationErrors.clear();
-        //TODO: snapshoot musi być zaktualizowany przed wywołaniem tej metody - nie powinien forwardEpsGrowth
-        // pola revenue, eps i anlaystRating będą brane z yhFinance <- to musi być pierwsze
-        updatePsRatio(snapshot);
-        updateForwardPeg(snapshot);
-        updateUpsidePotential(snapshot);
 
+        // Step 1: Update raw fields from snapshot (Source of Truth)
+        updateRawFields(snapshot);
+
+        // Step 2: Recalculate complex Value Objects
+        recalculatePsRatio(snapshot);
+        recalculateForwardPeg(snapshot);
+        recalculateUpsidePotential(snapshot);
+
+        // Step 3: Determine integrity status
         updateIntegrityStatus();
     }
 
-    void updatePsRatio(MarketDataSnapshot snapshot) {
-        CalculationResult<PsRatio> result = PsRatio.compute(snapshot);
+    void updateRawFields(MarketDataSnapshot snapshot) {
+        this.forwardPeRatio = snapshot.forwardPeRatio();
+        this.forwardEpsGrowth = snapshot.forwardEpsGrowth();
+        this.forwardRevenueGrowth = snapshot.forwardRevenueGrowth();
+        this.targetPrice = snapshot.targetPrice();
+        this.analystRatings = snapshot.analystRatings();
+    }
 
-        result.onSuccess(ps -> this.psRatio = ps)
+    void recalculatePsRatio(MarketDataSnapshot snapshot) {
+        PsRatio.compute(snapshot)
+                .onSuccess(ps -> this.psRatio = ps)
                 .onFailure(failure -> {
                     this.psRatio = null;
                     this.calculationErrors.add(fromFailure(PS_RATIO, failure));
                 });
     }
 
-    void updateForwardPeg(MarketDataSnapshot snapshot) {
-        CalculationResult<ForwardPeg> result = ForwardPeg.compute(snapshot);
-
-        result.onSuccess(peg -> this.forwardPegRatio = peg)
+    void recalculateForwardPeg(MarketDataSnapshot snapshot) {
+        ForwardPeg.compute(snapshot)
+                .onSuccess(peg -> this.forwardPegRatio = peg)
                 .onFailure(failure -> {
                     this.forwardPegRatio = null;
                     this.calculationErrors.add(fromFailure(FORWARD_PEG, failure));
                 });
     }
 
-    void updateUpsidePotential(MarketDataSnapshot snapshot) {
-        CalculationResult<UpsidePotential> result = UpsidePotential.compute(snapshot);
-
-        result.onSuccess(up -> this.upsidePotential = up)
+    void recalculateUpsidePotential(MarketDataSnapshot snapshot) {
+        UpsidePotential.compute(snapshot)
+                .onSuccess(up -> this.upsidePotential = up)
                 .onFailure(failure -> {
                     this.upsidePotential = null;
                     this.calculationErrors.add(fromFailure(UPSIDE_POTENTIAL, failure));
@@ -109,16 +116,15 @@ public class MonthlyReport extends PanacheEntity {
     }
 
     private void updateIntegrityStatus() {
-        if (!calculationErrors.isEmpty()) {
-            if (isAVFetchingCompleted() && isYHFinanceFetchingCompleted()) {
-                this.integrityStatus = ReportIntegrityStatus.COMPLETE;
-            } else if(isAVFetchingCompleted()) {
-                this.integrityStatus = ReportIntegrityStatus.AV_FETCHED_COMPLETED;
-            } else if (isYHFinanceFetchingCompleted()){
-                this.integrityStatus = ReportIntegrityStatus.YH_FETCHED_COMPLETED;
-            } else {
-                this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
-            }
+        boolean avComplete = isAVFetchingCompleted();
+        boolean yhComplete = isYHFinanceFetchingCompleted();
+
+        if (avComplete && yhComplete) {
+            this.integrityStatus = ReportIntegrityStatus.COMPLETE;
+        } else if (avComplete) {
+            this.integrityStatus = ReportIntegrityStatus.AV_FETCHED_COMPLETED;
+        } else if (yhComplete) {
+            this.integrityStatus = ReportIntegrityStatus.YH_FETCHED_COMPLETED;
         } else {
             this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
         }
