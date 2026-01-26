@@ -1,8 +1,8 @@
 package com.stock.screener.domain.entity;
 
-import com.stock.screener.domain.kernel.CalculationResult;
 import com.stock.screener.domain.kernel.ReportError;
 import com.stock.screener.domain.valueobject.AltmanZScore;
+import com.stock.screener.domain.valueobject.Sector;
 import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
 import com.stock.screener.domain.valueobject.InterestCoverageRatio;
 import com.stock.screener.domain.valueobject.QuickRatio;
@@ -22,6 +22,7 @@ import java.util.Set;
 
 import static com.stock.screener.domain.kernel.MetricType.*;
 import static com.stock.screener.domain.kernel.ReportError.fromFailure;
+import static com.stock.screener.domain.kernel.ReportError.fromSkipped;
 
 @Entity
 @Table(name = "quarterly_report")
@@ -71,14 +72,14 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    public void updateMetrics(FinancialDataSnapshot snapshot) {
+    public void updateMetrics(FinancialDataSnapshot snapshot, Sector sector) {
         this.calculationErrors.clear();
 
         FinancialDataSnapshot enrichedSnapshot = enrichWithEntityData(snapshot);
 
-        updateQuickRatio(enrichedSnapshot);
-        updateInterestCoverageRatio(enrichedSnapshot);
-        updateAltmanZScore(enrichedSnapshot);
+        recalculateQuickRatio(enrichedSnapshot);
+        recalculateInterestCoverageRatio(enrichedSnapshot);
+        recalculateAltmanZScore(enrichedSnapshot, sector);
 
         updateIntegrityStatus();
     }
@@ -94,48 +95,41 @@ public class QuarterlyReport extends PanacheEntity {
                 .interestExpense(snapshot.interestExpense())
                 .totalShareholderEquity(snapshot.totalShareholderEquity())
                 .inventory(snapshot.inventory())
+                .totalRevenue(this.totalRevenue) //FIXME: totalRevenue is onlyrevenue from given financialQuater. Change this to cumulative revenue (from 4 quarters)
                 .build();
     }
 
-    void updateQuickRatio(FinancialDataSnapshot snapshot) {
-        CalculationResult<QuickRatio> result = QuickRatio.compute(snapshot);
-
-        result.onSuccess(qr -> this.quickRatio = qr)
+    private void recalculateQuickRatio(FinancialDataSnapshot snapshot) {
+        QuickRatio.compute(snapshot)
+                .onSuccess(qr -> this.quickRatio = qr)
                 .onFailure(failure -> {
                     this.quickRatio = null;
                     this.calculationErrors.add(fromFailure(QUICK_RATIO, failure));
                 });
-        updateIntegrityStatus();
     }
 
-    void updateInterestCoverageRatio(FinancialDataSnapshot snapshot) {
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
-
-        result.onSuccess(icr -> this.interestCoverageRatio = icr)
+    private void recalculateInterestCoverageRatio(FinancialDataSnapshot snapshot) {
+        InterestCoverageRatio.compute(snapshot)
+                .onSuccess(icr -> this.interestCoverageRatio = icr)
                 .onFailure(failure -> {
                     this.interestCoverageRatio = null;
                     this.calculationErrors.add(fromFailure(INTEREST_COVERAGE_RATIO, failure));
                 });
-
-        updateIntegrityStatus();
     }
 
-    void updateAltmanZScore(FinancialDataSnapshot snapshot) {
-        CalculationResult<AltmanZScore> result = AltmanZScore.compute(snapshot);
-
-        result
+    private void recalculateAltmanZScore(FinancialDataSnapshot snapshot, Sector sector) {
+        AltmanZScore.compute(snapshot, sector)
                 .onSuccess(az -> this.altmanZScore = az)
                 .onFailure(failure -> {
                     this.altmanZScore = null;
                     this.calculationErrors.add(fromFailure(ALTMAN_Z_SCORE, failure));
+                })
+                .onSkipped(skipped -> {
+                    this.altmanZScore = null;
+                    this.calculationErrors.add(fromSkipped(ALTMAN_Z_SCORE, skipped));
                 });
-
-        updateIntegrityStatus();
     }
 
-    /**
-     * Aktualizuje status integralności na podstawie obecności błędów.
-     */
     private void updateIntegrityStatus() {
         if (calculationErrors.isEmpty()) {
             if (isComplete()) {
@@ -148,9 +142,6 @@ public class QuarterlyReport extends PanacheEntity {
         }
     }
 
-    /**
-     * Sprawdza czy raport ma kompletne dane do analizy.
-     */
     private boolean isComplete() {
         return quickRatio != null
                 && interestCoverageRatio != null

@@ -14,7 +14,8 @@ public record FinancialDataSnapshot(
         BigDecimal ebit,
         BigDecimal interestExpense,
         BigDecimal totalShareholderEquity,
-        BigDecimal inventory
+        BigDecimal inventory,
+        BigDecimal totalRevenue
 ) {
 }
 
