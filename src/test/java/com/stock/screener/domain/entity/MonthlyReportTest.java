@@ -2,7 +2,6 @@ package com.stock.screener.domain.entity;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.MetricType;
-import com.stock.screener.domain.kernel.ReportError;
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
 import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
@@ -128,10 +127,8 @@ class MonthlyReportTest {
         // Then: PsRatio should be computed correctly (1000000000 / 500000000 = 2.0)
         assertThat(monthlyReport.psRatio)
                 .isNotNull()
-                .satisfies(psRatio -> {
-                    assertThat(psRatio.value())
-                            .isCloseTo(new BigDecimal("2.0000"), within(new BigDecimal("0.0001")));
-                });
+                .satisfies(psRatio -> assertThat(psRatio.value())
+                        .isCloseTo(new BigDecimal("2.0000"), within(new BigDecimal("0.0001"))));
 
         // And: No calculation errors for PS_RATIO
         assertThat(monthlyReport.calculationErrors)
@@ -153,10 +150,8 @@ class MonthlyReportTest {
         // Then: ForwardPeg should be computed correctly (20.0 / 10.0 = 2.0)
         assertThat(monthlyReport.forwardPegRatio)
                 .isNotNull()
-                .satisfies(peg -> {
-                    assertThat(peg.value())
-                            .isCloseTo(new BigDecimal("2.0000"), within(new BigDecimal("0.0001")));
-                });
+                .satisfies(peg -> assertThat(peg.value())
+                        .isCloseTo(new BigDecimal("2.0000"), within(new BigDecimal("0.0001"))));
 
         // And: No calculation errors for FORWARD_PEG
         assertThat(monthlyReport.calculationErrors)
@@ -178,10 +173,8 @@ class MonthlyReportTest {
         // Then: Upside should be computed correctly ((125 - 100) / 100 * 100 = 25%)
         assertThat(monthlyReport.upsidePotential)
                 .isNotNull()
-                .satisfies(upside -> {
-                    assertThat(upside.value())
-                            .isCloseTo(new BigDecimal("25.0000"), within(new BigDecimal("0.0001")));
-                });
+                .satisfies(upside -> assertThat(upside.value())
+                        .isCloseTo(new BigDecimal("25.0000"), within(new BigDecimal("0.0001"))));
 
         // And: No calculation errors for UPSIDE_POTENTIAL
         assertThat(monthlyReport.calculationErrors)
@@ -565,9 +558,7 @@ class MonthlyReportTest {
         // Then: Upside should be negative ((150 - 200) / 200 * 100 = -25%)
         assertThat(monthlyReport.upsidePotential)
                 .isNotNull()
-                .satisfies(upside -> {
-                    assertThat(upside.value())
-                            .isCloseTo(new BigDecimal("-25.0000"), within(new BigDecimal("0.0001")));
-                });
+                .satisfies(upside -> assertThat(upside.value())
+                        .isCloseTo(new BigDecimal("-25.0000"), within(new BigDecimal("0.0001"))));
     }
 }

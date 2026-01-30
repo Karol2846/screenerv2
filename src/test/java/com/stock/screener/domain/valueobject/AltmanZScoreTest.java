@@ -6,17 +6,17 @@ import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 @DisplayName("AltmanZScore Value Object Tests")
 class AltmanZScoreTest {
-
-    // === Test Data Builders ===
 
     private static FinancialDataSnapshot.FinancialDataSnapshotBuilder baseSnapshot() {
         return FinancialDataSnapshot.builder()
@@ -30,16 +30,18 @@ class AltmanZScoreTest {
                 .totalRevenue(new BigDecimal("800000"));
     }
 
-    // === Happy Path Tests ===
+    static Stream<Arguments> manufacturingSectorsProvider() {
+        return Stream.of(
+                Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
+                Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
+                Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
+        );
+    }
 
     @ParameterizedTest(name = "Manufacturing sector {0} should compute Z-Score successfully")
-    @CsvSource({
-            "ENERGY, 2.6000",
-            "MINING, 2.6000",
-            "UTILITIES, 2.6000"
-    })
+    @MethodSource("manufacturingSectorsProvider")
     @DisplayName("Manufacturing sectors produce valid Z-Score")
-    void testManufacturingSectorsProduceValidScore(Sector sector, String expectedScore) {
+    void testManufacturingSectorsProduceValidScore(Sector sector, BigDecimal expectedScore) {
         // Given: Complete financial snapshot for manufacturing
         var snapshot = baseSnapshot().build();
 
@@ -50,21 +52,23 @@ class AltmanZScoreTest {
         assertThat(result)
                 .isInstanceOf(CalculationResult.Success.class);
 
-        result.onSuccess(score -> {
-            assertThat(score.value())
-                    .isCloseTo(new BigDecimal(expectedScore), within(new BigDecimal("0.0001")));
-        });
+        result.onSuccess(score -> assertThat(score.value())
+                .isCloseTo(expectedScore, within(new BigDecimal("0.0001"))));
+    }
+
+    static Stream<Arguments> nonManufacturingSectorsProvider() {
+        return Stream.of(
+                Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
+                Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
+                Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
+                Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
+        );
     }
 
     @ParameterizedTest(name = "Non-Manufacturing sector {0} should compute Z''-Score successfully")
-    @CsvSource({
-            "TECHNOLOGY, 4.7040",
-            "HEALTHCARE, 4.7040",
-            "CONSUMER_DISCRETIONARY, 4.7040",
-            "REAL_ESTATE, 4.7040"
-    })
+    @MethodSource("nonManufacturingSectorsProvider")
     @DisplayName("Non-Manufacturing sectors produce valid Z''-Score")
-    void testNonManufacturingSectorsProduceValidScore(Sector sector, String expectedScore) {
+    void testNonManufacturingSectorsProduceValidScore(Sector sector, BigDecimal expectedScore) {
         // Given: Complete financial snapshot for non-manufacturing
         var snapshot = baseSnapshot().build();
 
@@ -75,10 +79,8 @@ class AltmanZScoreTest {
         assertThat(result)
                 .isInstanceOf(CalculationResult.Success.class);
 
-        result.onSuccess(score -> {
-            assertThat(score.value())
-                    .isCloseTo(new BigDecimal(expectedScore), within(new BigDecimal("0.0001")));
-        });
+        result.onSuccess(score -> assertThat(score.value())
+                .isCloseTo(expectedScore, within(new BigDecimal("0.0001"))));
     }
 
     @Test
@@ -109,8 +111,6 @@ class AltmanZScoreTest {
 
         assertThat(score1[0]).isNotEqualTo(score2[0]);
     }
-
-    // === Edge Cases: Zero Values ===
 
     @Test
     @DisplayName("Zero totalAssets should fail with DIVISION_BY_ZERO")
@@ -302,9 +302,7 @@ class AltmanZScoreTest {
         // Then: Result should have scale of 4
         assertThat(result).isInstanceOf(CalculationResult.Success.class);
 
-        result.onSuccess(score -> {
-            assertThat(score.value().scale()).isEqualTo(4);
-        });
+        result.onSuccess(score -> assertThat(score.value().scale()).isEqualTo(4));
     }
 
     @Test
@@ -324,7 +322,7 @@ class AltmanZScoreTest {
 
         result.onSuccess(score -> {
             // Z-Score should be lower due to negative working capital
-            assertThat(score.value()).isLessThan(new BigDecimal("5.0"));
+            assertThat(score.value()).isEqualTo(new BigDecimal("0.1120"));
         });
     }
 
