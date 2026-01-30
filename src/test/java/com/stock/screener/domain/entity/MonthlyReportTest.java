@@ -24,61 +24,6 @@ class MonthlyReportTest {
         monthlyReport = new MonthlyReport();
     }
 
-    // === Test Data Builders ===
-
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder completeSnapshot() {
-        return MarketDataSnapshot.builder()
-                .currentPrice(new BigDecimal("150.00"))
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .targetPrice(new BigDecimal("180.00"))
-                .forwardEpsGrowth(new BigDecimal("15.0"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"))
-                .analystRatings(AnalystRatings.builder()
-                        .strongBuy(5)
-                        .buy(10)
-                        .hold(3)
-                        .sell(1)
-                        .strongSell(0)
-                        .build());
-    }
-
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder avOnlySnapshot() {
-        return MarketDataSnapshot.builder()
-                .currentPrice(new BigDecimal("150.00"))
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .targetPrice(new BigDecimal("180.00"))
-                // YH fields are null
-                .forwardEpsGrowth(null)
-                .forwardRevenueGrowth(null)
-                .analystRatings(null);
-    }
-
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder yhOnlySnapshot() {
-        return MarketDataSnapshot.builder()
-                // AV fields incomplete for complex metrics
-                .currentPrice(null)
-                .marketCap(null)
-                .revenueTTM(null)
-                .forwardPeRatio(null)
-                .targetPrice(null)
-                // YH fields complete
-                .forwardEpsGrowth(new BigDecimal("15.0"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"))
-                .analystRatings(AnalystRatings.builder()
-                        .strongBuy(5)
-                        .buy(10)
-                        .hold(3)
-                        .sell(1)
-                        .strongSell(0)
-                        .build());
-    }
-
-    // === Atomic Update Tests ===
-
     @Test
     @DisplayName("updateMetrics() with complete snapshot updates all simple fields atomically")
     void testUpdateMetricsUpdatesSimpleFields() {
@@ -486,8 +431,6 @@ class MonthlyReportTest {
                 .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
     }
 
-    // === Behavioral Tests ===
-
     @Test
     @DisplayName("Updating metrics twice with different data changes all fields")
     void testUpdateMetricsTwiceChangesAllFields() {
@@ -560,5 +503,56 @@ class MonthlyReportTest {
                 .isNotNull()
                 .satisfies(upside -> assertThat(upside.value())
                         .isCloseTo(new BigDecimal("-25.0000"), within(new BigDecimal("0.0001"))));
+    }
+
+    private static MarketDataSnapshot.MarketDataSnapshotBuilder completeSnapshot() {
+        return MarketDataSnapshot.builder()
+                .currentPrice(new BigDecimal("150.00"))
+                .marketCap(new BigDecimal("1000000000"))
+                .revenueTTM(new BigDecimal("500000000"))
+                .forwardPeRatio(new BigDecimal("25.0"))
+                .targetPrice(new BigDecimal("180.00"))
+                .forwardEpsGrowth(new BigDecimal("15.0"))
+                .forwardRevenueGrowth(new BigDecimal("12.5"))
+                .analystRatings(AnalystRatings.builder()
+                        .strongBuy(5)
+                        .buy(10)
+                        .hold(3)
+                        .sell(1)
+                        .strongSell(0)
+                        .build());
+    }
+
+    private static MarketDataSnapshot.MarketDataSnapshotBuilder avOnlySnapshot() {
+        return MarketDataSnapshot.builder()
+                .currentPrice(new BigDecimal("150.00"))
+                .marketCap(new BigDecimal("1000000000"))
+                .revenueTTM(new BigDecimal("500000000"))
+                .forwardPeRatio(new BigDecimal("25.0"))
+                .targetPrice(new BigDecimal("180.00"))
+                // YH fields are null
+                .forwardEpsGrowth(null)
+                .forwardRevenueGrowth(null)
+                .analystRatings(null);
+    }
+
+    private static MarketDataSnapshot.MarketDataSnapshotBuilder yhOnlySnapshot() {
+        return MarketDataSnapshot.builder()
+                // AV fields incomplete for complex metrics
+                .currentPrice(null)
+                .marketCap(null)
+                .revenueTTM(null)
+                .forwardPeRatio(null)
+                .targetPrice(null)
+                // YH fields complete
+                .forwardEpsGrowth(new BigDecimal("15.0"))
+                .forwardRevenueGrowth(new BigDecimal("12.5"))
+                .analystRatings(AnalystRatings.builder()
+                        .strongBuy(5)
+                        .buy(10)
+                        .hold(3)
+                        .sell(1)
+                        .strongSell(0)
+                        .build());
     }
 }

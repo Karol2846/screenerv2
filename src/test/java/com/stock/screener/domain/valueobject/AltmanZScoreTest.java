@@ -18,26 +18,6 @@ import static org.assertj.core.api.Assertions.within;
 @DisplayName("AltmanZScore Value Object Tests")
 class AltmanZScoreTest {
 
-    private static FinancialDataSnapshot.FinancialDataSnapshotBuilder baseSnapshot() {
-        return FinancialDataSnapshot.builder()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .totalAssets(new BigDecimal("1000000"))
-                .totalLiabilities(new BigDecimal("400000"))
-                .retainedEarnings(new BigDecimal("150000"))
-                .ebit(new BigDecimal("100000"))
-                .totalShareholderEquity(new BigDecimal("600000"))
-                .totalRevenue(new BigDecimal("800000"));
-    }
-
-    static Stream<Arguments> manufacturingSectorsProvider() {
-        return Stream.of(
-                Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
-                Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
-                Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
-        );
-    }
-
     @ParameterizedTest(name = "Manufacturing sector {0} should compute Z-Score successfully")
     @MethodSource("manufacturingSectorsProvider")
     @DisplayName("Manufacturing sectors produce valid Z-Score")
@@ -54,15 +34,6 @@ class AltmanZScoreTest {
 
         result.onSuccess(score -> assertThat(score.value())
                 .isCloseTo(expectedScore, within(new BigDecimal("0.0001"))));
-    }
-
-    static Stream<Arguments> nonManufacturingSectorsProvider() {
-        return Stream.of(
-                Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
-                Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
-                Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
-                Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
-        );
     }
 
     @ParameterizedTest(name = "Non-Manufacturing sector {0} should compute Z''-Score successfully")
@@ -151,8 +122,6 @@ class AltmanZScoreTest {
             assertThat(failure.reason()).contains("totalLiabilities");
         });
     }
-
-    // === Edge Cases: Missing Data ===
 
     @Test
     @DisplayName("Null totalCurrentAssets should fail with MISSING_DATA")
@@ -249,8 +218,6 @@ class AltmanZScoreTest {
         assertThat(result).isInstanceOf(CalculationResult.Success.class);
     }
 
-    // === Skipped Logic Tests ===
-
     @Test
     @DisplayName("FINANCE sector should skip calculation (not applicable)")
     void testFinanceSectorShouldSkip() {
@@ -287,8 +254,6 @@ class AltmanZScoreTest {
             assertThat(skipped.reason()).contains("not applicable");
         });
     }
-
-    // === Precision Tests ===
 
     @Test
     @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
@@ -355,5 +320,35 @@ class AltmanZScoreTest {
         highEquityResult.onSuccess(score -> highScore[0] = score.value());
 
         assertThat(highScore[0]).isGreaterThan(lowScore[0]);
+    }
+
+    private static FinancialDataSnapshot.FinancialDataSnapshotBuilder baseSnapshot() {
+        return FinancialDataSnapshot.builder()
+                .totalCurrentAssets(new BigDecimal("500000"))
+                .totalCurrentLiabilities(new BigDecimal("200000"))
+                .totalAssets(new BigDecimal("1000000"))
+                .totalLiabilities(new BigDecimal("400000"))
+                .retainedEarnings(new BigDecimal("150000"))
+                .ebit(new BigDecimal("100000"))
+                .totalShareholderEquity(new BigDecimal("600000"))
+                .totalRevenue(new BigDecimal("800000"));
+    }
+
+    static Stream<Arguments> manufacturingSectorsProvider() {
+        return Stream.of(
+                Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
+                Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
+                Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
+        );
+    }
+
+
+    static Stream<Arguments> nonManufacturingSectorsProvider() {
+        return Stream.of(
+                Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
+                Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
+                Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
+                Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
+        );
     }
 }
