@@ -20,13 +20,9 @@ public final class MarketDataSnapshotFixture {
         return new MarketDataSnapshotFixture();
     }
 
-    public MarketDataSnapshotFixture withCurrentPrice(BigDecimal currentPrice) {
-        this.currentPrice = currentPrice;
-        return this;
-    }
-
     public MarketDataSnapshotFixture withCurrentPrice(String currentPrice) {
-        return withCurrentPrice(new BigDecimal(currentPrice));
+        this.currentPrice = new BigDecimal(currentPrice);
+        return this;
     }
 
     public MarketDataSnapshotFixture withNullCurrentPrice() {
@@ -34,13 +30,9 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
-    public MarketDataSnapshotFixture withMarketCap(BigDecimal marketCap) {
-        this.marketCap = marketCap;
-        return this;
-    }
-
     public MarketDataSnapshotFixture withMarketCap(String marketCap) {
-        return withMarketCap(new BigDecimal(marketCap));
+        this.marketCap = new BigDecimal(marketCap);
+        return this;
     }
 
     public MarketDataSnapshotFixture withNullMarketCap() {
@@ -62,18 +54,9 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
-    public MarketDataSnapshotFixture withZeroRevenueTTM() {
-        this.revenueTTM = BigDecimal.ZERO;
-        return this;
-    }
-
-    public MarketDataSnapshotFixture withForwardPeRatio(BigDecimal forwardPeRatio) {
-        this.forwardPeRatio = forwardPeRatio;
-        return this;
-    }
-
     public MarketDataSnapshotFixture withForwardPeRatio(String forwardPeRatio) {
-        return withForwardPeRatio(new BigDecimal(forwardPeRatio));
+        this.forwardPeRatio = new BigDecimal(forwardPeRatio);
+        return this;
     }
 
     public MarketDataSnapshotFixture withNullForwardPeRatio() {
@@ -81,13 +64,9 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
-    public MarketDataSnapshotFixture withTargetPrice(BigDecimal targetPrice) {
-        this.targetPrice = targetPrice;
-        return this;
-    }
-
     public MarketDataSnapshotFixture withTargetPrice(String targetPrice) {
-        return withTargetPrice(new BigDecimal(targetPrice));
+        this.targetPrice = new BigDecimal(targetPrice);
+        return this;
     }
 
     public MarketDataSnapshotFixture withNullTargetPrice() {
@@ -95,32 +74,14 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
-    public MarketDataSnapshotFixture withForwardEpsGrowth(BigDecimal forwardEpsGrowth) {
-        this.forwardEpsGrowth = forwardEpsGrowth;
-        return this;
-    }
-
     public MarketDataSnapshotFixture withForwardEpsGrowth(String forwardEpsGrowth) {
-        return withForwardEpsGrowth(new BigDecimal(forwardEpsGrowth));
+        this.forwardEpsGrowth = new BigDecimal(forwardEpsGrowth);
+        return this;
     }
 
     public MarketDataSnapshotFixture withNullForwardEpsGrowth() {
         this.forwardEpsGrowth = null;
         return this;
-    }
-
-    public MarketDataSnapshotFixture withZeroForwardEpsGrowth() {
-        this.forwardEpsGrowth = BigDecimal.ZERO;
-        return this;
-    }
-
-    public MarketDataSnapshotFixture withForwardRevenueGrowth(BigDecimal forwardRevenueGrowth) {
-        this.forwardRevenueGrowth = forwardRevenueGrowth;
-        return this;
-    }
-
-    public MarketDataSnapshotFixture withForwardRevenueGrowth(String forwardRevenueGrowth) {
-        return withForwardRevenueGrowth(new BigDecimal(forwardRevenueGrowth));
     }
 
     public MarketDataSnapshot build() {

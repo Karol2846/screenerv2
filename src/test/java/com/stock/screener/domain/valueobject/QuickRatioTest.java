@@ -2,12 +2,12 @@ package com.stock.screener.domain.valueobject;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.CalculationResult;
-import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.fixtures.FinancialDataSnapshotFixture.aFinancialDataSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
@@ -18,10 +18,10 @@ class QuickRatioTest {
     @DisplayName("Valid assets and liabilities should compute QuickRatio correctly")
     void testValidDataComputesQuickRatio() {
         // Given: Snapshot with valid current assets, liabilities and inventory
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -38,10 +38,10 @@ class QuickRatioTest {
     @DisplayName("Null inventory should be treated as zero")
     void testNullInventoryTreatedAsZero() {
         // Given: Snapshot with null inventory
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(null)
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("200000")
+                .withNullInventory()
                 .build();
 
         // When: Computing QuickRatio
@@ -58,16 +58,16 @@ class QuickRatioTest {
     @DisplayName("Zero inventory computes same as null inventory")
     void testZeroInventoryComputesSameAsNull() {
         // Given: Two snapshots - one with zero inventory, one with null
-        var snapshotZero = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(BigDecimal.ZERO)
+        var snapshotZero = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("0")
                 .build();
 
-        var snapshotNull = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(null)
+        var snapshotNull = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("200000")
+                .withNullInventory()
                 .build();
 
         // When: Computing QuickRatio for both
@@ -91,16 +91,16 @@ class QuickRatioTest {
     @DisplayName("Different inventory values produce different QuickRatios")
     void testDifferentInventoriesProduceDifferentRatios() {
         // Given: Two snapshots with different inventory values
-        var snapshot1 = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot1 = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("100000")
                 .build();
 
-        var snapshot2 = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("300000"))
+        var snapshot2 = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("300000")
                 .build();
 
         // When: Computing QuickRatio for both
@@ -125,10 +125,10 @@ class QuickRatioTest {
     @DisplayName("Null totalCurrentAssets should fail with MISSING_DATA")
     void testNullTotalCurrentAssetsShouldFail() {
         // Given: Snapshot with null totalCurrentAssets
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(null)
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withNullTotalCurrentAssets()
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -147,10 +147,10 @@ class QuickRatioTest {
     @DisplayName("Null totalCurrentLiabilities should fail with MISSING_DATA")
     void testNullTotalCurrentLiabilitiesShouldFail() {
         // Given: Snapshot with null totalCurrentLiabilities
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(null)
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withNullTotalCurrentLiabilities()
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -169,10 +169,10 @@ class QuickRatioTest {
     @DisplayName("Zero totalCurrentLiabilities should fail with DIVISION_BY_ZERO")
     void testZeroTotalCurrentLiabilitiesShouldFail() {
         // Given: Snapshot with zero totalCurrentLiabilities
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(BigDecimal.ZERO)
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("0")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -191,10 +191,10 @@ class QuickRatioTest {
     @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
     void testResultPrecision() {
         // Given: Complete snapshot with values producing non-round result
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("333333"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("500000")
+                .withTotalCurrentLiabilities("333333")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -210,10 +210,10 @@ class QuickRatioTest {
     @DisplayName("High QuickRatio indicates strong liquidity")
     void testHighQuickRatioIndicatesStrongLiquidity() {
         // Given: Current assets much higher than liabilities
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("1000000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("1000000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -230,10 +230,10 @@ class QuickRatioTest {
     @DisplayName("Low QuickRatio indicates weak liquidity")
     void testLowQuickRatioIndicatesWeakLiquidity() {
         // Given: Quick assets barely cover liabilities
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("250000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("250000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -250,10 +250,10 @@ class QuickRatioTest {
     @DisplayName("Inventory larger than current assets produces negative numerator")
     void testLargeInventoryProducesNegativeQuickAssets() {
         // Given: Inventory larger than total current assets (rare but possible edge case)
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("100000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("150000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("100000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("150000")
                 .build();
 
         // When: Computing QuickRatio
@@ -270,10 +270,10 @@ class QuickRatioTest {
     @DisplayName("QuickRatio equals 1.0 when quick assets equal liabilities")
     void testQuickRatioEqualsOneWhenAssetsEqualLiabilities() {
         // Given: Quick assets equal current liabilities
-        var snapshot = baseSnapshot()
-                .totalCurrentAssets(new BigDecimal("300000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .inventory(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withTotalCurrentAssets("300000")
+                .withTotalCurrentLiabilities("200000")
+                .withInventory("100000")
                 .build();
 
         // When: Computing QuickRatio
@@ -284,17 +284,6 @@ class QuickRatioTest {
 
         result.onSuccess(ratio -> assertThat(ratio.value())
                 .isCloseTo(new BigDecimal("1.0000"), within(new BigDecimal("0.0001"))));
-    }
-
-    private static FinancialDataSnapshot.FinancialDataSnapshotBuilder baseSnapshot() {
-        return FinancialDataSnapshot.builder()
-                .totalAssets(new BigDecimal("1000000"))
-                .totalLiabilities(new BigDecimal("400000"))
-                .retainedEarnings(new BigDecimal("150000"))
-                .ebit(new BigDecimal("100000"))
-                .interestExpense(new BigDecimal("50000"))
-                .totalShareholderEquity(new BigDecimal("600000"))
-                .totalRevenue(new BigDecimal("800000"));
     }
 }
 

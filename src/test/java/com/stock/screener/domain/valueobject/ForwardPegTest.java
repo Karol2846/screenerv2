@@ -2,12 +2,12 @@ package com.stock.screener.domain.valueobject;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.CalculationResult;
-import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.fixtures.MarketDataSnapshotFixture.aMarketDataSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
@@ -18,9 +18,9 @@ class ForwardPegTest {
     @DisplayName("Valid forwardPeRatio and forwardEpsGrowth should compute ForwardPeg correctly")
     void testValidDataComputesForwardPeg() {
         // Given: Snapshot with valid forward PE and EPS growth
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("20.0"))
-                .forwardEpsGrowth(new BigDecimal("10.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("10.0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -37,14 +37,14 @@ class ForwardPegTest {
     @DisplayName("Different PE ratios produce different ForwardPeg values")
     void testDifferentPeRatiosProduceDifferentValues() {
         // Given: Two snapshots with different PE ratios
-        var snapshot1 = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("15.0"))
-                .forwardEpsGrowth(new BigDecimal("10.0"))
+        var snapshot1 = aMarketDataSnapshot()
+                .withForwardPeRatio("15.0")
+                .withForwardEpsGrowth("10.0")
                 .build();
 
-        var snapshot2 = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("30.0"))
-                .forwardEpsGrowth(new BigDecimal("10.0"))
+        var snapshot2 = aMarketDataSnapshot()
+                .withForwardPeRatio("30.0")
+                .withForwardEpsGrowth("10.0")
                 .build();
 
         // When: Computing ForwardPeg for both
@@ -69,9 +69,9 @@ class ForwardPegTest {
     @DisplayName("Null forwardPeRatio should fail with MISSING_DATA")
     void testNullForwardPeRatioShouldFail() {
         // Given: Snapshot with null forwardPeRatio
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(null)
-                .forwardEpsGrowth(new BigDecimal("10.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withNullForwardPeRatio()
+                .withForwardEpsGrowth("10.0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -90,9 +90,9 @@ class ForwardPegTest {
     @DisplayName("Null forwardEpsGrowth should fail with MISSING_DATA")
     void testNullForwardEpsGrowthShouldFail() {
         // Given: Snapshot with null forwardEpsGrowth
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("20.0"))
-                .forwardEpsGrowth(null)
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withNullForwardEpsGrowth()
                 .build();
 
         // When: Computing ForwardPeg
@@ -111,9 +111,9 @@ class ForwardPegTest {
     @DisplayName("Zero forwardEpsGrowth should fail with DIVISION_BY_ZERO")
     void testZeroForwardEpsGrowthShouldFail() {
         // Given: Snapshot with zero forwardEpsGrowth
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("20.0"))
-                .forwardEpsGrowth(BigDecimal.ZERO)
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -132,9 +132,9 @@ class ForwardPegTest {
     @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
     void testResultPrecision() {
         // Given: Complete snapshot
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .forwardEpsGrowth(new BigDecimal("7.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("25.0")
+                .withForwardEpsGrowth("7.0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -150,9 +150,9 @@ class ForwardPegTest {
     @DisplayName("Low PE with high growth produces low PEG (undervalued)")
     void testLowPeHighGrowthProducesLowPeg() {
         // Given: Low PE with high growth
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("10.0"))
-                .forwardEpsGrowth(new BigDecimal("25.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("10.0")
+                .withForwardEpsGrowth("25.0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -169,9 +169,9 @@ class ForwardPegTest {
     @DisplayName("High PE with low growth produces high PEG (overvalued)")
     void testHighPeLowGrowthProducesHighPeg() {
         // Given: High PE with low growth
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("50.0"))
-                .forwardEpsGrowth(new BigDecimal("5.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("50.0")
+                .withForwardEpsGrowth("5.0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -188,9 +188,9 @@ class ForwardPegTest {
     @DisplayName("Negative forwardEpsGrowth should compute PEG correctly (but result is negative)")
     void testNegativeEpsGrowthComputesNegativePeg() {
         // Given: Negative EPS growth (company shrinking)
-        var snapshot = baseSnapshot()
-                .forwardPeRatio(new BigDecimal("20.0"))
-                .forwardEpsGrowth(new BigDecimal("-5.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("-5.0")
                 .build();
 
         // When: Computing ForwardPeg
@@ -201,15 +201,6 @@ class ForwardPegTest {
 
         result.onSuccess(peg -> assertThat(peg.value())
                 .isCloseTo(new BigDecimal("-4.0000"), within(new BigDecimal("0.0001"))));
-    }
-
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder baseSnapshot() {
-        return MarketDataSnapshot.builder()
-                .currentPrice(new BigDecimal("150.00"))
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
-                .targetPrice(new BigDecimal("180.00"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"));
     }
 }
 

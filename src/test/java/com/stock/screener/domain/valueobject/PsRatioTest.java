@@ -2,12 +2,12 @@ package com.stock.screener.domain.valueobject;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.CalculationResult;
-import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.fixtures.MarketDataSnapshotFixture.aMarketDataSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
@@ -18,9 +18,9 @@ class PsRatioTest {
     @DisplayName("Valid marketCap and revenueTTM should compute PS ratio correctly")
     void testValidDataComputesPsRatio() {
         // Given: Snapshot with valid marketCap and revenueTTM
-        var snapshot = baseSnapshot()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withRevenueTTM("500000000")
                 .build();
 
         // When: Computing PS ratio
@@ -37,14 +37,14 @@ class PsRatioTest {
     @DisplayName("Different market caps produce different PS ratios")
     void testDifferentMarketCapsProduceDifferentRatios() {
         // Given: Two snapshots with different market caps
-        var snapshot1 = baseSnapshot()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
+        var snapshot1 = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withRevenueTTM("500000000")
                 .build();
 
-        var snapshot2 = baseSnapshot()
-                .marketCap(new BigDecimal("2000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
+        var snapshot2 = aMarketDataSnapshot()
+                .withMarketCap("2000000000")
+                .withRevenueTTM("500000000")
                 .build();
 
         // When: Computing PS ratios
@@ -69,9 +69,9 @@ class PsRatioTest {
     @DisplayName("Null marketCap should fail with MISSING_DATA")
     void testNullMarketCapShouldFail() {
         // Given: Snapshot with null marketCap
-        var snapshot = baseSnapshot()
-                .marketCap(null)
-                .revenueTTM(new BigDecimal("500000000"))
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
+                .withRevenueTTM("500000000")
                 .build();
 
         // When: Computing PS ratio
@@ -90,9 +90,9 @@ class PsRatioTest {
     @DisplayName("Null revenueTTM should fail with MISSING_DATA")
     void testNullRevenueTTMShouldFail() {
         // Given: Snapshot with null revenueTTM
-        var snapshot = baseSnapshot()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(null)
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withNullRevenueTTM()
                 .build();
 
         // When: Computing PS ratio
@@ -111,9 +111,9 @@ class PsRatioTest {
     @DisplayName("Zero revenueTTM should fail with DIVISION_BY_ZERO")
     void testZeroRevenueTTMShouldFail() {
         // Given: Snapshot with zero revenueTTM
-        var snapshot = baseSnapshot()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(BigDecimal.ZERO)
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withRevenueTTM("0")
                 .build();
 
         // When: Computing PS ratio
@@ -132,9 +132,9 @@ class PsRatioTest {
     @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
     void testResultPrecision() {
         // Given: Complete snapshot
-        var snapshot = baseSnapshot()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("333333333"))
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withRevenueTTM("333333333")
                 .build();
 
         // When: Computing PS ratio
@@ -150,9 +150,9 @@ class PsRatioTest {
     @DisplayName("Low revenue relative to marketCap produces high PS ratio")
     void testLowRevenueProducesHighRatio() {
         // Given: Snapshot with low revenue relative to market cap
-        var snapshot = baseSnapshot()
-                .marketCap(new BigDecimal("10000000000"))
-                .revenueTTM(new BigDecimal("100000000"))
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("10000000000")
+                .withRevenueTTM("100000000")
                 .build();
 
         // When: Computing PS ratio
@@ -169,9 +169,9 @@ class PsRatioTest {
     @DisplayName("High revenue relative to marketCap produces low PS ratio")
     void testHighRevenueProducesLowRatio() {
         // Given: Snapshot with high revenue relative to market cap
-        var snapshot = baseSnapshot()
-                .marketCap(new BigDecimal("100000000"))
-                .revenueTTM(new BigDecimal("1000000000"))
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("100000000")
+                .withRevenueTTM("1000000000")
                 .build();
 
         // When: Computing PS ratio
@@ -183,14 +183,4 @@ class PsRatioTest {
         result.onSuccess(ratio -> assertThat(ratio.value())
                 .isCloseTo(new BigDecimal("0.1000"), within(new BigDecimal("0.0001"))));
     }
-
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder baseSnapshot() {
-        return MarketDataSnapshot.builder()
-                .currentPrice(new BigDecimal("150.00"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .targetPrice(new BigDecimal("180.00"))
-                .forwardEpsGrowth(new BigDecimal("15.0"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"));
-    }
 }
-

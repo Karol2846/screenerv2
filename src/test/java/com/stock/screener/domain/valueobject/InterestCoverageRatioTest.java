@@ -2,12 +2,12 @@ package com.stock.screener.domain.valueobject;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.CalculationResult;
-import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.fixtures.FinancialDataSnapshotFixture.aFinancialDataSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
@@ -18,9 +18,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Valid EBIT and interestExpense should compute ratio correctly")
     void testValidDataComputesInterestCoverageRatio() {
         // Given: Snapshot with valid EBIT and interest expense
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("1000000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("1000000")
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -37,14 +37,14 @@ class InterestCoverageRatioTest {
     @DisplayName("Different EBIT values produce different coverage ratios")
     void testDifferentEbitProducesDifferentRatios() {
         // Given: Two snapshots with different EBIT values
-        var snapshot1 = baseSnapshot()
-                .ebit(new BigDecimal("500000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot1 = aFinancialDataSnapshot()
+                .withEbit("500000")
+                .withInterestExpense("100000")
                 .build();
 
-        var snapshot2 = baseSnapshot()
-                .ebit(new BigDecimal("2000000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot2 = aFinancialDataSnapshot()
+                .withEbit("2000000")
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing ratios for both
@@ -69,9 +69,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Null EBIT should fail with MISSING_DATA")
     void testNullEbitShouldFail() {
         // Given: Snapshot with null EBIT
-        var snapshot = baseSnapshot()
-                .ebit(null)
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withNullEbit()
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -90,9 +90,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Null interestExpense should fail with MISSING_DATA")
     void testNullInterestExpenseShouldFail() {
         // Given: Snapshot with null interestExpense
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("1000000"))
-                .interestExpense(null)
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("1000000")
+                .withNullInterestExpense()
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -111,9 +111,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Zero interestExpense should fail with DIVISION_BY_ZERO")
     void testZeroInterestExpenseShouldFail() {
         // Given: Snapshot with zero interestExpense
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("1000000"))
-                .interestExpense(BigDecimal.ZERO)
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("1000000")
+                .withInterestExpense("0")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -132,9 +132,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
     void testResultPrecision() {
         // Given: Complete snapshot with values producing non-round result
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("1000000"))
-                .interestExpense(new BigDecimal("333333"))
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("1000000")
+                .withInterestExpense("333333")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -150,9 +150,9 @@ class InterestCoverageRatioTest {
     @DisplayName("High coverage ratio indicates strong debt servicing ability")
     void testHighCoverageRatio() {
         // Given: EBIT significantly higher than interest expense
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("10000000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("10000000")
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -169,9 +169,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Low coverage ratio indicates weak debt servicing ability")
     void testLowCoverageRatio() {
         // Given: EBIT barely covers interest expense
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("150000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("150000")
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -188,9 +188,9 @@ class InterestCoverageRatioTest {
     @DisplayName("Negative EBIT produces negative coverage ratio")
     void testNegativeEbitProducesNegativeRatio() {
         // Given: Negative EBIT (operating loss)
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("-500000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("-500000")
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -207,9 +207,9 @@ class InterestCoverageRatioTest {
     @DisplayName("EBIT less than interest expense produces ratio below 1")
     void testEbitLessThanInterestProducesSubOneRatio() {
         // Given: EBIT less than interest expense
-        var snapshot = baseSnapshot()
-                .ebit(new BigDecimal("50000"))
-                .interestExpense(new BigDecimal("100000"))
+        var snapshot = aFinancialDataSnapshot()
+                .withEbit("50000")
+                .withInterestExpense("100000")
                 .build();
 
         // When: Computing InterestCoverageRatio
@@ -220,18 +220,6 @@ class InterestCoverageRatioTest {
 
         result.onSuccess(ratio -> assertThat(ratio.value())
                 .isCloseTo(new BigDecimal("0.5000"), within(new BigDecimal("0.0001"))));
-    }
-
-    private static FinancialDataSnapshot.FinancialDataSnapshotBuilder baseSnapshot() {
-        return FinancialDataSnapshot.builder()
-                .totalCurrentAssets(new BigDecimal("500000"))
-                .totalCurrentLiabilities(new BigDecimal("200000"))
-                .totalAssets(new BigDecimal("1000000"))
-                .totalLiabilities(new BigDecimal("400000"))
-                .retainedEarnings(new BigDecimal("150000"))
-                .totalShareholderEquity(new BigDecimal("600000"))
-                .inventory(new BigDecimal("100000"))
-                .totalRevenue(new BigDecimal("800000"));
     }
 }
 

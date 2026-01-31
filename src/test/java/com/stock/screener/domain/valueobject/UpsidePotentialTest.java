@@ -2,12 +2,12 @@ package com.stock.screener.domain.valueobject;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.CalculationResult;
-import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.fixtures.MarketDataSnapshotFixture.aMarketDataSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
@@ -18,9 +18,9 @@ class UpsidePotentialTest {
     @DisplayName("Valid targetPrice and currentPrice should compute UpsidePotential correctly")
     void testValidDataComputesUpsidePotential() {
         // Given: Snapshot with target price higher than current price
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(new BigDecimal("125.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("125.00")
                 .build();
 
         // When: Computing UpsidePotential
@@ -37,9 +37,9 @@ class UpsidePotentialTest {
     @DisplayName("Negative upside when current price exceeds target price")
     void testNegativeUpsidePotential() {
         // Given: Snapshot with target price lower than current price
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("200.00"))
-                .targetPrice(new BigDecimal("150.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("200.00")
+                .withTargetPrice("150.00")
                 .build();
 
         // When: Computing UpsidePotential
@@ -56,14 +56,14 @@ class UpsidePotentialTest {
     @DisplayName("Different price gaps produce different upside percentages")
     void testDifferentPriceGapsProduceDifferentUpsides() {
         // Given: Two snapshots with different price gaps
-        var snapshot1 = baseSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(new BigDecimal("110.00"))
+        var snapshot1 = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("110.00")
                 .build();
 
-        var snapshot2 = baseSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(new BigDecimal("150.00"))
+        var snapshot2 = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("150.00")
                 .build();
 
         // When: Computing UpsidePotential for both
@@ -88,9 +88,9 @@ class UpsidePotentialTest {
     @DisplayName("Null targetPrice should fail with MISSING_DATA")
     void testNullTargetPriceShouldFail() {
         // Given: Snapshot with null targetPrice
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(null)
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withNullTargetPrice()
                 .build();
 
         // When: Computing UpsidePotential
@@ -109,9 +109,9 @@ class UpsidePotentialTest {
     @DisplayName("Null currentPrice should fail with MISSING_DATA")
     void testNullCurrentPriceShouldFail() {
         // Given: Snapshot with null currentPrice
-        var snapshot = baseSnapshot()
-                .currentPrice(null)
-                .targetPrice(new BigDecimal("125.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withNullCurrentPrice()
+                .withTargetPrice("125.00")
                 .build();
 
         // When: Computing UpsidePotential
@@ -130,9 +130,9 @@ class UpsidePotentialTest {
     @DisplayName("Zero currentPrice should fail with DIVISION_BY_ZERO")
     void testZeroCurrentPriceShouldFail() {
         // Given: Snapshot with zero currentPrice
-        var snapshot = baseSnapshot()
-                .currentPrice(BigDecimal.ZERO)
-                .targetPrice(new BigDecimal("125.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("0")
+                .withTargetPrice("125.00")
                 .build();
 
         // When: Computing UpsidePotential
@@ -151,9 +151,9 @@ class UpsidePotentialTest {
     @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
     void testResultPrecision() {
         // Given: Complete snapshot
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("123.45"))
-                .targetPrice(new BigDecimal("167.89"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("123.45")
+                .withTargetPrice("167.89")
                 .build();
 
         // When: Computing UpsidePotential
@@ -169,9 +169,9 @@ class UpsidePotentialTest {
     @DisplayName("Equal targetPrice and currentPrice produces zero upside")
     void testEqualPricesProduceZeroUpside() {
         // Given: Snapshot where target equals current price
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(new BigDecimal("100.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("100.00")
                 .build();
 
         // When: Computing UpsidePotential
@@ -188,9 +188,9 @@ class UpsidePotentialTest {
     @DisplayName("Large upside potential computed correctly")
     void testLargeUpsidePotential() {
         // Given: Snapshot with large price gap (100% upside)
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("50.00"))
-                .targetPrice(new BigDecimal("100.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("50.00")
+                .withTargetPrice("100.00")
                 .build();
 
         // When: Computing UpsidePotential
@@ -207,9 +207,9 @@ class UpsidePotentialTest {
     @DisplayName("Very small upside potential computed correctly")
     void testSmallUpsidePotential() {
         // Given: Snapshot with very small price gap
-        var snapshot = baseSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(new BigDecimal("100.50"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("100.50")
                 .build();
 
         // When: Computing UpsidePotential
@@ -221,14 +221,4 @@ class UpsidePotentialTest {
         result.onSuccess(upside -> assertThat(upside.value())
                 .isCloseTo(new BigDecimal("0.5000"), within(new BigDecimal("0.0001"))));
     }
-
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder baseSnapshot() {
-        return MarketDataSnapshot.builder()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .forwardEpsGrowth(new BigDecimal("15.0"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"));
-    }
 }
-
