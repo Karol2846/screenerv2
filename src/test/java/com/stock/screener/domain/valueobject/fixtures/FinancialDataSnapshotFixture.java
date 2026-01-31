@@ -77,6 +77,56 @@ public final class FinancialDataSnapshotFixture {
         return this;
     }
 
+    public FinancialDataSnapshotFixture withTotalAssets(String totalAssets) {
+        this.totalAssets = new BigDecimal(totalAssets);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullTotalAssets() {
+        this.totalAssets = null;
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withTotalLiabilities(String totalLiabilities) {
+        this.totalLiabilities = new BigDecimal(totalLiabilities);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullTotalLiabilities() {
+        this.totalLiabilities = null;
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withRetainedEarnings(String retainedEarnings) {
+        this.retainedEarnings = new BigDecimal(retainedEarnings);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullRetainedEarnings() {
+        this.retainedEarnings = null;
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withTotalShareholderEquity(String totalShareholderEquity) {
+        this.totalShareholderEquity = new BigDecimal(totalShareholderEquity);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullTotalShareholderEquity() {
+        this.totalShareholderEquity = null;
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withTotalRevenue(String totalRevenue) {
+        this.totalRevenue = new BigDecimal(totalRevenue);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullTotalRevenue() {
+        this.totalRevenue = null;
+        return this;
+    }
+
     public FinancialDataSnapshot build() {
         return FinancialDataSnapshot.builder()
                 .totalCurrentAssets(totalCurrentAssets)
