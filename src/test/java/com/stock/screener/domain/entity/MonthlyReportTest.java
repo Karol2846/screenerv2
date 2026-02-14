@@ -148,8 +148,8 @@ class MonthlyReportTest {
         // And: No calculation errors
         assertThat(monthlyReport.calculationErrors).isEmpty();
 
-        // And: Integrity status should be COMPLETE
-        assertThat(monthlyReport.integrityStatus).isEqualTo(ReportIntegrityStatus.COMPLETE);
+        // And: Integrity status should be READY_FOR_ANALYSIS
+        assertThat(monthlyReport.integrityStatus).isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
     }
     } // End HappyPathTests
 
@@ -312,7 +312,7 @@ class MonthlyReportTest {
     // === ReportIntegrityStatus Tests ===
 
     @Test
-    @DisplayName("Complete snapshot results in COMPLETE integrity status")
+    @DisplayName("Complete snapshot results in READY_FOR_ANALYSIS integrity status")
     void testCompleteSnapshotProducesCompleteStatus() {
         // Given: Complete snapshot with all AV and YH data
         var snapshot = aMarketDataSnapshot().build();
@@ -320,13 +320,13 @@ class MonthlyReportTest {
         // When: Updating metrics
         monthlyReport.updateMetrics(snapshot);
 
-        // Then: Status should be COMPLETE
+        // Then: Status should be READY_FOR_ANALYSIS
         assertThat(monthlyReport.integrityStatus)
-                .isEqualTo(ReportIntegrityStatus.COMPLETE);
+                .isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
     }
 
     @Test
-    @DisplayName("AV + partial YH data (only forwardEpsGrowth) allows ForwardPeg computation, status is AV_FETCHED_COMPLETED")
+    @DisplayName("AV + partial YH data (only forwardEpsGrowth) allows ForwardPeg computation, status is PRICING_DATA_COLLECTED")
     void testAvWithPartialYhProducesAvFetchedCompleted() {
         // Given: Snapshot with AV data + only forwardEpsGrowth from YH
         // (missing analystRatings and forwardRevenueGrowth)
@@ -349,62 +349,62 @@ class MonthlyReportTest {
         assertThat(monthlyReport.analystRatings).isNull();
         assertThat(monthlyReport.forwardRevenueGrowth).isNull();
 
-        // And: Status should be AV_FETCHED_COMPLETED because:
-        // - AV is complete (psRatio, upsidePotential)
-        // - YH is NOT complete (missing analystRatings, forwardRevenueGrowth)
+        // And: Status should be PRICING_DATA_COLLECTED because:
+        // - Pricing data is complete (psRatio, upsidePotential)
+        // - Fundamental data is NOT complete (missing analystRatings, forwardRevenueGrowth)
         assertThat(monthlyReport.integrityStatus)
-                .isEqualTo(ReportIntegrityStatus.AV_FETCHED_COMPLETED);
+                .isEqualTo(ReportIntegrityStatus.PRICING_DATA_COLLECTED);
     }
 
     @Test
-    @DisplayName("Only AV data (without YH) results in AV_FETCHED_COMPLETED status")
+    @DisplayName("Only pricing data (without fundamentals) results in PRICING_DATA_COLLECTED status")
     void testAvOnlyProducesAvFetchedCompletedStatus() {
-        // Given: Snapshot with only AV data (YH data missing)
-        // ForwardPeg cannot be computed without forwardEpsGrowth (YH field) - that's expected
+        // Given: Snapshot with only pricing data (fundamental data missing)
+        // ForwardPeg cannot be computed without forwardEpsGrowth (fundamental field) - that's expected
         var snapshot = avOnlySnapshot().build();
 
         // When: Updating metrics
         monthlyReport.updateMetrics(snapshot);
 
-        // Then: Pure AV metrics should be computed
+        // Then: Pure pricing metrics should be computed
         assertThat(monthlyReport.psRatio).isNotNull();
         assertThat(monthlyReport.upsidePotential).isNotNull();
         
-        // And: ForwardPeg (hybrid metric) should be null - it needs YH forwardEpsGrowth
+        // And: ForwardPeg (hybrid metric) should be null - it needs fundamental forwardEpsGrowth
         assertThat(monthlyReport.forwardPegRatio).isNull();
 
-        // And: YH simple fields should be null
+        // And: Fundamental fields should be null
         assertThat(monthlyReport.forwardEpsGrowth).isNull();
         assertThat(monthlyReport.forwardRevenueGrowth).isNull();
         assertThat(monthlyReport.analystRatings).isNull();
 
-        // And: Status should be AV_FETCHED_COMPLETED (pure AV metrics are OK)
+        // And: Status should be PRICING_DATA_COLLECTED (pricing metrics are OK)
         assertThat(monthlyReport.integrityStatus)
-                .isEqualTo(ReportIntegrityStatus.AV_FETCHED_COMPLETED);
+                .isEqualTo(ReportIntegrityStatus.PRICING_DATA_COLLECTED);
     }
 
     @Test
-    @DisplayName("Only YH data results in YH_FETCHED_COMPLETED status")
+    @DisplayName("Only fundamental data results in FUNDAMENTALS_COLLECTED status")
     void testYhOnlyProducesYhCompletedStatus() {
-        // Given: Snapshot with only YH data (AV data missing)
+        // Given: Snapshot with only fundamental data (pricing data missing)
         var snapshot = yhOnlySnapshot().build();
 
         // When: Updating metrics
         monthlyReport.updateMetrics(snapshot);
 
-        // Then: YH simple fields should be populated
+        // Then: Fundamental fields should be populated
         assertThat(monthlyReport.forwardEpsGrowth).isNotNull();
         assertThat(monthlyReport.forwardRevenueGrowth).isNotNull();
         assertThat(monthlyReport.analystRatings).isNotNull();
 
-        // And: AV-dependent metrics should be null
+        // And: Pricing-dependent metrics should be null
         assertThat(monthlyReport.psRatio).isNull();
         assertThat(monthlyReport.forwardPegRatio).isNull();
         assertThat(monthlyReport.upsidePotential).isNull();
 
-        // And: Status should be YH_FETCHED_COMPLETED
+        // And: Status should be FUNDAMENTALS_COLLECTED
         assertThat(monthlyReport.integrityStatus)
-                .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
+                .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
     }
 
     @Test
@@ -428,9 +428,9 @@ class MonthlyReportTest {
     }
 
     @Test
-    @DisplayName("Partial AV data (missing one field) is not considered complete")
+    @DisplayName("Partial pricing data (missing one field) is not considered complete")
     void testPartialAvDataNotComplete() {
-        // Given: Snapshot with most AV data but missing one critical field
+        // Given: Snapshot with most pricing data but missing one critical field
         var snapshot = aMarketDataSnapshot()
                 .withNullRevenueTTM()  // Missing - breaks psRatio
                 .build();
@@ -441,10 +441,10 @@ class MonthlyReportTest {
         // Then: psRatio should be null
         assertThat(monthlyReport.psRatio).isNull();
 
-        // And: Even though other AV metrics might succeed, AV is not complete
-        // Status depends on YH being complete
+        // And: Even though other pricing metrics might succeed, pricing is not complete
+        // Status depends on fundamentals being complete
         assertThat(monthlyReport.integrityStatus)
-                .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
+                .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
     }
 
     @Test
@@ -655,10 +655,10 @@ class MonthlyReportTest {
             assertThat(monthlyReport.psRatio).isNotNull();
             assertThat(monthlyReport.upsidePotential).isNull();
 
-            // And: AV is NOT complete (requires both psRatio AND upsidePotential)
-            // Status should be YH_FETCHED_COMPLETED (YH fields are present)
+            // And: Pricing data is NOT complete (requires both psRatio AND upsidePotential)
+            // Status should be FUNDAMENTALS_COLLECTED (fundamental fields are present)
             assertThat(monthlyReport.integrityStatus)
-                    .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
+                    .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
         }
 
         @Test
@@ -676,9 +676,9 @@ class MonthlyReportTest {
             assertThat(monthlyReport.upsidePotential).isNotNull();
             assertThat(monthlyReport.psRatio).isNull();
 
-            // And: AV is NOT complete
+            // And: Pricing data is NOT complete
             assertThat(monthlyReport.integrityStatus)
-                    .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
+                    .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
         }
     } // End IdempotencyTests
 

@@ -50,9 +50,9 @@ class QuarterlyReportTest {
             // And: No calculation errors
             assertThat(quarterlyReport.calculationErrors).isEmpty();
 
-            // And: Integrity status should be COMPLETE
+            // And: Integrity status should be READY_FOR_ANALYSIS
             assertThat(quarterlyReport.integrityStatus)
-                    .isEqualTo(ReportIntegrityStatus.COMPLETE);
+                    .isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
         }
 
         @Test
@@ -455,7 +455,7 @@ class QuarterlyReportTest {
     class IntegrityStatusTests {
 
         @Test
-        @DisplayName("Complete snapshot results in COMPLETE integrity status")
+        @DisplayName("Complete snapshot results in READY_FOR_ANALYSIS integrity status")
         void testCompleteSnapshotProducesCompleteStatus() {
             // Given: Complete snapshot with all data
             var snapshot = aFinancialDataSnapshot().build();
@@ -463,9 +463,9 @@ class QuarterlyReportTest {
             // When: Updating metrics with applicable sector
             quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
-            // Then: Status should be COMPLETE
+            // Then: Status should be READY_FOR_ANALYSIS
             assertThat(quarterlyReport.integrityStatus)
-                    .isEqualTo(ReportIntegrityStatus.COMPLETE);
+                    .isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
         }
 
         @Test
@@ -506,7 +506,7 @@ class QuarterlyReportTest {
         }
 
         @Test
-        @DisplayName("AV_FETCHED_COMPLETED when partial but no errors")
+        @DisplayName("PRICING_DATA_COLLECTED when partial but no errors")
         void testAvFetchedCompletedStatus() {
             // Given: Complete snapshot
             var snapshot = aFinancialDataSnapshot().build();
@@ -519,8 +519,8 @@ class QuarterlyReportTest {
             quarterlyReport.calculationErrors.clear();
 
             // Then: This test validates the isComplete() method behavior
-            // When all three metrics are present = COMPLETE
-            // When errors are empty but not all metrics present = AV_FETCHED_COMPLETED
+            // When all three metrics are present = READY_FOR_ANALYSIS
+            // When errors are empty but not all metrics present = PRICING_DATA_COLLECTED
             assertThat(quarterlyReport.calculationErrors).isEmpty();
         }
     }

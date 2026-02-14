@@ -116,35 +116,35 @@ public class MonthlyReport extends PanacheEntity {
     }
 
     private void updateIntegrityStatus() {
-        boolean avComplete = isAVFetchingCompleted();
-        boolean yhComplete = isYHFinanceFetchingCompleted();
+        boolean pricingComplete = hasPricingData();
+        boolean fundamentalsComplete = hasFundamentalData();
         boolean hybridComplete = forwardPegRatio != null;
 
-        if (avComplete && yhComplete && hybridComplete) {
-            this.integrityStatus = ReportIntegrityStatus.COMPLETE;
-        } else if (avComplete && !yhComplete) {
-            this.integrityStatus = ReportIntegrityStatus.AV_FETCHED_COMPLETED;
-        } else if (yhComplete && !avComplete) {
-            this.integrityStatus = ReportIntegrityStatus.YH_FETCHED_COMPLETED;
+        if (pricingComplete && fundamentalsComplete && hybridComplete) {
+            this.integrityStatus = ReportIntegrityStatus.READY_FOR_ANALYSIS;
+        } else if (pricingComplete && !fundamentalsComplete) {
+            this.integrityStatus = ReportIntegrityStatus.PRICING_DATA_COLLECTED;
+        } else if (fundamentalsComplete && !pricingComplete) {
+            this.integrityStatus = ReportIntegrityStatus.FUNDAMENTALS_COLLECTED;
         } else {
             this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
         }
     }
 
     /**
-     * YH (Yahoo Finance) is considered complete when all YH simple fields are present.
+     * Checks if fundamental data (analyst ratings, growth forecasts) is available.
      */
-    private boolean isYHFinanceFetchingCompleted() {
+    private boolean hasFundamentalData() {
         return analystRatings != null &&
                 forwardRevenueGrowth != null &&
                 forwardEpsGrowth != null;
     }
 
     /**
-     * AV (Alpha Vantage) is considered complete when all pure AV metrics are computed.
-     * Note: ForwardPeg is EXCLUDED because it's a hybrid metric (requires YH forwardEpsGrowth).
+     * Checks if pricing data (P/S ratio, upside potential) is computed.
+     * Note: ForwardPeg is EXCLUDED because it's a hybrid metric (requires fundamental growth data).
      */
-    private boolean isAVFetchingCompleted() {
+    private boolean hasPricingData() {
         return psRatio != null
                 && upsidePotential != null;
     }
