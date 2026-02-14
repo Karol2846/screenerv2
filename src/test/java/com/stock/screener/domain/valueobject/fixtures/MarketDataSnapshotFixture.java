@@ -1,5 +1,6 @@
 package com.stock.screener.domain.valueobject.fixtures;
 
+import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
 
 import java.math.BigDecimal;
@@ -13,6 +14,13 @@ public final class MarketDataSnapshotFixture {
     private BigDecimal targetPrice = new BigDecimal("180.00");
     private BigDecimal forwardEpsGrowth = new BigDecimal("15.0");
     private BigDecimal forwardRevenueGrowth = new BigDecimal("12.5");
+    private AnalystRatings analystRatings = AnalystRatings.builder()
+            .strongBuy(5)
+            .buy(10)
+            .hold(3)
+            .sell(1)
+            .strongSell(0)
+            .build();
 
     private MarketDataSnapshotFixture() {}
 
@@ -25,13 +33,28 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
+    public MarketDataSnapshotFixture withCurrentPrice(BigDecimal currentPrice) {
+        this.currentPrice = currentPrice;
+        return this;
+    }
+
     public MarketDataSnapshotFixture withNullCurrentPrice() {
         this.currentPrice = null;
         return this;
     }
 
+    public MarketDataSnapshotFixture withZeroCurrentPrice() {
+        this.currentPrice = BigDecimal.ZERO;
+        return this;
+    }
+
     public MarketDataSnapshotFixture withMarketCap(String marketCap) {
         this.marketCap = new BigDecimal(marketCap);
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withMarketCap(BigDecimal marketCap) {
+        this.marketCap = marketCap;
         return this;
     }
 
@@ -49,6 +72,11 @@ public final class MarketDataSnapshotFixture {
         return withRevenueTTM(new BigDecimal(revenueTTM));
     }
 
+    public MarketDataSnapshotFixture withZeroRevenueTTM() {
+        this.revenueTTM = BigDecimal.ZERO;
+        return this;
+    }
+
     public MarketDataSnapshotFixture withNullRevenueTTM() {
         this.revenueTTM = null;
         return this;
@@ -56,6 +84,11 @@ public final class MarketDataSnapshotFixture {
 
     public MarketDataSnapshotFixture withForwardPeRatio(String forwardPeRatio) {
         this.forwardPeRatio = new BigDecimal(forwardPeRatio);
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withForwardPeRatio(BigDecimal forwardPeRatio) {
+        this.forwardPeRatio = forwardPeRatio;
         return this;
     }
 
@@ -69,6 +102,11 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
+    public MarketDataSnapshotFixture withTargetPrice(BigDecimal targetPrice) {
+        this.targetPrice = targetPrice;
+        return this;
+    }
+
     public MarketDataSnapshotFixture withNullTargetPrice() {
         this.targetPrice = null;
         return this;
@@ -79,9 +117,60 @@ public final class MarketDataSnapshotFixture {
         return this;
     }
 
+    public MarketDataSnapshotFixture withForwardEpsGrowth(BigDecimal forwardEpsGrowth) {
+        this.forwardEpsGrowth = forwardEpsGrowth;
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withZeroForwardEpsGrowth() {
+        this.forwardEpsGrowth = BigDecimal.ZERO;
+        return this;
+    }
+
     public MarketDataSnapshotFixture withNullForwardEpsGrowth() {
         this.forwardEpsGrowth = null;
         return this;
+    }
+
+    public MarketDataSnapshotFixture withForwardRevenueGrowth(String forwardRevenueGrowth) {
+        this.forwardRevenueGrowth = new BigDecimal(forwardRevenueGrowth);
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withForwardRevenueGrowth(BigDecimal forwardRevenueGrowth) {
+        this.forwardRevenueGrowth = forwardRevenueGrowth;
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withNullForwardRevenueGrowth() {
+        this.forwardRevenueGrowth = null;
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withAnalystRatings(AnalystRatings analystRatings) {
+        this.analystRatings = analystRatings;
+        return this;
+    }
+
+    public MarketDataSnapshotFixture withNullAnalystRatings() {
+        this.analystRatings = null;
+        return this;
+    }
+
+    public static MarketDataSnapshotFixture avOnlySnapshot() {
+        return new MarketDataSnapshotFixture()
+                .withNullForwardEpsGrowth()
+                .withNullForwardRevenueGrowth()
+                .withNullAnalystRatings();
+    }
+
+    public static MarketDataSnapshotFixture yhOnlySnapshot() {
+        return new MarketDataSnapshotFixture()
+                .withNullCurrentPrice()
+                .withNullMarketCap()
+                .withNullRevenueTTM()
+                .withNullForwardPeRatio()
+                .withNullTargetPrice();
     }
 
     public MarketDataSnapshot build() {
@@ -93,6 +182,7 @@ public final class MarketDataSnapshotFixture {
                 .targetPrice(targetPrice)
                 .forwardEpsGrowth(forwardEpsGrowth)
                 .forwardRevenueGrowth(forwardRevenueGrowth)
+                .analystRatings(analystRatings)
                 .build();
     }
 }

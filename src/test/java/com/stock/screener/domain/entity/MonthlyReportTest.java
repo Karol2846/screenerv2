@@ -2,20 +2,23 @@ package com.stock.screener.domain.entity;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.MetricType;
-import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
-import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.domain.valueobject.fixtures.MarketDataSnapshotFixture.aMarketDataSnapshot;
+import static com.stock.screener.domain.valueobject.fixtures.MarketDataSnapshotFixture.avOnlySnapshot;
+import static com.stock.screener.domain.valueobject.fixtures.MarketDataSnapshotFixture.yhOnlySnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 @DisplayName("MonthlyReport Entity Tests - Sociable Testing")
 class MonthlyReportTest {
+
+    private static final BigDecimal PRECISION = new BigDecimal("0.0001");
 
     private MonthlyReport monthlyReport;
 
@@ -28,7 +31,7 @@ class MonthlyReportTest {
     @DisplayName("updateMetrics() with complete snapshot updates all simple fields atomically")
     void testUpdateMetricsUpdatesSimpleFields() {
         // Given: Complete market data snapshot
-        var snapshot = completeSnapshot().build();
+        var snapshot = aMarketDataSnapshot().build();
 
         // When: Updating metrics atomically
         monthlyReport.updateMetrics(snapshot);
@@ -61,9 +64,9 @@ class MonthlyReportTest {
     @DisplayName("updateMetrics() correctly computes PsRatio Value Object")
     void testUpdateMetricsComputesPsRatio() {
         // Given: Snapshot with valid market cap and revenue
-        var snapshot = completeSnapshot()
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withRevenueTTM("500000000")
                 .build();
 
         // When: Updating metrics
@@ -73,7 +76,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.psRatio)
                 .isNotNull()
                 .satisfies(psRatio -> assertThat(psRatio.value())
-                        .isCloseTo(new BigDecimal("2.0000"), within(new BigDecimal("0.0001"))));
+                        .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
 
         // And: No calculation errors for PS_RATIO
         assertThat(monthlyReport.calculationErrors)
@@ -84,9 +87,9 @@ class MonthlyReportTest {
     @DisplayName("updateMetrics() correctly computes ForwardPeg Value Object")
     void testUpdateMetricsComputesForwardPeg() {
         // Given: Snapshot with valid forward PE and EPS growth
-        var snapshot = completeSnapshot()
-                .forwardPeRatio(new BigDecimal("20.0"))
-                .forwardEpsGrowth(new BigDecimal("10.0"))
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("10.0")
                 .build();
 
         // When: Updating metrics
@@ -96,7 +99,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.forwardPegRatio)
                 .isNotNull()
                 .satisfies(peg -> assertThat(peg.value())
-                        .isCloseTo(new BigDecimal("2.0000"), within(new BigDecimal("0.0001"))));
+                        .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
 
         // And: No calculation errors for FORWARD_PEG
         assertThat(monthlyReport.calculationErrors)
@@ -107,9 +110,9 @@ class MonthlyReportTest {
     @DisplayName("updateMetrics() correctly computes UpsidePotential Value Object")
     void testUpdateMetricsComputesUpsidePotential() {
         // Given: Snapshot with target price and current price
-        var snapshot = completeSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .targetPrice(new BigDecimal("125.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("125.00")
                 .build();
 
         // When: Updating metrics
@@ -119,7 +122,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.upsidePotential)
                 .isNotNull()
                 .satisfies(upside -> assertThat(upside.value())
-                        .isCloseTo(new BigDecimal("25.0000"), within(new BigDecimal("0.0001"))));
+                        .isCloseTo(new BigDecimal("25.0000"), within(PRECISION)));
 
         // And: No calculation errors for UPSIDE_POTENTIAL
         assertThat(monthlyReport.calculationErrors)
@@ -130,7 +133,7 @@ class MonthlyReportTest {
     @DisplayName("updateMetrics() updates all complex metrics in one atomic operation")
     void testUpdateMetricsIsAtomic() {
         // Given: Complete snapshot
-        var snapshot = completeSnapshot().build();
+        var snapshot = aMarketDataSnapshot().build();
 
         // When: Updating metrics once
         monthlyReport.updateMetrics(snapshot);
@@ -153,8 +156,8 @@ class MonthlyReportTest {
     @DisplayName("Missing marketCap causes PsRatio to fail and track error")
     void testMissingMarketCapTracksError() {
         // Given: Snapshot with missing marketCap
-        var snapshot = completeSnapshot()
-                .marketCap(null)
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
                 .build();
 
         // When: Updating metrics
@@ -177,8 +180,8 @@ class MonthlyReportTest {
     @DisplayName("Zero revenueTTM causes PsRatio to fail with DIVISION_BY_ZERO")
     void testZeroRevenueCausesPsRatioFailure() {
         // Given: Snapshot with zero revenue
-        var snapshot = completeSnapshot()
-                .revenueTTM(BigDecimal.ZERO)
+        var snapshot = aMarketDataSnapshot()
+                .withZeroRevenueTTM()
                 .build();
 
         // When: Updating metrics
@@ -199,8 +202,8 @@ class MonthlyReportTest {
     @DisplayName("Missing forwardPeRatio causes ForwardPeg to fail and track error")
     void testMissingForwardPeTracksError() {
         // Given: Snapshot with missing forwardPeRatio
-        var snapshot = completeSnapshot()
-                .forwardPeRatio(null)
+        var snapshot = aMarketDataSnapshot()
+                .withNullForwardPeRatio()
                 .build();
 
         // When: Updating metrics
@@ -222,8 +225,8 @@ class MonthlyReportTest {
     @DisplayName("Zero forwardEpsGrowth causes ForwardPeg to fail with DIVISION_BY_ZERO")
     void testZeroEpsGrowthCausesForwardPegFailure() {
         // Given: Snapshot with zero EPS growth
-        var snapshot = completeSnapshot()
-                .forwardEpsGrowth(BigDecimal.ZERO)
+        var snapshot = aMarketDataSnapshot()
+                .withZeroForwardEpsGrowth()
                 .build();
 
         // When: Updating metrics
@@ -244,8 +247,8 @@ class MonthlyReportTest {
     @DisplayName("Missing targetPrice causes UpsidePotential to fail and track error")
     void testMissingTargetPriceTracksError() {
         // Given: Snapshot with missing targetPrice
-        var snapshot = completeSnapshot()
-                .targetPrice(null)
+        var snapshot = aMarketDataSnapshot()
+                .withNullTargetPrice()
                 .build();
 
         // When: Updating metrics
@@ -267,10 +270,10 @@ class MonthlyReportTest {
     @DisplayName("Multiple missing fields cause multiple errors to be tracked")
     void testMultipleMissingFieldsTrackMultipleErrors() {
         // Given: Snapshot with multiple missing fields
-        var snapshot = completeSnapshot()
-                .marketCap(null)          // PsRatio will fail
-                .forwardPeRatio(null)     // ForwardPeg will fail
-                .targetPrice(null)        // UpsidePotential will fail
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()          // PsRatio will fail
+                .withNullForwardPeRatio()     // ForwardPeg will fail
+                .withNullTargetPrice()        // UpsidePotential will fail
                 .build();
 
         // When: Updating metrics
@@ -298,15 +301,15 @@ class MonthlyReportTest {
     @DisplayName("Errors from previous update are cleared on subsequent update")
     void testErrorsClearedOnSubsequentUpdate() {
         // Given: First update with missing data
-        var incompleteSnapshot = completeSnapshot()
-                .marketCap(null)
+        var incompleteSnapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
                 .build();
 
         monthlyReport.updateMetrics(incompleteSnapshot);
         assertThat(monthlyReport.calculationErrors).isNotEmpty();
 
         // When: Second update with complete data
-        var completeSnapshotData = completeSnapshot().build();
+        var completeSnapshotData = aMarketDataSnapshot().build();
         monthlyReport.updateMetrics(completeSnapshotData);
 
         // Then: Previous errors should be cleared
@@ -324,7 +327,7 @@ class MonthlyReportTest {
     @DisplayName("Complete snapshot results in COMPLETE integrity status")
     void testCompleteSnapshotProducesCompleteStatus() {
         // Given: Complete snapshot with all AV and YH data
-        var snapshot = completeSnapshot().build();
+        var snapshot = aMarketDataSnapshot().build();
 
         // When: Updating metrics
         monthlyReport.updateMetrics(snapshot);
@@ -390,17 +393,12 @@ class MonthlyReportTest {
     @DisplayName("Missing both AV and YH data results in MISSING_DATA status")
     void testMissingBothProducesMissingDataStatus() {
         // Given: Snapshot with incomplete data from both sources
-        var snapshot = MarketDataSnapshot.builder()
+        var snapshot = aMarketDataSnapshot()
                 // Incomplete AV data (psRatio cannot be computed)
-                .currentPrice(new BigDecimal("150.00"))
-                .marketCap(null)  // Missing for psRatio
-                .revenueTTM(new BigDecimal("500000000"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .targetPrice(new BigDecimal("180.00"))
+                .withNullMarketCap()  // Missing for psRatio
                 // Incomplete YH data
-                .forwardEpsGrowth(null)  // Missing
-                .forwardRevenueGrowth(new BigDecimal("12.5"))
-                .analystRatings(null)  // Missing
+                .withNullForwardEpsGrowth()  // Missing
+                .withNullAnalystRatings()  // Missing
                 .build();
 
         // When: Updating metrics
@@ -415,8 +413,8 @@ class MonthlyReportTest {
     @DisplayName("Partial AV data (missing one field) is not considered complete")
     void testPartialAvDataNotComplete() {
         // Given: Snapshot with most AV data but missing one critical field
-        var snapshot = completeSnapshot()
-                .revenueTTM(null)  // Missing - breaks psRatio
+        var snapshot = aMarketDataSnapshot()
+                .withNullRevenueTTM()  // Missing - breaks psRatio
                 .build();
 
         // When: Updating metrics
@@ -435,9 +433,9 @@ class MonthlyReportTest {
     @DisplayName("Updating metrics twice with different data changes all fields")
     void testUpdateMetricsTwiceChangesAllFields() {
         // Given: First snapshot
-        var snapshot1 = completeSnapshot()
-                .currentPrice(new BigDecimal("100.00"))
-                .marketCap(new BigDecimal("1000000000"))
+        var snapshot1 = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withMarketCap("1000000000")
                 .build();
 
         monthlyReport.updateMetrics(snapshot1);
@@ -446,10 +444,10 @@ class MonthlyReportTest {
         BigDecimal firstPsRatio = monthlyReport.psRatio.value();
 
         // When: Second update with different data
-        var snapshot2 = completeSnapshot()
-                .currentPrice(new BigDecimal("200.00"))
-                .marketCap(new BigDecimal("2000000000"))
-                .forwardPeRatio(new BigDecimal("30.0"))
+        var snapshot2 = aMarketDataSnapshot()
+                .withCurrentPrice("200.00")
+                .withMarketCap("2000000000")
+                .withForwardPeRatio("30.0")
                 .build();
 
         monthlyReport.updateMetrics(snapshot2);
@@ -467,8 +465,8 @@ class MonthlyReportTest {
     @DisplayName("ReportError includes timestamp and all required fields")
     void testReportErrorStructure() {
         // Given: Snapshot with missing data
-        var snapshot = completeSnapshot()
-                .marketCap(null)
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
                 .build();
 
         // When: Updating metrics
@@ -490,9 +488,9 @@ class MonthlyReportTest {
     @DisplayName("Negative upside potential is computed correctly when current price > target price")
     void testNegativeUpsidePotential() {
         // Given: Snapshot where current price exceeds target price
-        var snapshot = completeSnapshot()
-                .currentPrice(new BigDecimal("200.00"))
-                .targetPrice(new BigDecimal("150.00"))
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("200.00")
+                .withTargetPrice("150.00")
                 .build();
 
         // When: Updating metrics
@@ -502,57 +500,28 @@ class MonthlyReportTest {
         assertThat(monthlyReport.upsidePotential)
                 .isNotNull()
                 .satisfies(upside -> assertThat(upside.value())
-                        .isCloseTo(new BigDecimal("-25.0000"), within(new BigDecimal("0.0001"))));
+                        .isCloseTo(new BigDecimal("-25.0000"), within(PRECISION)));
     }
 
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder completeSnapshot() {
-        return MarketDataSnapshot.builder()
-                .currentPrice(new BigDecimal("150.00"))
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .targetPrice(new BigDecimal("180.00"))
-                .forwardEpsGrowth(new BigDecimal("15.0"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"))
-                .analystRatings(AnalystRatings.builder()
-                        .strongBuy(5)
-                        .buy(10)
-                        .hold(3)
-                        .sell(1)
-                        .strongSell(0)
-                        .build());
-    }
+    @Test
+    @DisplayName("Zero currentPrice causes UpsidePotential to fail with DIVISION_BY_ZERO")
+    void testZeroCurrentPriceCausesUpsidePotentialFailure() {
+        // Given: Snapshot with zero current price
+        var snapshot = aMarketDataSnapshot()
+                .withZeroCurrentPrice()
+                .build();
 
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder avOnlySnapshot() {
-        return MarketDataSnapshot.builder()
-                .currentPrice(new BigDecimal("150.00"))
-                .marketCap(new BigDecimal("1000000000"))
-                .revenueTTM(new BigDecimal("500000000"))
-                .forwardPeRatio(new BigDecimal("25.0"))
-                .targetPrice(new BigDecimal("180.00"))
-                // YH fields are null
-                .forwardEpsGrowth(null)
-                .forwardRevenueGrowth(null)
-                .analystRatings(null);
-    }
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
 
-    private static MarketDataSnapshot.MarketDataSnapshotBuilder yhOnlySnapshot() {
-        return MarketDataSnapshot.builder()
-                // AV fields incomplete for complex metrics
-                .currentPrice(null)
-                .marketCap(null)
-                .revenueTTM(null)
-                .forwardPeRatio(null)
-                .targetPrice(null)
-                // YH fields complete
-                .forwardEpsGrowth(new BigDecimal("15.0"))
-                .forwardRevenueGrowth(new BigDecimal("12.5"))
-                .analystRatings(AnalystRatings.builder()
-                        .strongBuy(5)
-                        .buy(10)
-                        .hold(3)
-                        .sell(1)
-                        .strongSell(0)
-                        .build());
+        // Then: UpsidePotential should be null
+        assertThat(monthlyReport.upsidePotential).isNull();
+
+        // And: Error should be tracked as DIVISION_BY_ZERO
+        assertThat(monthlyReport.calculationErrors)
+                .anyMatch(error ->
+                        error.metric() == MetricType.UPSIDE_POTENTIAL &&
+                                error.errorType() == CalculationErrorType.DIVISION_BY_ZERO
+                );
     }
 }
