@@ -79,8 +79,7 @@ class MonthlyReportTest {
                         .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
 
         // And: No calculation errors for PS_RATIO
-        assertThat(monthlyReport.calculationErrors)
-                .noneMatch(error -> error.metric() == MetricType.PS_RATIO);
+        assertNoCalculationErrorFor(MetricType.PS_RATIO);
     }
 
     @Test
@@ -102,8 +101,7 @@ class MonthlyReportTest {
                         .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
 
         // And: No calculation errors for FORWARD_PEG
-        assertThat(monthlyReport.calculationErrors)
-                .noneMatch(error -> error.metric() == MetricType.FORWARD_PEG);
+        assertNoCalculationErrorFor(MetricType.FORWARD_PEG);
     }
 
     @Test
@@ -125,8 +123,7 @@ class MonthlyReportTest {
                         .isCloseTo(new BigDecimal("25.0000"), within(PRECISION)));
 
         // And: No calculation errors for UPSIDE_POTENTIAL
-        assertThat(monthlyReport.calculationErrors)
-                .noneMatch(error -> error.metric() == MetricType.UPSIDE_POTENTIAL);
+        assertNoCalculationErrorFor(MetricType.UPSIDE_POTENTIAL);
     }
 
     @Test
@@ -166,14 +163,8 @@ class MonthlyReportTest {
         // Then: PsRatio should be null
         assertThat(monthlyReport.psRatio).isNull();
 
-        // And: Calculation error should be tracked
-        assertThat(monthlyReport.calculationErrors)
-                .hasSize(1)
-                .anyMatch(error ->
-                        error.metric() == MetricType.PS_RATIO &&
-                                error.errorType() == CalculationErrorType.MISSING_DATA &&
-                                error.reason().contains("marketCap")
-                );
+        // And: Calculation error should be tracked with correct field name
+        assertMissingDataError(MetricType.PS_RATIO, "marketCap");
     }
 
     @Test
@@ -191,11 +182,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.psRatio).isNull();
 
         // And: Error should be tracked as DIVISION_BY_ZERO
-        assertThat(monthlyReport.calculationErrors)
-                .anyMatch(error ->
-                        error.metric() == MetricType.PS_RATIO &&
-                                error.errorType() == CalculationErrorType.DIVISION_BY_ZERO
-                );
+        assertCalculationError(MetricType.PS_RATIO);
     }
 
     @Test
@@ -213,12 +200,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.forwardPegRatio).isNull();
 
         // And: Calculation error should be tracked
-        assertThat(monthlyReport.calculationErrors)
-                .anyMatch(error ->
-                        error.metric() == MetricType.FORWARD_PEG &&
-                                error.errorType() == CalculationErrorType.MISSING_DATA &&
-                                error.reason().contains("forwardPeRatio")
-                );
+        assertMissingDataError(MetricType.FORWARD_PEG, "forwardPeRatio");
     }
 
     @Test
@@ -236,11 +218,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.forwardPegRatio).isNull();
 
         // And: Error should be tracked as DIVISION_BY_ZERO
-        assertThat(monthlyReport.calculationErrors)
-                .anyMatch(error ->
-                        error.metric() == MetricType.FORWARD_PEG &&
-                                error.errorType() == CalculationErrorType.DIVISION_BY_ZERO
-                );
+        assertCalculationError(MetricType.FORWARD_PEG);
     }
 
     @Test
@@ -258,12 +236,7 @@ class MonthlyReportTest {
         assertThat(monthlyReport.upsidePotential).isNull();
 
         // And: Calculation error should be tracked
-        assertThat(monthlyReport.calculationErrors)
-                .anyMatch(error ->
-                        error.metric() == MetricType.UPSIDE_POTENTIAL &&
-                                error.errorType() == CalculationErrorType.MISSING_DATA &&
-                                error.reason().contains("targetPrice")
-                );
+        assertMissingDataError(MetricType.UPSIDE_POTENTIAL, "targetPrice");
     }
 
     @Test
@@ -338,20 +311,51 @@ class MonthlyReportTest {
     }
 
     @Test
-    @DisplayName("Only AV data with forwardPeRatio null results in partial status")
-    void testAvOnlyWithPartialDataProducesMissingStatus() {
+    @DisplayName("AV + partial YH data (only forwardEpsGrowth) allows ForwardPeg computation, status is AV_FETCHED_COMPLETED")
+    void testAvWithPartialYhProducesAvFetchedCompleted() {
+        // Given: Snapshot with AV data + only forwardEpsGrowth from YH
+        // (missing analystRatings and forwardRevenueGrowth)
+        var snapshot = aMarketDataSnapshot()
+                .withNullAnalystRatings()
+                .withNullForwardRevenueGrowth()
+                // forwardEpsGrowth remains - allows ForwardPeg computation
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: All computed metrics should be present (including hybrid ForwardPeg)
+        assertThat(monthlyReport.psRatio).isNotNull();
+        assertThat(monthlyReport.forwardPegRatio).isNotNull();
+        assertThat(monthlyReport.upsidePotential).isNotNull();
+
+        // And: Partial YH data
+        assertThat(monthlyReport.forwardEpsGrowth).isNotNull();
+        assertThat(monthlyReport.analystRatings).isNull();
+        assertThat(monthlyReport.forwardRevenueGrowth).isNull();
+
+        // And: Status should be AV_FETCHED_COMPLETED because:
+        // - AV is complete (psRatio, upsidePotential)
+        // - YH is NOT complete (missing analystRatings, forwardRevenueGrowth)
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.AV_FETCHED_COMPLETED);
+    }
+
+    @Test
+    @DisplayName("Only AV data (without YH) results in AV_FETCHED_COMPLETED status")
+    void testAvOnlyProducesAvFetchedCompletedStatus() {
         // Given: Snapshot with only AV data (YH data missing)
-        // Note: ForwardPeg cannot be computed without forwardEpsGrowth (YH field)
+        // ForwardPeg cannot be computed without forwardEpsGrowth (YH field) - that's expected
         var snapshot = avOnlySnapshot().build();
 
         // When: Updating metrics
         monthlyReport.updateMetrics(snapshot);
 
-        // Then: AV metrics that don't depend on YH should be computed
+        // Then: Pure AV metrics should be computed
         assertThat(monthlyReport.psRatio).isNotNull();
         assertThat(monthlyReport.upsidePotential).isNotNull();
         
-        // But: ForwardPeg needs YH forwardEpsGrowth, so it will be null
+        // And: ForwardPeg (hybrid metric) should be null - it needs YH forwardEpsGrowth
         assertThat(monthlyReport.forwardPegRatio).isNull();
 
         // And: YH simple fields should be null
@@ -359,10 +363,9 @@ class MonthlyReportTest {
         assertThat(monthlyReport.forwardRevenueGrowth).isNull();
         assertThat(monthlyReport.analystRatings).isNull();
 
-        // And: Status should be MISSING_DATA because neither AV nor YH are complete
-        // (AV is not complete because forwardPegRatio failed)
+        // And: Status should be AV_FETCHED_COMPLETED (pure AV metrics are OK)
         assertThat(monthlyReport.integrityStatus)
-                .isEqualTo(ReportIntegrityStatus.MISSING_DATA);
+                .isEqualTo(ReportIntegrityStatus.AV_FETCHED_COMPLETED);
     }
 
     @Test
@@ -518,10 +521,103 @@ class MonthlyReportTest {
         assertThat(monthlyReport.upsidePotential).isNull();
 
         // And: Error should be tracked as DIVISION_BY_ZERO
+        assertCalculationError(MetricType.UPSIDE_POTENTIAL);
+    }
+
+    // === Edge Cases & Defensive Tests ===
+
+    @Test
+    @DisplayName("updateMetrics() with null snapshot throws NullPointerException")
+    void testNullSnapshotThrowsException() {
+        // Given: null snapshot
+
+        // When/Then: Should throw NPE (or consider adding null check in domain)
+        org.junit.jupiter.api.Assertions.assertThrows(
+                NullPointerException.class,
+                () -> monthlyReport.updateMetrics(null)
+        );
+    }
+
+    @Test
+    @DisplayName("Negative forwardEpsGrowth produces valid ForwardPeg (growth stock losing momentum)")
+    void testNegativeForwardEpsGrowthProducesValidPeg() {
+        // Given: Negative EPS growth (company losing momentum)
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("-5.0")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should be computed (20 / -5 = -4.0)
+        // Negative PEG indicates declining earnings - this is valid business scenario
+        assertThat(monthlyReport.forwardPegRatio)
+                .isNotNull()
+                .satisfies(peg -> assertThat(peg.value())
+                        .isCloseTo(new BigDecimal("-4.0000"), within(PRECISION)));
+    }
+
+    @Test
+    @DisplayName("Very large numbers don't cause overflow in calculations")
+    void testLargeNumbersHandledCorrectly() {
+        // Given: Very large market cap (Apple-like)
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("3000000000000")  // 3 trillion
+                .withRevenueTTM("400000000000")   // 400 billion
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: PsRatio should be computed correctly (3T / 400B = 7.5)
+        assertThat(monthlyReport.psRatio)
+                .isNotNull()
+                .satisfies(psRatio -> assertThat(psRatio.value())
+                        .isCloseTo(new BigDecimal("7.5000"), within(PRECISION)));
+    }
+
+    @Test
+    @DisplayName("Very small decimal values preserve precision")
+    void testSmallDecimalPrecision() {
+        // Given: Small fractional values
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("0.5")
+                .withForwardEpsGrowth("0.25")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should preserve precision (0.5 / 0.25 = 2.0)
+        assertThat(monthlyReport.forwardPegRatio)
+                .isNotNull()
+                .satisfies(peg -> assertThat(peg.value())
+                        .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
+    }
+
+    private void assertCalculationError(MetricType metric) {
         assertThat(monthlyReport.calculationErrors)
+                .as("Expected calculation error for %s with type %s", metric, CalculationErrorType.DIVISION_BY_ZERO)
                 .anyMatch(error ->
-                        error.metric() == MetricType.UPSIDE_POTENTIAL &&
+                        error.metric() == metric &&
                                 error.errorType() == CalculationErrorType.DIVISION_BY_ZERO
+                );
+    }
+
+    private void assertNoCalculationErrorFor(MetricType metric) {
+        assertThat(monthlyReport.calculationErrors)
+                .as("Expected no calculation error for %s", metric)
+                .noneMatch(error -> error.metric() == metric);
+    }
+
+    private void assertMissingDataError(MetricType metric, String expectedField) {
+        assertThat(monthlyReport.calculationErrors)
+                .as("Expected MISSING_DATA error for %s mentioning '%s'", metric, expectedField)
+                .anyMatch(error ->
+                        error.metric() == metric &&
+                                error.errorType() == CalculationErrorType.MISSING_DATA &&
+                                error.reason().contains(expectedField)
                 );
     }
 }

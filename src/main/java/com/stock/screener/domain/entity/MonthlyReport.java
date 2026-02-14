@@ -118,27 +118,34 @@ public class MonthlyReport extends PanacheEntity {
     private void updateIntegrityStatus() {
         boolean avComplete = isAVFetchingCompleted();
         boolean yhComplete = isYHFinanceFetchingCompleted();
+        boolean hybridComplete = forwardPegRatio != null;
 
-        if (avComplete && yhComplete) {
+        if (avComplete && yhComplete && hybridComplete) {
             this.integrityStatus = ReportIntegrityStatus.COMPLETE;
-        } else if (avComplete) {
+        } else if (avComplete && !yhComplete) {
             this.integrityStatus = ReportIntegrityStatus.AV_FETCHED_COMPLETED;
-        } else if (yhComplete) {
+        } else if (yhComplete && !avComplete) {
             this.integrityStatus = ReportIntegrityStatus.YH_FETCHED_COMPLETED;
         } else {
             this.integrityStatus = ReportIntegrityStatus.MISSING_DATA;
         }
     }
 
+    /**
+     * YH (Yahoo Finance) is considered complete when all YH simple fields are present.
+     */
     private boolean isYHFinanceFetchingCompleted() {
         return analystRatings != null &&
                 forwardRevenueGrowth != null &&
                 forwardEpsGrowth != null;
     }
 
+    /**
+     * AV (Alpha Vantage) is considered complete when all pure AV metrics are computed.
+     * Note: ForwardPeg is EXCLUDED because it's a hybrid metric (requires YH forwardEpsGrowth).
+     */
     private boolean isAVFetchingCompleted() {
         return psRatio != null
-                && forwardPegRatio != null
                 && upsidePotential != null;
     }
 }
