@@ -1,6 +1,7 @@
 package com.stock.screener.domain.entity;
 
 import com.stock.screener.domain.kernel.ReportError;
+import com.stock.screener.domain.service.AltmanScoreCalculator;
 import com.stock.screener.domain.valueobject.AltmanZScore;
 import com.stock.screener.domain.valueobject.Sector;
 import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
@@ -72,14 +73,14 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    public void updateMetrics(FinancialDataSnapshot snapshot, Sector sector) {
+    public void updateMetrics(FinancialDataSnapshot snapshot, Sector sector, AltmanScoreCalculator altmanCalculator) {
         this.calculationErrors.clear();
 
         FinancialDataSnapshot enrichedSnapshot = enrichWithEntityData(snapshot);
 
         recalculateQuickRatio(enrichedSnapshot);
         recalculateInterestCoverageRatio(enrichedSnapshot);
-        recalculateAltmanZScore(enrichedSnapshot, sector);
+        recalculateAltmanZScore(enrichedSnapshot, sector, altmanCalculator);
 
         updateIntegrityStatus();
     }
@@ -117,8 +118,8 @@ public class QuarterlyReport extends PanacheEntity {
                 });
     }
 
-    private void recalculateAltmanZScore(FinancialDataSnapshot snapshot, Sector sector) {
-        AltmanZScore.compute(snapshot, sector)
+    private void recalculateAltmanZScore(FinancialDataSnapshot snapshot, Sector sector, AltmanScoreCalculator calculator) {
+        calculator.calculate(snapshot, sector)
                 .onSuccess(az -> this.altmanZScore = az)
                 .onFailure(failure -> {
                     this.altmanZScore = null;
