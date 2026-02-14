@@ -5,6 +5,7 @@ import com.stock.screener.domain.kernel.MetricType;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -27,9 +28,13 @@ class MonthlyReportTest {
         monthlyReport = new MonthlyReport();
     }
 
-    @Test
-    @DisplayName("updateMetrics() with complete snapshot updates all simple fields atomically")
-    void testUpdateMetricsUpdatesSimpleFields() {
+    @Nested
+    @DisplayName("Happy Path - Complete Snapshot Updates")
+    class HappyPathTests {
+
+        @Test
+        @DisplayName("updateMetrics() with complete snapshot updates all simple fields atomically")
+        void testUpdateMetricsUpdatesSimpleFields() {
         // Given: Complete market data snapshot
         var snapshot = aMarketDataSnapshot().build();
 
@@ -146,6 +151,11 @@ class MonthlyReportTest {
         // And: Integrity status should be COMPLETE
         assertThat(monthlyReport.integrityStatus).isEqualTo(ReportIntegrityStatus.COMPLETE);
     }
+    } // End HappyPathTests
+
+    @Nested
+    @DisplayName("Calculation Error Tracking")
+    class CalculationErrorTests {
 
     // === Calculation Error Tracking Tests ===
 
@@ -293,6 +303,11 @@ class MonthlyReportTest {
         assertThat(monthlyReport.forwardPegRatio).isNotNull();
         assertThat(monthlyReport.upsidePotential).isNotNull();
     }
+    } // End CalculationErrorTests
+
+    @Nested
+    @DisplayName("Report Integrity Status Determination")
+    class IntegrityStatusTests {
 
     // === ReportIntegrityStatus Tests ===
 
@@ -463,6 +478,11 @@ class MonthlyReportTest {
         assertThat(monthlyReport.psRatio.value())
                 .isNotEqualTo(firstPsRatio);
     }
+    } // End IntegrityStatusTests
+
+    @Nested
+    @DisplayName("Edge Cases & Defensive Tests")
+    class EdgeCaseTests {
 
     @Test
     @DisplayName("ReportError includes timestamp and all required fields")
@@ -530,12 +550,10 @@ class MonthlyReportTest {
     @DisplayName("updateMetrics() with null snapshot throws NullPointerException")
     void testNullSnapshotThrowsException() {
         // Given: null snapshot
-
         // When/Then: Should throw NPE (or consider adding null check in domain)
-        org.junit.jupiter.api.Assertions.assertThrows(
-                NullPointerException.class,
+        org.assertj.core.api.Assertions.assertThatThrownBy(
                 () -> monthlyReport.updateMetrics(null)
-        );
+        ).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -595,6 +613,76 @@ class MonthlyReportTest {
                 .satisfies(peg -> assertThat(peg.value())
                         .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
     }
+    } // End EdgeCaseTests
+
+    @Nested
+    @DisplayName("Idempotency & State Consistency")
+    class IdempotencyTests {
+
+        @Test
+        @DisplayName("updateMetrics() called twice with same snapshot is idempotent")
+        void testUpdateMetricsIsIdempotent() {
+            // Given: Complete snapshot
+            var snapshot = aMarketDataSnapshot().build();
+
+            // When: Called twice
+            monthlyReport.updateMetrics(snapshot);
+            var firstPsRatio = monthlyReport.psRatio.value();
+            var firstForwardPeg = monthlyReport.forwardPegRatio.value();
+            var firstUpside = monthlyReport.upsidePotential.value();
+
+            monthlyReport.updateMetrics(snapshot);
+
+            // Then: Values should be identical
+            assertThat(monthlyReport.psRatio.value()).isEqualByComparingTo(firstPsRatio);
+            assertThat(monthlyReport.forwardPegRatio.value()).isEqualByComparingTo(firstForwardPeg);
+            assertThat(monthlyReport.upsidePotential.value()).isEqualByComparingTo(firstUpside);
+            assertThat(monthlyReport.calculationErrors).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Partial AV with only upsidePotential null still marks AV as incomplete")
+        void testPartialAvOnlyUpsidePotentialNull() {
+            // Given: Snapshot missing currentPrice (breaks upsidePotential only)
+            var snapshot = aMarketDataSnapshot()
+                    .withNullCurrentPrice()
+                    .build();
+
+            // When: Updating metrics
+            monthlyReport.updateMetrics(snapshot);
+
+            // Then: psRatio should be computed, upsidePotential should be null
+            assertThat(monthlyReport.psRatio).isNotNull();
+            assertThat(monthlyReport.upsidePotential).isNull();
+
+            // And: AV is NOT complete (requires both psRatio AND upsidePotential)
+            // Status should be YH_FETCHED_COMPLETED (YH fields are present)
+            assertThat(monthlyReport.integrityStatus)
+                    .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
+        }
+
+        @Test
+        @DisplayName("Partial AV with only psRatio null still marks AV as incomplete")
+        void testPartialAvOnlyPsRatioNull() {
+            // Given: Snapshot missing marketCap (breaks psRatio only)
+            var snapshot = aMarketDataSnapshot()
+                    .withNullMarketCap()
+                    .build();
+
+            // When: Updating metrics
+            monthlyReport.updateMetrics(snapshot);
+
+            // Then: upsidePotential should be computed, psRatio should be null
+            assertThat(monthlyReport.upsidePotential).isNotNull();
+            assertThat(monthlyReport.psRatio).isNull();
+
+            // And: AV is NOT complete
+            assertThat(monthlyReport.integrityStatus)
+                    .isEqualTo(ReportIntegrityStatus.YH_FETCHED_COMPLETED);
+        }
+    } // End IdempotencyTests
+
+    // === Helper Methods for Assertions ===
 
     private void assertCalculationError(MetricType metric) {
         assertThat(monthlyReport.calculationErrors)
