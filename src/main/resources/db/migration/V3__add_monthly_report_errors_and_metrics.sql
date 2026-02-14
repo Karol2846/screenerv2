@@ -21,6 +21,6 @@ ALTER TABLE monthly_report
     ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP;
 
 COMMENT ON COLUMN monthly_report.calculation_errors IS 'Lista błędów kalkulacji metryk w formacie JSONB - audit trail';
-COMMENT ON COLUMN monthly_report.integrity_status IS 'Status integralności danych: COMPLETE, STALE_MISSING_DATA, etc.';
+COMMENT ON COLUMN monthly_report.integrity_status IS 'Status integralności danych: READY_FOR_ANALYSIS, MISSING_DATA, etc.';
 COMMENT ON COLUMN monthly_report.upside_potential IS 'Procentowy potencjał wzrostu względem target price';
 
