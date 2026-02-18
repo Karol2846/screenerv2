@@ -8,64 +8,57 @@ import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+@Slf4j
 @ApplicationScoped
 public class AlphaVantageGateway {
 
-    private static final String FUNCTION_OVERVIEW = "OVERVIEW";
-    private static final String FUNCTION_BALANCE_SHEET = "BALANCE_SHEET";
-    private static final String FUNCTION_INCOME_STATEMENT = "INCOME_STATEMENT";
+    private static final String OVERVIEW = "OVERVIEW";
+    private static final String BALANCE_SHEET = "BALANCE_SHEET";
+    private static final String INCOME_STATEMENT = "INCOME_STATEMENT";
 
     private final AlphaVantageClient client;
     private final ObjectMapper objectMapper;
-    private final String apiKey;
 
     @Inject
     public AlphaVantageGateway(
             @RestClient AlphaVantageClient client,
-            ObjectMapper objectMapper,
-            @ConfigProperty(name = "alphavantage.api.key") String apiKey
+            ObjectMapper objectMapper
     ) {
         this.client = client;
         this.objectMapper = objectMapper;
-        this.apiKey = apiKey;
     }
 
     @Transactional
     public OverviewResponse fetchOverview(String ticker) {
-        OverviewResponse response = client.getOverview(FUNCTION_OVERVIEW, ticker, apiKey);
-        persistLog(ticker, FUNCTION_OVERVIEW, response);
+        OverviewResponse response = client.getOverview(OVERVIEW, ticker);
+        persistLog(ticker, OVERVIEW, response);
         return response;
     }
 
     @Transactional
     public BalanceSheetResponse fetchBalanceSheet(String ticker) {
-        BalanceSheetResponse response = client.getBalanceSheet(FUNCTION_BALANCE_SHEET, ticker, apiKey);
-        persistLog(ticker, FUNCTION_BALANCE_SHEET, response);
+        BalanceSheetResponse response = client.getBalanceSheet(BALANCE_SHEET, ticker);
+        persistLog(ticker, BALANCE_SHEET, response);
         return response;
     }
 
     @Transactional
     public IncomeStatementResponse fetchIncomeStatement(String ticker) {
-        IncomeStatementResponse response = client.getIncomeStatement(FUNCTION_INCOME_STATEMENT, ticker, apiKey);
-        persistLog(ticker, FUNCTION_INCOME_STATEMENT, response);
+        IncomeStatementResponse response = client.getIncomeStatement(INCOME_STATEMENT, ticker);
+        persistLog(ticker, INCOME_STATEMENT, response);
         return response;
     }
 
     private void persistLog(String ticker, String functionName, Object response) {
-        String rawJson = serializeToJson(response);
-        var log = new AlphaVantageResponseLog(ticker, functionName, rawJson);
-        log.persist();
-    }
-
-    private String serializeToJson(Object response) {
         try {
-            return objectMapper.writeValueAsString(response);
+            String rawJson = objectMapper.writeValueAsString(response);
+            var logEntry = new AlphaVantageResponseLog(ticker, functionName, rawJson);
+            logEntry.persist();
         } catch (JsonProcessingException e) {
-            throw new AlphaVantageSerializationException(
-                    "Failed to serialize Alpha Vantage response to JSON", e);
+            log.error("Failed to serialize Alpha Vantage response for ticker={}, function={}", ticker, functionName, e);
         }
     }
 }
