@@ -5,7 +5,6 @@ import com.stock.screener.domain.kernel.CalculationResult;
 import com.stock.screener.domain.valueobject.AltmanZScore;
 import com.stock.screener.domain.valueobject.Sector;
 import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,13 +22,6 @@ import static org.assertj.core.api.Assertions.within;
 @DisplayName("AltmanScoreCalculator Domain Service Tests")
 class AltmanScoreCalculatorTest {
 
-    private AltmanScoreCalculator calculator;
-
-    @BeforeEach
-    void setUp() {
-        calculator = new AltmanScoreCalculator();
-    }
-
     @Nested
     @DisplayName("Manufacturing Sectors (Original Z-Score Formula)")
     class ManufacturingSectors {
@@ -42,7 +34,7 @@ class AltmanScoreCalculatorTest {
             var snapshot = baseSnapshot().build();
 
             // When: Computing Altman Z-Score for manufacturing sector
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, sector);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, sector);
 
             // Then: Result should be successful with expected score
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
@@ -60,7 +52,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score for manufacturing sector
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.ENERGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.ENERGY);
 
             // Then: Should fail with MISSING_DATA
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -84,7 +76,7 @@ class AltmanScoreCalculatorTest {
             var snapshot = baseSnapshot().build();
 
             // When: Computing Altman Z''-Score for non-manufacturing sector
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, sector);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, sector);
 
             // Then: Result should be successful with expected score
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
@@ -102,7 +94,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z''-Score for non-manufacturing sector
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
             // Then: Should succeed (totalRevenue is not required for non-manufacturing formula)
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
@@ -121,7 +113,7 @@ class AltmanScoreCalculatorTest {
             var snapshot = baseSnapshot().build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, sector);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, sector);
 
             // Then: Should skip with NOT_APPLICABLE
             assertThat(result).isInstanceOf(CalculationResult.Skipped.class);
@@ -146,7 +138,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
             // Then: Should fail with DIVISION_BY_ZERO
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -166,7 +158,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
             // Then: Should fail with DIVISION_BY_ZERO
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -186,7 +178,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
             // Then: Should fail with MISSING_DATA
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -206,7 +198,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.ENERGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.ENERGY);
 
             // Then: Should fail with MISSING_DATA
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -226,7 +218,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.MINING);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.MINING);
 
             // Then: Should fail with MISSING_DATA
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -249,7 +241,7 @@ class AltmanScoreCalculatorTest {
             var snapshot = baseSnapshot().build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
             // Then: Result should have scale of 4
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
@@ -270,8 +262,8 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Scores for both
-            CalculationResult<AltmanZScore> result1 = calculator.calculate(snapshot1, Sector.TECHNOLOGY);
-            CalculationResult<AltmanZScore> result2 = calculator.calculate(snapshot2, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result1 = AltmanScoreCalculator.calculate(snapshot1, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result2 = AltmanScoreCalculator.calculate(snapshot2, Sector.TECHNOLOGY);
 
             // Then: Scores should be different
             assertThat(result1).isInstanceOf(CalculationResult.Success.class);
@@ -301,7 +293,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = calculator.calculate(snapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
             // Then: Should still calculate successfully (negative values are valid in finance)
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
@@ -327,8 +319,8 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Scores
-            CalculationResult<AltmanZScore> lowEquityResult = calculator.calculate(lowEquitySnapshot, Sector.TECHNOLOGY);
-            CalculationResult<AltmanZScore> highEquityResult = calculator.calculate(highEquitySnapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> lowEquityResult = AltmanScoreCalculator.calculate(lowEquitySnapshot, Sector.TECHNOLOGY);
+            CalculationResult<AltmanZScore> highEquityResult = AltmanScoreCalculator.calculate(highEquitySnapshot, Sector.TECHNOLOGY);
 
             // Then: High equity snapshot should produce higher Z-Score
             assertThat(lowEquityResult).isInstanceOf(CalculationResult.Success.class);

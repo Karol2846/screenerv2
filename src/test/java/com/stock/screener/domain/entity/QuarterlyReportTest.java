@@ -2,7 +2,6 @@ package com.stock.screener.domain.entity;
 
 import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.MetricType;
-import com.stock.screener.domain.service.AltmanScoreCalculator;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
 import com.stock.screener.domain.valueobject.Sector;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,14 +21,14 @@ import static org.assertj.core.api.Assertions.within;
 class QuarterlyReportTest {
 
     private QuarterlyReport quarterlyReport;
-    private AltmanScoreCalculator altmanCalculator;
+    
 
     @BeforeEach
     void setUp() {
         quarterlyReport = new QuarterlyReport();
         quarterlyReport.totalRevenue = new BigDecimal("800000");
         quarterlyReport.totalAssets = new BigDecimal("1000000");
-        altmanCalculator = new AltmanScoreCalculator();
+        
     }
 
     @Nested
@@ -43,7 +42,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics atomically
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: All three metrics should be populated
             assertThat(quarterlyReport.quickRatio).isNotNull();
@@ -71,7 +70,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: QuickRatio should be computed correctly
             assertThat(quarterlyReport.quickRatio)
@@ -95,7 +94,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: ICR should be computed correctly
             assertThat(quarterlyReport.interestCoverageRatio)
@@ -115,7 +114,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: AltmanZScore should be computed (Z'' formula for non-manufacturing)
             assertThat(quarterlyReport.altmanZScore)
@@ -135,7 +134,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics for manufacturing sector
-            quarterlyReport.updateMetrics(snapshot, sector, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, sector);
 
             // Then: AltmanZScore should be computed
             assertThat(quarterlyReport.altmanZScore).isNotNull();
@@ -151,7 +150,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics for non-manufacturing sector
-            quarterlyReport.updateMetrics(snapshot, sector, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, sector);
 
             // Then: AltmanZScore should be computed
             assertThat(quarterlyReport.altmanZScore).isNotNull();
@@ -173,7 +172,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: QuickRatio should be null
             assertThat(quarterlyReport.quickRatio).isNull();
@@ -196,7 +195,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: QuickRatio should be null
             assertThat(quarterlyReport.quickRatio).isNull();
@@ -218,7 +217,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: InterestCoverageRatio should be null
             assertThat(quarterlyReport.interestCoverageRatio).isNull();
@@ -241,7 +240,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: InterestCoverageRatio should be null
             assertThat(quarterlyReport.interestCoverageRatio).isNull();
@@ -266,7 +265,7 @@ class QuarterlyReportTest {
             quarterlyReport.totalAssets = BigDecimal.ZERO;
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: AltmanZScore should be null
             assertThat(quarterlyReport.altmanZScore).isNull();
@@ -290,7 +289,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: All three metrics should be null
             assertThat(quarterlyReport.quickRatio).isNull();
@@ -318,12 +317,12 @@ class QuarterlyReportTest {
                     .withNullTotalCurrentAssets()
                     .build();
 
-            quarterlyReport.updateMetrics(incompleteSnapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(incompleteSnapshot, Sector.TECHNOLOGY);
             assertThat(quarterlyReport.calculationErrors).isNotEmpty();
 
             // When: Second update with complete data
             var completeSnapshotData = aFinancialDataSnapshot().build();
-            quarterlyReport.updateMetrics(completeSnapshotData, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(completeSnapshotData, Sector.TECHNOLOGY);
 
             // Then: Previous errors should be cleared
             assertThat(quarterlyReport.calculationErrors).isEmpty();
@@ -343,7 +342,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: Error should have all required fields
             assertThat(quarterlyReport.calculationErrors)
@@ -370,7 +369,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics for FINANCE sector
-            quarterlyReport.updateMetrics(snapshot, Sector.FINANCE, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.FINANCE);
 
             // Then: AltmanZScore should be null (skipped)
             assertThat(quarterlyReport.altmanZScore).isNull();
@@ -395,7 +394,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics for OTHER sector
-            quarterlyReport.updateMetrics(snapshot, Sector.OTHER, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.OTHER);
 
             // Then: AltmanZScore should be null (skipped)
             assertThat(quarterlyReport.altmanZScore).isNull();
@@ -420,7 +419,7 @@ class QuarterlyReportTest {
             quarterlyReport.totalRevenue = null;
 
             // When: Updating metrics for manufacturing sector (ENERGY)
-            quarterlyReport.updateMetrics(snapshot, Sector.ENERGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.ENERGY);
 
             // Then: AltmanZScore should be null
             assertThat(quarterlyReport.altmanZScore).isNull();
@@ -446,7 +445,7 @@ class QuarterlyReportTest {
             quarterlyReport.totalRevenue = null;
 
             // When: Updating metrics for non-manufacturing sector (TECHNOLOGY)
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: AltmanZScore should still be computed (totalRevenue not required)
             assertThat(quarterlyReport.altmanZScore).isNotNull();
@@ -464,7 +463,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics with applicable sector
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: Status should be READY_FOR_ANALYSIS
             assertThat(quarterlyReport.integrityStatus)
@@ -480,7 +479,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: Status should be MISSING_DATA
             assertThat(quarterlyReport.integrityStatus)
@@ -494,7 +493,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.FINANCE, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.FINANCE);
 
             // Then: QuickRatio and ICR should be computed
             assertThat(quarterlyReport.quickRatio).isNotNull();
@@ -515,7 +514,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics - all succeed
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Manually clear one metric to simulate partial data (but no errors)
             quarterlyReport.altmanZScore = null;
@@ -544,7 +543,7 @@ class QuarterlyReportTest {
             quarterlyReport.totalAssets = new BigDecimal("1500000");
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: AltmanZScore should be computed using entity's totalAssets
             assertThat(quarterlyReport.altmanZScore).isNotNull();
@@ -562,7 +561,7 @@ class QuarterlyReportTest {
             quarterlyReport.totalRevenue = new BigDecimal("900000");
 
             // When: Updating metrics for manufacturing sector
-            quarterlyReport.updateMetrics(snapshot, Sector.ENERGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.ENERGY);
 
             // Then: AltmanZScore should be computed using entity's totalRevenue
             assertThat(quarterlyReport.altmanZScore).isNotNull();
@@ -580,7 +579,7 @@ class QuarterlyReportTest {
             quarterlyReport.totalAssets = new BigDecimal("1000000");
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: Calculation should use snapshot value (2000000)
             // We verify by checking AltmanZScore is computed
@@ -601,7 +600,7 @@ class QuarterlyReportTest {
                     .withInterestExpense("50000")
                     .build();
 
-            quarterlyReport.updateMetrics(snapshot1, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot1, Sector.TECHNOLOGY);
 
             BigDecimal firstIcr = quarterlyReport.interestCoverageRatio.value();
 
@@ -611,7 +610,7 @@ class QuarterlyReportTest {
                     .withInterestExpense("50000")
                     .build();
 
-            quarterlyReport.updateMetrics(snapshot2, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot2, Sector.TECHNOLOGY);
 
             // Then: ICR should change (200000 / 50000 = 4.0 vs 100000 / 50000 = 2.0)
             assertThat(quarterlyReport.interestCoverageRatio.value())
@@ -632,7 +631,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: QuickRatio should still calculate (negative values are valid)
             // (100000 - 50000) / 500000 = 0.1
@@ -653,7 +652,7 @@ class QuarterlyReportTest {
                     .build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: QuickRatio should be computed (inventory treated as 0)
             // (500000 - 0) / 200000 = 2.5
@@ -681,12 +680,12 @@ class QuarterlyReportTest {
             var lowDebtReport = new QuarterlyReport();
             lowDebtReport.totalAssets = new BigDecimal("1000000");
             lowDebtReport.totalRevenue = new BigDecimal("800000");
-            lowDebtReport.updateMetrics(lowDebtSnapshot, Sector.TECHNOLOGY, altmanCalculator);
+            lowDebtReport.updateMetrics(lowDebtSnapshot, Sector.TECHNOLOGY);
 
             var highDebtReport = new QuarterlyReport();
             highDebtReport.totalAssets = new BigDecimal("1000000");
             highDebtReport.totalRevenue = new BigDecimal("800000");
-            highDebtReport.updateMetrics(highDebtSnapshot, Sector.TECHNOLOGY, altmanCalculator);
+            highDebtReport.updateMetrics(highDebtSnapshot, Sector.TECHNOLOGY);
 
             // Then: Low debt should have higher Z-Score (healthier company)
             assertThat(lowDebtReport.altmanZScore).isNotNull();
@@ -703,7 +702,7 @@ class QuarterlyReportTest {
             var snapshot = aFinancialDataSnapshot().build();
 
             // When: Updating metrics
-            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY, altmanCalculator);
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
             // Then: All computed values should have scale of 4
             assertThat(quarterlyReport.quickRatio.value().scale()).isEqualTo(4);
@@ -712,3 +711,6 @@ class QuarterlyReportTest {
         }
     }
 }
+
+
+

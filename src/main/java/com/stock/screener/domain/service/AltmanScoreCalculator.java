@@ -5,7 +5,6 @@ import com.stock.screener.domain.kernel.CalculationResult;
 import com.stock.screener.domain.valueobject.AltmanZScore;
 import com.stock.screener.domain.valueobject.Sector;
 import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
-import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -21,7 +20,6 @@ import java.math.RoundingMode;
  * <p>
  * This calculator only computes the numerical value (a fact).
  */
-@ApplicationScoped
 public class AltmanScoreCalculator {
 
     private static final int SCALE = 4;
@@ -47,7 +45,7 @@ public class AltmanScoreCalculator {
      * @param sector   company sector determining which formula to use
      * @return calculation result containing the Z-Score value or error information
      */
-    public CalculationResult<AltmanZScore> calculate(FinancialDataSnapshot snapshot, Sector sector) {
+    public static CalculationResult<AltmanZScore> calculate(FinancialDataSnapshot snapshot, Sector sector) {
         return switch (sector) {
             case ENERGY, MINING, UTILITIES -> calculateManufacturing(snapshot);
             case TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE -> calculateNonManufacturing(snapshot);
@@ -55,18 +53,18 @@ public class AltmanScoreCalculator {
         };
     }
 
-    private CalculationResult<AltmanZScore> calculateManufacturing(FinancialDataSnapshot snapshot) {
+    private static CalculationResult<AltmanZScore> calculateManufacturing(FinancialDataSnapshot snapshot) {
         return baseValidation(snapshot)
                 .require("totalRevenue", FinancialDataSnapshot::totalRevenue)
-                .validate(this::computeManufacturingScore);
+                .validate(AltmanScoreCalculator::computeManufacturingScore);
     }
 
-    private CalculationResult<AltmanZScore> calculateNonManufacturing(FinancialDataSnapshot snapshot) {
+    private static CalculationResult<AltmanZScore> calculateNonManufacturing(FinancialDataSnapshot snapshot) {
         return baseValidation(snapshot)
-                .validate(this::computeNonManufacturingScore);
+                .validate(AltmanScoreCalculator::computeNonManufacturingScore);
     }
 
-    private CalculationGuard<FinancialDataSnapshot> baseValidation(FinancialDataSnapshot snapshot) {
+    private static CalculationGuard<FinancialDataSnapshot> baseValidation(FinancialDataSnapshot snapshot) {
         return CalculationGuard.check(snapshot)
                 .require("totalCurrentAssets", FinancialDataSnapshot::totalCurrentAssets)
                 .require("totalCurrentLiabilities", FinancialDataSnapshot::totalCurrentLiabilities)
@@ -77,7 +75,7 @@ public class AltmanScoreCalculator {
                 .ensureNonZero("totalLiabilities", FinancialDataSnapshot::totalLiabilities);
     }
 
-    private AltmanZScore computeManufacturingScore(FinancialDataSnapshot snapshot) {
+    private static AltmanZScore computeManufacturingScore(FinancialDataSnapshot snapshot) {
         BigDecimal score = MFG_COEF_A.multiply(calculateT1(snapshot))
                 .add(MFG_COEF_B.multiply(calculateT2(snapshot)))
                 .add(MFG_COEF_C.multiply(calculateT3(snapshot)))
@@ -88,7 +86,7 @@ public class AltmanScoreCalculator {
         return new AltmanZScore(score);
     }
 
-    private AltmanZScore computeNonManufacturingScore(FinancialDataSnapshot snapshot) {
+    private static AltmanZScore computeNonManufacturingScore(FinancialDataSnapshot snapshot) {
         BigDecimal score = NON_MFG_COEF_A.multiply(calculateT1(snapshot))
                 .add(NON_MFG_COEF_B.multiply(calculateT2(snapshot)))
                 .add(NON_MFG_COEF_C.multiply(calculateT3(snapshot)))
@@ -99,33 +97,33 @@ public class AltmanScoreCalculator {
     }
 
     // T1 = Working Capital / Total Assets
-    private BigDecimal calculateT1(FinancialDataSnapshot snapshot) {
+    private static BigDecimal calculateT1(FinancialDataSnapshot snapshot) {
         BigDecimal workingCapital = snapshot.totalCurrentAssets()
                 .subtract(snapshot.totalCurrentLiabilities());
         return divide(workingCapital, snapshot.totalAssets());
     }
 
     // T2 = Retained Earnings / Total Assets
-    private BigDecimal calculateT2(FinancialDataSnapshot snapshot) {
+    private static BigDecimal calculateT2(FinancialDataSnapshot snapshot) {
         return divide(snapshot.retainedEarnings(), snapshot.totalAssets());
     }
 
     // T3 = EBIT / Total Assets
-    private BigDecimal calculateT3(FinancialDataSnapshot snapshot) {
+    private static BigDecimal calculateT3(FinancialDataSnapshot snapshot) {
         return divide(snapshot.ebit(), snapshot.totalAssets());
     }
 
     // T4 = Total Shareholder Equity / Total Liabilities
-    private BigDecimal calculateT4(FinancialDataSnapshot snapshot) {
+    private static BigDecimal calculateT4(FinancialDataSnapshot snapshot) {
         return divide(snapshot.totalShareholderEquity(), snapshot.totalLiabilities());
     }
 
     // T5 = Total Revenue / Total Assets (only for manufacturing)
-    private BigDecimal calculateT5(FinancialDataSnapshot snapshot) {
+    private static BigDecimal calculateT5(FinancialDataSnapshot snapshot) {
         return divide(snapshot.totalRevenue(), snapshot.totalAssets());
     }
 
-    private BigDecimal divide(BigDecimal numerator, BigDecimal denominator) {
+    private static BigDecimal divide(BigDecimal numerator, BigDecimal denominator) {
         return numerator.divide(denominator, SCALE, ROUNDING);
     }
 }

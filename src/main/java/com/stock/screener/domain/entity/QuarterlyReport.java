@@ -73,14 +73,14 @@ public class QuarterlyReport extends PanacheEntity {
     @UpdateTimestamp
     public LocalDateTime updatedAt;
 
-    public void updateMetrics(FinancialDataSnapshot snapshot, Sector sector, AltmanScoreCalculator altmanCalculator) {
+    public void updateMetrics(FinancialDataSnapshot snapshot, Sector sector) {
         this.calculationErrors.clear();
 
         FinancialDataSnapshot enrichedSnapshot = enrichWithEntityData(snapshot);
 
         recalculateQuickRatio(enrichedSnapshot);
         recalculateInterestCoverageRatio(enrichedSnapshot);
-        recalculateAltmanZScore(enrichedSnapshot, sector, altmanCalculator);
+        recalculateAltmanZScore(enrichedSnapshot, sector);
 
         updateIntegrityStatus();
     }
@@ -118,8 +118,8 @@ public class QuarterlyReport extends PanacheEntity {
                 });
     }
 
-    private void recalculateAltmanZScore(FinancialDataSnapshot snapshot, Sector sector, AltmanScoreCalculator calculator) {
-        calculator.calculate(snapshot, sector)
+    private void recalculateAltmanZScore(FinancialDataSnapshot snapshot, Sector sector) {
+        AltmanScoreCalculator.calculate(snapshot, sector)
                 .onSuccess(az -> this.altmanZScore = az)
                 .onFailure(failure -> {
                     this.altmanZScore = null;
