@@ -31,3 +31,6 @@ public class Stock extends PanacheEntityBase {
 
     public Stock() {}
 }
+
+//TODO: you have pull request to be chacked ;)
+// and here are prompts for futher work: https://gemini.google.com/app/18a99509b9ad6a46
