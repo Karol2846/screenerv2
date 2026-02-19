@@ -7,7 +7,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.net.URI;
 
-public class AlphaVantageApiKeyFilter implements ClientRequestFilter {
+class AlphaVantageApiKeyFilter implements ClientRequestFilter {
 
     @ConfigProperty(name = "alphavantage.api.key")
     String apiKey;

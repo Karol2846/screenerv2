@@ -1,9 +1,9 @@
 package com.stock.screener.adapter.web.out.alphavantage;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stock.screener.adapter.web.out.alphavantage.model.BalanceSheetResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.IncomeStatementResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
+import com.stock.screener.application.port.out.alphavantage.BalanceSheetResponse;
+import com.stock.screener.application.port.out.alphavantage.IncomeStatementResponse;
+import com.stock.screener.application.port.out.alphavantage.OverviewResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;

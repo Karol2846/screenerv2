@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "alpha_vantage_response_log")
-public class AlphaVantageResponseLog extends PanacheEntity {
+class AlphaVantageResponseLog extends PanacheEntity {
 
     @Column(nullable = false, length = 10)
     public String ticker;
@@ -30,7 +30,7 @@ public class AlphaVantageResponseLog extends PanacheEntity {
 
     public AlphaVantageResponseLog() {}
 
-    public AlphaVantageResponseLog(String ticker, String functionName, String rawResponse) {
+    AlphaVantageResponseLog(String ticker, String functionName, String rawResponse) {
         this.ticker = ticker;
         this.functionName = functionName;
         this.rawResponse = rawResponse;

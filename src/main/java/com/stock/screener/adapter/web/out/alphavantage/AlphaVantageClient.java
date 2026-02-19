@@ -1,8 +1,8 @@
 package com.stock.screener.adapter.web.out.alphavantage;
 
-import com.stock.screener.adapter.web.out.alphavantage.model.BalanceSheetResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.IncomeStatementResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
+import com.stock.screener.application.port.out.alphavantage.BalanceSheetResponse;
+import com.stock.screener.application.port.out.alphavantage.IncomeStatementResponse;
+import com.stock.screener.application.port.out.alphavantage.OverviewResponse;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
@@ -12,7 +12,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Path("/query")
 @RegisterRestClient(configKey = "alphavantage-api")
 @RegisterProvider(AlphaVantageApiKeyFilter.class)
-public interface AlphaVantageClient {
+interface AlphaVantageRawClient {
 
     @GET
     OverviewResponse getOverview(

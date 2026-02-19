@@ -2,9 +2,11 @@ package com.stock.screener.adapter.web.out.alphavantage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stock.screener.adapter.web.out.alphavantage.model.BalanceSheetResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.IncomeStatementResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
+import com.stock.screener.application.port.out.alphavantage.BalanceSheetResponse;
+import com.stock.screener.application.port.out.alphavantage.IncomeStatementResponse;
+import com.stock.screener.application.port.out.alphavantage.OverviewResponse;
+import com.stock.screener.application.port.out.alphavantage.AlphaVantageClient;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -13,18 +15,18 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 @Slf4j
 @ApplicationScoped
-public class AlphaVantageGateway {
+class AlphaVantageGateway implements AlphaVantageClient {
 
     private static final String OVERVIEW = "OVERVIEW";
     private static final String BALANCE_SHEET = "BALANCE_SHEET";
     private static final String INCOME_STATEMENT = "INCOME_STATEMENT";
 
-    private final AlphaVantageClient client;
+    private final AlphaVantageRawClient client;
     private final ObjectMapper objectMapper;
 
     @Inject
     public AlphaVantageGateway(
-            @RestClient AlphaVantageClient client,
+            @RestClient AlphaVantageRawClient client,
             ObjectMapper objectMapper
     ) {
         this.client = client;
