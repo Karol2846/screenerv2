@@ -1,4 +1,4 @@
-package com.stock.screener.application.port.out.command;
+package com.stock.screener.application.port.out.yhfinance.command;
 
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.Sector;

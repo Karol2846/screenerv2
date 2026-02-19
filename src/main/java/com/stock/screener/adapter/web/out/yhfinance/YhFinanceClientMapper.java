@@ -1,7 +1,7 @@
 package com.stock.screener.adapter.web.out.yhfinance;
 
 import com.stock.screener.adapter.web.out.yhfinance.model.*;
-import com.stock.screener.application.port.out.command.QuoteSummaryCommand;
+import com.stock.screener.application.port.out.yhfinance.command.QuoteSummaryCommand;
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.Sector;
 import jakarta.enterprise.context.ApplicationScoped;
