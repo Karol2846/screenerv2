@@ -26,11 +26,21 @@ quarkus:
       scope: jakarta.inject.Singleton
       connect-timeout: 5000
       read-timeout: 30000
+    alphavantage-api:
+      url: ${alphavantage.api.base-url}
+      scope: jakarta.inject.Singleton
+      connect-timeout: 5000
+      read-timeout: 30000
 
 yhfinance:
   api:
     key: '47V6xQ2zoF7cimj8UKKid5UfhYtyamBb6fI2GV1d'
     base-url: 'https://yfapi.net'
+
+alphavantage:
+  api:
+    key: ${ALPHA_VANTAGE_API_KEY:demo}
+    base-url: 'https://www.alphavantage.co'
 
 #link to yhfinance API:
 #  https://financeapi.net/
