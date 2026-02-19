@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 public final class FinancialDataSnapshotFixture {
 
-    private BigDecimal marketCapitalization;
+    private BigDecimal marketCapitalization = new BigDecimal("2000000000");
     private BigDecimal totalCurrentAssets = new BigDecimal("500000");
     private BigDecimal totalCurrentLiabilities = new BigDecimal("200000");
     private BigDecimal totalAssets = new BigDecimal("1000000");
