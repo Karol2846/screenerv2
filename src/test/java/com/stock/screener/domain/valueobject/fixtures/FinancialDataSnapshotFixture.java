@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 public final class FinancialDataSnapshotFixture {
 
+    private BigDecimal marketCapitalization;
     private BigDecimal totalCurrentAssets = new BigDecimal("500000");
     private BigDecimal totalCurrentLiabilities = new BigDecimal("200000");
     private BigDecimal totalAssets = new BigDecimal("1000000");
@@ -21,6 +22,11 @@ public final class FinancialDataSnapshotFixture {
 
     public static FinancialDataSnapshotFixture aFinancialDataSnapshot() {
         return new FinancialDataSnapshotFixture();
+    }
+
+    public FinancialDataSnapshotFixture withMarketCapitalization(String marketCapitalization) {
+        this.marketCapitalization = new BigDecimal(marketCapitalization);
+        return this;
     }
 
     public FinancialDataSnapshotFixture withTotalCurrentAssets(String totalCurrentAssets) {
@@ -129,6 +135,7 @@ public final class FinancialDataSnapshotFixture {
 
     public FinancialDataSnapshot build() {
         return FinancialDataSnapshot.builder()
+                .marketCapitalization(marketCapitalization)
                 .totalCurrentAssets(totalCurrentAssets)
                 .totalCurrentLiabilities(totalCurrentLiabilities)
                 .totalAssets(totalAssets)

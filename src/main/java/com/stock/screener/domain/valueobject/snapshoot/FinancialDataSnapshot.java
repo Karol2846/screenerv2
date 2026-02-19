@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @Builder
 public record FinancialDataSnapshot(
+        BigDecimal marketCapitalization,
         BigDecimal totalCurrentAssets,
         BigDecimal totalCurrentLiabilities,
         BigDecimal totalAssets,
