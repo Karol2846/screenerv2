@@ -2,10 +2,13 @@ package com.stock.screener.adapter.web.out.alphavantage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stock.screener.application.port.out.alphavantage.BalanceSheetResponse;
-import com.stock.screener.application.port.out.alphavantage.IncomeStatementResponse;
-import com.stock.screener.application.port.out.alphavantage.OverviewResponse;
+import com.stock.screener.adapter.web.out.alphavantage.model.BalanceSheetResponse;
+import com.stock.screener.adapter.web.out.alphavantage.model.IncomeStatementResponse;
+import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
 import com.stock.screener.application.port.out.alphavantage.AlphaVantageClient;
+import com.stock.screener.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.application.port.out.alphavantage.RawIncomeStatement;
+import com.stock.screener.application.port.out.alphavantage.RawOverview;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -34,24 +37,24 @@ class AlphaVantageGateway implements AlphaVantageClient {
     }
 
     @Transactional
-    public OverviewResponse fetchOverview(String ticker) {
+    public RawOverview fetchOverview(String ticker) {
         OverviewResponse response = client.getOverview(OVERVIEW, ticker);
         persistLog(ticker, OVERVIEW, response);
-        return response;
+        return AlphaVantageResponseMapper.toRawOverview(response);
     }
 
     @Transactional
-    public BalanceSheetResponse fetchBalanceSheet(String ticker) {
+    public RawBalanceSheet fetchBalanceSheet(String ticker) {
         BalanceSheetResponse response = client.getBalanceSheet(BALANCE_SHEET, ticker);
         persistLog(ticker, BALANCE_SHEET, response);
-        return response;
+        return AlphaVantageResponseMapper.toRawBalanceSheet(response);
     }
 
     @Transactional
-    public IncomeStatementResponse fetchIncomeStatement(String ticker) {
+    public RawIncomeStatement fetchIncomeStatement(String ticker) {
         IncomeStatementResponse response = client.getIncomeStatement(INCOME_STATEMENT, ticker);
         persistLog(ticker, INCOME_STATEMENT, response);
-        return response;
+        return AlphaVantageResponseMapper.toRawIncomeStatement(response);
     }
 
     private void persistLog(String ticker, String functionName, Object response) {

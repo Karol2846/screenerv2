@@ -1,8 +1,8 @@
 package com.stock.screener.adapter.web.out.alphavantage;
 
-import com.stock.screener.application.port.out.alphavantage.BalanceSheetResponse;
-import com.stock.screener.application.port.out.alphavantage.IncomeStatementResponse;
-import com.stock.screener.application.port.out.alphavantage.OverviewResponse;
+import com.stock.screener.adapter.web.out.alphavantage.model.BalanceSheetResponse;
+import com.stock.screener.adapter.web.out.alphavantage.model.IncomeStatementResponse;
+import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
