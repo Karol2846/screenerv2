@@ -1,7 +1,10 @@
 package com.stock.screener.application.port.out.alphavantage;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 
+@Builder
 public record RawOverview(
         String symbol,
         String assetType,

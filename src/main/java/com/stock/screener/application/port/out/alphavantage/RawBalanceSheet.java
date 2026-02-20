@@ -1,13 +1,17 @@
 package com.stock.screener.application.port.out.alphavantage;
 
+import lombok.Builder;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+@Builder
 public record RawBalanceSheet(
         String symbol,
         List<Report> annualReports,
         List<Report> quarterlyReports
 ) {
+    @Builder
     public record Report(
             String fiscalDateEnding,
             String reportedCurrency,
