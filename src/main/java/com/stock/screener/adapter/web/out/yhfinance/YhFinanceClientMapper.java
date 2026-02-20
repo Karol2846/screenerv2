@@ -6,14 +6,11 @@ import com.stock.screener.adapter.web.out.yhfinance.model.RawFmtValue;
 import com.stock.screener.adapter.web.out.yhfinance.model.RecommendationTrendItem;
 import com.stock.screener.application.port.out.yhfinance.command.QuoteSummaryCommand;
 import com.stock.screener.domain.valueobject.AnalystRatings;
-import jakarta.enterprise.context.ApplicationScoped;
-
 import java.math.BigDecimal;
 
-@ApplicationScoped
 class YhFinanceClientMapper {
 
-    QuoteSummaryCommand toCommand(String ticker, QuoteSummaryResult result) {
+    static QuoteSummaryCommand toCommand(String ticker, QuoteSummaryResult result) {
         EarningsTrendItem forwardEstimates = result.earningsTrend().trend().getLast();
         RecommendationTrendItem recommendations = result.recommendationTrend().trend().getFirst();
 

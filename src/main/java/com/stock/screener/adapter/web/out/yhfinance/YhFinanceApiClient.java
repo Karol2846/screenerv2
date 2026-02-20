@@ -14,9 +14,8 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Path("/v11/finance")
 @RegisterRestClient(configKey = "yhfinance-api")
 @RegisterProvider(YhFinanceExceptionMapper.class)
-@RegisterProvider(YhFinanceResponseLoggingFilter.class)
 @ClientHeaderParam(name = "X-API-KEY", value = "${yhfinance.api.key}")
-public interface YhFinanceApiClient {
+interface YhFinanceApiClient {
 
     @GET
     @Path("/quoteSummary/{symbol}")
