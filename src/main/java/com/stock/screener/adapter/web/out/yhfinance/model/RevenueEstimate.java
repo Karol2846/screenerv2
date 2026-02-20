@@ -8,13 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RevenueEstimate(
-        RawFmtValue avg,
-        RawFmtValue low,
-        RawFmtValue high,
-        RawFmtValue numberOfAnalysts,
-        RawFmtValue yearAgoRevenue,
-        RawFmtValue growth,
-        String revenueCurrency
+        RawFmtValue growth
 ) {
 }
 

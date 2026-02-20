@@ -8,14 +8,9 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record EarningsTrendItem(
-        Integer maxAge,
         String period,
-        String endDate,
         RawFmtValue growth,
-        EarningsEstimate earningsEstimate,
-        RevenueEstimate revenueEstimate,
-        EpsTrend epsTrend,
-        EpsRevisions epsRevisions
+        RevenueEstimate revenueEstimate
 ) {
 }
 
