@@ -1,6 +1,6 @@
 package org.example;
 
-import com.stock.screener.application.port.out.yhfinance.command.QuoteSummaryCommand;
+import com.stock.screener.application.port.out.yhfinance.response.YhFinanceResponse;
 import com.stock.screener.application.port.out.yhfinance.YahooFinanceClient;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -17,7 +17,7 @@ public class ExampleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public QuoteSummaryCommand hello(@PathParam("ticker") String ticker) {
+    public YhFinanceResponse hello(@PathParam("ticker") String ticker) {
         return client.getQuoteSummary(ticker);
     }
 }

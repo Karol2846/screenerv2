@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stock.screener.adapter.web.out.yhfinance.exception.ClientException;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResponse;
 import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResult;
-import com.stock.screener.application.port.out.yhfinance.command.QuoteSummaryCommand;
+import com.stock.screener.application.port.out.yhfinance.response.YhFinanceResponse;
 import com.stock.screener.application.port.out.yhfinance.YahooFinanceClient;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,13 +28,13 @@ class YhFinanceGateway implements YahooFinanceClient {
     private static final String DEFAULT_REGION = "US";
 
     @Inject
-    public YhFinanceGateway(@RestClient YhFinanceApiClient apiClient, YhFinanceClientMapper mapper, ObjectMapper objectMapper) {
+    public YhFinanceGateway(@RestClient YhFinanceApiClient apiClient, ObjectMapper objectMapper) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
     }
 
     @Override
-    public QuoteSummaryCommand getQuoteSummary(@NonNull String ticker) {
+    public YhFinanceResponse getQuoteSummary(@NonNull String ticker) {
         QuoteSummaryResponse response = apiClient.getQuoteSummary(ticker, DEFAULT_MODULES, DEFAULT_LANG, DEFAULT_REGION);
         validateClientResponse(ticker, response);
         persistLog(ticker, response);

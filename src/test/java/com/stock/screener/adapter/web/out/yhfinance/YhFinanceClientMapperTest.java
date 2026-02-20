@@ -1,7 +1,7 @@
 package com.stock.screener.adapter.web.out.yhfinance;
 
 import com.stock.screener.adapter.web.out.yhfinance.model.*;
-import com.stock.screener.application.port.out.yhfinance.command.QuoteSummaryCommand;
+import com.stock.screener.application.port.out.yhfinance.response.YhFinanceResponse;
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("YhFinanceClientMapper Tests")
 class YhFinanceClientMapperTest {
 
-    private final YhFinanceClientMapper mapper = new YhFinanceClientMapper();
-
     @Test
     @DisplayName("toCommand maps forwardEpsGrowth correctly")
     void testMapsForwardEpsGrowth() {
@@ -23,7 +21,7 @@ class YhFinanceClientMapperTest {
         QuoteSummaryResult result = buildResult(0.15, 0.20, 10, 5, 8, 2, 1);
 
         // When
-        QuoteSummaryCommand command = mapper.toCommand("AAPL", result);
+        YhFinanceResponse command = YhFinanceClientMapper.toCommand("AAPL", result);
 
         // Then
         assertThat(command.forwardEpsGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.15));
@@ -36,7 +34,7 @@ class YhFinanceClientMapperTest {
         QuoteSummaryResult result = buildResult(0.15, 0.20, 10, 5, 8, 2, 1);
 
         // When
-        QuoteSummaryCommand command = mapper.toCommand("AAPL", result);
+        YhFinanceResponse command = YhFinanceClientMapper.toCommand("AAPL", result);
 
         // Then
         assertThat(command.forwardRevenueGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.20));
@@ -49,7 +47,7 @@ class YhFinanceClientMapperTest {
         QuoteSummaryResult result = buildResult(0.15, 0.20, 10, 5, 8, 2, 1);
 
         // When
-        QuoteSummaryCommand command = mapper.toCommand("AAPL", result);
+        YhFinanceResponse command = YhFinanceClientMapper.toCommand("AAPL", result);
 
         // Then
         AnalystRatings ratings = command.analystRatings();
@@ -67,7 +65,7 @@ class YhFinanceClientMapperTest {
         QuoteSummaryResult result = buildResult(0.10, 0.12, 3, 2, 1, 0, 0);
 
         // When
-        QuoteSummaryCommand command = mapper.toCommand("MSFT", result);
+        YhFinanceResponse command = YhFinanceClientMapper.toCommand("MSFT", result);
 
         // Then
         assertThat(command.ticker()).isEqualTo("MSFT");
@@ -87,7 +85,7 @@ class YhFinanceClientMapperTest {
                 .build();
 
         // When
-        QuoteSummaryCommand command = mapper.toCommand("TSLA", result);
+        YhFinanceResponse command = YhFinanceClientMapper.toCommand("TSLA", result);
 
         // Then
         assertThat(command.forwardEpsGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.25));

@@ -1,4 +1,4 @@
-package com.stock.screener.application.port.out.yhfinance.command;
+package com.stock.screener.application.port.out.yhfinance.response;
 
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import lombok.Builder;
@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.math.BigDecimal;
 
 @Builder
-public record QuoteSummaryCommand(
+public record YhFinanceResponse(
     String ticker,
     BigDecimal forwardEpsGrowth,
     BigDecimal forwardRevenueGrowth,
