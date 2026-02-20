@@ -32,5 +32,9 @@ public class Stock extends PanacheEntityBase {
     public Stock() {}
 }
 
-//TODO: you have pull request to be chacked ;)
-// and here are prompts for futher work: https://gemini.google.com/app/18a99509b9ad6a46
+//TODO: new problem to think of:
+// think about how to merge alpha vantage & yhFinance api calls in monthlyReport - to now waste requests from api's
+// MonthlyReportSnapshoot requires some data from YhFinance & some from alphaVAntage.
+// It's data will be fetched once a month.
+// but alphaVantage api's data also needs to be fetched once every three months - for quaterly report.
+// Maybe the solution will be to gave data from persist log if current data was already fettched

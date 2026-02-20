@@ -21,12 +21,12 @@ class AlphaVantageGateway implements AlphaVantageClient {
     private static final String BALANCE_SHEET = "BALANCE_SHEET";
     private static final String INCOME_STATEMENT = "INCOME_STATEMENT";
 
-    private final AlphaVantageRawClient client;
+    private final AlphaVantageApiClient client;
     private final ObjectMapper objectMapper;
 
     @Inject
     public AlphaVantageGateway(
-            @RestClient AlphaVantageRawClient client,
+            @RestClient AlphaVantageApiClient client,
             ObjectMapper objectMapper
     ) {
         this.client = client;

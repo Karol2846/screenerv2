@@ -12,7 +12,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Path("/query")
 @RegisterRestClient(configKey = "alphavantage-api")
 @RegisterProvider(AlphaVantageApiKeyFilter.class)
-interface AlphaVantageRawClient {
+interface AlphaVantageApiClient {
 
     @GET
     OverviewResponse getOverview(
