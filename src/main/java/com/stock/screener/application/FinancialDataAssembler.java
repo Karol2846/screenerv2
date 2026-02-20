@@ -1,4 +1,4 @@
-package com.stock.screener.adapter.web.out.alphavantage;
+package com.stock.screener.application;
 
 import com.stock.screener.application.port.out.alphavantage.*;
 import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
@@ -8,11 +8,11 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @ApplicationScoped
-class FinancialDataAssembler {
+public class FinancialDataAssembler {
 
-    FinancialDataSnapshot assemble(OverviewResponse overview,
-                                   BalanceSheetResponse balanceSheet,
-                                   IncomeStatementResponse incomeStatement) {
+    public FinancialDataSnapshot assemble(OverviewResponse overview,
+                                          BalanceSheetResponse balanceSheet,
+                                          IncomeStatementResponse incomeStatement) {
 
         BalanceSheetReport latestBs = getLatestReport(balanceSheet.annualReports());
         IncomeStatementReport matchedIs = findMatchingIncomeStatement(

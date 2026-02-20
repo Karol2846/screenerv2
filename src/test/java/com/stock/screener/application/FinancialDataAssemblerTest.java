@@ -1,4 +1,4 @@
-package com.stock.screener.adapter.web.out.alphavantage;
+package com.stock.screener.application;
 
 import com.stock.screener.application.port.out.alphavantage.*;
 import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
