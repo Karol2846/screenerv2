@@ -1,4 +1,4 @@
-package com.stock.screener.application.port.out.alphavantage;
+package com.stock.screener.adapter.web.out.alphavantage.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
