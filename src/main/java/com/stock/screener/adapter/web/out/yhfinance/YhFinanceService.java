@@ -17,7 +17,7 @@ public class YhFinanceService implements YahooFinanceClient {
     private final YhFinanceApiClient apiClient;
     private final YhFinanceClientMapper mapper;
 
-    String DEFAULT_MODULES = "earningsTrend,recommendationTrend,financialData,assetProfile,summaryDetail";
+    String DEFAULT_MODULES = "earningsTrend,recommendationTrend";
     String DEFAULT_LANG = "en";
     String DEFAULT_REGION = "US";
 

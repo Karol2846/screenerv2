@@ -8,11 +8,8 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record QuoteSummaryResult(
-        AssetProfile assetProfile,
         EarningsTrend earningsTrend,
-        FinancialData financialData,
-        RecommendationTrend recommendationTrend,
-        SummaryDetail summaryDetail
+        RecommendationTrend recommendationTrend
 ) {
 }
 

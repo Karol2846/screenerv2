@@ -10,8 +10,7 @@ import java.util.List;
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record RecommendationTrend(
-        List<RecommendationTrendItem> trend,
-        Integer maxAge
+        List<RecommendationTrendItem> trend
 ) {
 }
 
