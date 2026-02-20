@@ -1,0 +1,27 @@
+{
+  "symbol": "AAPL",
+  "annualReports": [
+    {
+      "fiscalDateEnding": "2024-09-30",
+      "reportedCurrency": "USD",
+      "grossProfit": "180683000000",
+      "totalRevenue": "391035000000",
+      "costOfRevenue": "210352000000",
+      "costofGoodsAndServicesSold": "210352000000",
+      "operatingIncome": "123216000000",
+      "sellingGeneralAndAdministrative": "26757000000",
+      "researchAndDevelopment": "30710000000",
+      "operatingExpenses": "57467000000",
+      "netIncome": "93736000000",
+      "ebit": "123216000000",
+      "ebitda": "134642000000",
+      "depreciationAndAmortization": "11426000000",
+      "interestIncome": "3999000000",
+      "interestExpense": "3200000000",
+      "incomeTaxExpense": "29749000000",
+      "incomeBeforeTax": "123485000000",
+      "netIncomeFromContinuingOperations": "93736000000"
+    }
+  ],
+  "quarterlyReports": []
+}

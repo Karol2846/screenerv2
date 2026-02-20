@@ -1,0 +1,29 @@
+{
+  "symbol": "AAPL",
+  "annualReports": [
+    {
+      "fiscalDateEnding": "2024-09-30",
+      "reportedCurrency": "USD",
+      "totalAssets": "364980000000",
+      "totalCurrentAssets": "152987000000",
+      "totalNonCurrentAssets": "212000000000",
+      "totalLiabilities": "308030000000",
+      "totalCurrentLiabilities": "176392000000",
+      "totalNonCurrentLiabilities": "131638000000",
+      "totalShareholderEquity": "56950000000",
+      "retainedEarnings": "4336000000",
+      "commonStock": "83276000000",
+      "cashAndCashEquivalentsAtCarryingValue": "29943000000",
+      "cashAndShortTermInvestments": "65171000000",
+      "inventory": "7286000000",
+      "currentNetReceivables": "66243000000",
+      "shortTermDebt": "20232000000",
+      "longTermDebt": "96304000000",
+      "currentLongTermDebt": "10912000000",
+      "longTermDebtNoncurrent": "85392000000",
+      "shortLongTermDebtTotal": "116536000000",
+      "commonStockSharesOutstanding": "15115000000"
+    }
+  ],
+  "quarterlyReports": []
+}

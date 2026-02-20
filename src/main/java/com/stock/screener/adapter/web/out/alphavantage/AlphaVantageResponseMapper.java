@@ -16,68 +16,68 @@ final class AlphaVantageResponseMapper {
     private AlphaVantageResponseMapper() {}
 
     static RawOverview toRawOverview(OverviewResponse r) {
-        return new RawOverview(
-                r.symbol(),
-                r.assetType(),
-                r.name(),
-                r.exchange(),
-                r.currency(),
-                r.country(),
-                r.sector(),
-                r.industry(),
-                r.marketCapitalization(),
-                r.ebitda(),
-                r.peRatio(),
-                r.pegRatio(),
-                r.bookValue(),
-                r.dividendPerShare(),
-                r.dividendYield(),
-                r.eps(),
-                r.revenuePerShareTTM(),
-                r.profitMargin(),
-                r.operatingMarginTTM(),
-                r.returnOnAssetsTTM(),
-                r.returnOnEquityTTM(),
-                r.revenueTTM(),
-                r.grossProfitTTM(),
-                r.quarterlyEarningsGrowthYOY(),
-                r.quarterlyRevenueGrowthYOY(),
-                r.analystTargetPrice(),
-                r.analystRatingStrongBuy(),
-                r.analystRatingBuy(),
-                r.analystRatingHold(),
-                r.analystRatingSell(),
-                r.analystRatingStrongSell(),
-                r.trailingPE(),
-                r.forwardPE(),
-                r.priceToSalesRatioTTM(),
-                r.priceToBookRatio(),
-                r.evToRevenue(),
-                r.evToEBITDA(),
-                r.beta(),
-                r.weekHigh52(),
-                r.weekLow52(),
-                r.movingAverage50Day(),
-                r.movingAverage200Day(),
-                r.sharesOutstanding(),
-                r.fiscalYearEnd()
-        );
+        return RawOverview.builder()
+                .symbol(r.symbol())
+                .assetType(r.assetType())
+                .name(r.name())
+                .exchange(r.exchange())
+                .currency(r.currency())
+                .country(r.country())
+                .sector(r.sector())
+                .industry(r.industry())
+                .marketCapitalization(r.marketCapitalization())
+                .ebitda(r.ebitda())
+                .peRatio(r.peRatio())
+                .pegRatio(r.pegRatio())
+                .bookValue(r.bookValue())
+                .dividendPerShare(r.dividendPerShare())
+                .dividendYield(r.dividendYield())
+                .eps(r.eps())
+                .revenuePerShareTTM(r.revenuePerShareTTM())
+                .profitMargin(r.profitMargin())
+                .operatingMarginTTM(r.operatingMarginTTM())
+                .returnOnAssetsTTM(r.returnOnAssetsTTM())
+                .returnOnEquityTTM(r.returnOnEquityTTM())
+                .revenueTTM(r.revenueTTM())
+                .grossProfitTTM(r.grossProfitTTM())
+                .quarterlyEarningsGrowthYOY(r.quarterlyEarningsGrowthYOY())
+                .quarterlyRevenueGrowthYOY(r.quarterlyRevenueGrowthYOY())
+                .analystTargetPrice(r.analystTargetPrice())
+                .analystRatingStrongBuy(r.analystRatingStrongBuy())
+                .analystRatingBuy(r.analystRatingBuy())
+                .analystRatingHold(r.analystRatingHold())
+                .analystRatingSell(r.analystRatingSell())
+                .analystRatingStrongSell(r.analystRatingStrongSell())
+                .trailingPE(r.trailingPE())
+                .forwardPE(r.forwardPE())
+                .priceToSalesRatioTTM(r.priceToSalesRatioTTM())
+                .priceToBookRatio(r.priceToBookRatio())
+                .evToRevenue(r.evToRevenue())
+                .evToEBITDA(r.evToEBITDA())
+                .beta(r.beta())
+                .weekHigh52(r.weekHigh52())
+                .weekLow52(r.weekLow52())
+                .movingAverage50Day(r.movingAverage50Day())
+                .movingAverage200Day(r.movingAverage200Day())
+                .sharesOutstanding(r.sharesOutstanding())
+                .fiscalYearEnd(r.fiscalYearEnd())
+                .build();
     }
 
     static RawBalanceSheet toRawBalanceSheet(BalanceSheetResponse r) {
-        return new RawBalanceSheet(
-                r.symbol(),
-                mapBalanceSheetReports(r.annualReports()),
-                mapBalanceSheetReports(r.quarterlyReports())
-        );
+        return RawBalanceSheet.builder()
+                .symbol(r.symbol())
+                .annualReports(mapBalanceSheetReports(r.annualReports()))
+                .quarterlyReports(mapBalanceSheetReports(r.quarterlyReports()))
+                .build();
     }
 
     static RawIncomeStatement toRawIncomeStatement(IncomeStatementResponse r) {
-        return new RawIncomeStatement(
-                r.symbol(),
-                mapIncomeStatementReports(r.annualReports()),
-                mapIncomeStatementReports(r.quarterlyReports())
-        );
+        return RawIncomeStatement.builder()
+                .symbol(r.symbol())
+                .annualReports(mapIncomeStatementReports(r.annualReports()))
+                .quarterlyReports(mapIncomeStatementReports(r.quarterlyReports()))
+                .build();
     }
 
     private static List<RawBalanceSheet.Report> mapBalanceSheetReports(List<BalanceSheetReport> reports) {
@@ -88,29 +88,29 @@ final class AlphaVantageResponseMapper {
     }
 
     private static RawBalanceSheet.Report toRawBalanceSheetReport(BalanceSheetReport r) {
-        return new RawBalanceSheet.Report(
-                r.fiscalDateEnding(),
-                r.reportedCurrency(),
-                r.totalAssets(),
-                r.totalCurrentAssets(),
-                r.totalNonCurrentAssets(),
-                r.totalLiabilities(),
-                r.totalCurrentLiabilities(),
-                r.totalNonCurrentLiabilities(),
-                r.totalShareholderEquity(),
-                r.retainedEarnings(),
-                r.commonStock(),
-                r.cashAndCashEquivalents(),
-                r.cashAndShortTermInvestments(),
-                r.inventory(),
-                r.currentNetReceivables(),
-                r.shortTermDebt(),
-                r.longTermDebt(),
-                r.currentLongTermDebt(),
-                r.longTermDebtNoncurrent(),
-                r.shortLongTermDebtTotal(),
-                r.commonStockSharesOutstanding()
-        );
+        return RawBalanceSheet.Report.builder()
+                .fiscalDateEnding(r.fiscalDateEnding())
+                .reportedCurrency(r.reportedCurrency())
+                .totalAssets(r.totalAssets())
+                .totalCurrentAssets(r.totalCurrentAssets())
+                .totalNonCurrentAssets(r.totalNonCurrentAssets())
+                .totalLiabilities(r.totalLiabilities())
+                .totalCurrentLiabilities(r.totalCurrentLiabilities())
+                .totalNonCurrentLiabilities(r.totalNonCurrentLiabilities())
+                .totalShareholderEquity(r.totalShareholderEquity())
+                .retainedEarnings(r.retainedEarnings())
+                .commonStock(r.commonStock())
+                .cashAndCashEquivalents(r.cashAndCashEquivalents())
+                .cashAndShortTermInvestments(r.cashAndShortTermInvestments())
+                .inventory(r.inventory())
+                .currentNetReceivables(r.currentNetReceivables())
+                .shortTermDebt(r.shortTermDebt())
+                .longTermDebt(r.longTermDebt())
+                .currentLongTermDebt(r.currentLongTermDebt())
+                .longTermDebtNoncurrent(r.longTermDebtNoncurrent())
+                .shortLongTermDebtTotal(r.shortLongTermDebtTotal())
+                .commonStockSharesOutstanding(r.commonStockSharesOutstanding())
+                .build();
     }
 
     private static List<RawIncomeStatement.Report> mapIncomeStatementReports(List<IncomeStatementReport> reports) {
@@ -121,26 +121,26 @@ final class AlphaVantageResponseMapper {
     }
 
     private static RawIncomeStatement.Report toRawIncomeStatementReport(IncomeStatementReport r) {
-        return new RawIncomeStatement.Report(
-                r.fiscalDateEnding(),
-                r.reportedCurrency(),
-                r.grossProfit(),
-                r.totalRevenue(),
-                r.costOfRevenue(),
-                r.costOfGoodsAndServicesSold(),
-                r.operatingIncome(),
-                r.sellingGeneralAndAdministrative(),
-                r.researchAndDevelopment(),
-                r.operatingExpenses(),
-                r.netIncome(),
-                r.ebit(),
-                r.ebitda(),
-                r.depreciationAndAmortization(),
-                r.interestIncome(),
-                r.interestExpense(),
-                r.incomeTaxExpense(),
-                r.incomeBeforeTax(),
-                r.netIncomeFromContinuingOperations()
-        );
+        return RawIncomeStatement.Report.builder()
+                .fiscalDateEnding(r.fiscalDateEnding())
+                .reportedCurrency(r.reportedCurrency())
+                .grossProfit(r.grossProfit())
+                .totalRevenue(r.totalRevenue())
+                .costOfRevenue(r.costOfRevenue())
+                .costOfGoodsAndServicesSold(r.costOfGoodsAndServicesSold())
+                .operatingIncome(r.operatingIncome())
+                .sellingGeneralAndAdministrative(r.sellingGeneralAndAdministrative())
+                .researchAndDevelopment(r.researchAndDevelopment())
+                .operatingExpenses(r.operatingExpenses())
+                .netIncome(r.netIncome())
+                .ebit(r.ebit())
+                .ebitda(r.ebitda())
+                .depreciationAndAmortization(r.depreciationAndAmortization())
+                .interestIncome(r.interestIncome())
+                .interestExpense(r.interestExpense())
+                .incomeTaxExpense(r.incomeTaxExpense())
+                .incomeBeforeTax(r.incomeBeforeTax())
+                .netIncomeFromContinuingOperations(r.netIncomeFromContinuingOperations())
+                .build();
     }
 }
