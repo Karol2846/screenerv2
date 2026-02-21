@@ -1,0 +1,27 @@
+Kategoria Danych,Nazwa Pola (Zmienna),Endpoint API (function=),Ścieżka JSON / Klucz,Logika Wyliczenia / Uwagi Techniczne
+Identyfikacja,Ticker (Symbol),OVERVIEW,Symbol,
+Identyfikacja,Sector,OVERVIEW,Sector,
+Wycena (Analitycy),Target Price,OVERVIEW,AnalystTargetPrice,Konsensus rynkowy.
+Wycena (Statyczna),Market Cap,OVERVIEW,MarketCapitalization,Alternatywa: GLOBAL_QUOTE.price * BALANCE_SHEET.commonStockSharesOutstanding.
+Wskaźniki Płynności,Quick Ratio,BALANCE_SHEET,"totalCurrentAssets, inventory, totalCurrentLiabilities",(totalCurrentAssets - inventory) / totalCurrentLiabilities               Null-safe: inventory bywa null (traktuj jak 0).
+Wskaźniki Wyceny,P/S Current,OVERVIEW,marketCap / revenueTTM,
+Wskaźniki Wyceny,Forward PEG,OVERVIEW,PEGRatio,"tak na prawdę jest forward, all good"
+Wskaźniki Wyceny,Forward P/E,OVERVIEW,ForwardPE,Bazuje na prognozach zysków na rok do przodu.
+Wyniki Finansowe,Revenue,INCOME_STATEMENT,quarterlyReports -> totalRevenue,Dla TTM: Suma totalRevenue z indeksów  do.
+Wzrost,Forward REVENUE Growth,revenueEstimate,obliczane z YH finance - earningsTrend.trend[-1],
+Wzrost,Forward EPS Growth,earningsEstimate.avg,obliczane z YH finance - earningsTrend.trend[-1],
+Przepływy,Cash Flow (Ops),CASH_FLOW,quarterlyReports -> operatingCashflow,
+,Net Income,INCOME_STATEMENT,,
+Zadłużenie,Total Debt,BALANCE_SHEET,shortLongTermDebtTotal + longTermDebt,Suma długu krótko- i długoterminowego.
+Zadłużenie,Total Liabilities,BALANCE_SHEET,quarterlyReports -> totalLiabilities,
+Majątek,Total Assets,BALANCE_SHEET,quarterlyReports -> totalAssets,
+Wskaźniki Zadłużenia,Interest Coverage Ratio,INCOME_STATEMENT,"ebit, interestExpense","ebit / interestExpense. Zabezpiecz przed DivisionByZero, jeśli interestExpense = 0 lub null."
+altman Z Score,,,,
+Bilans ($X_1$ Licznik),Working Capital,BALANCE_SHEET,N/A (Pole wyliczane),Obliczenie: totalCurrentAssets - totalCurrentLiabilities. API nie zwraca tego wprost.
+Bilans ($X_1$ Mianownik),Total Assets,BALANCE_SHEET,totalAssets,Pobrać z annualReports lub quarterlyReports (zgodnie z horyzontem analizy).
+Bilans ($X_2$ Licznik),Retained Earnings,BALANCE_SHEET,retainedEarnings,Jeśli None: szacować jako totalShareholderEquity - (commonStock + additionalPaidInCapital). Kluczowy wskaźnik dla spółek tech.
+Bilans ($X_2$ Mianownik),Total Assets,BALANCE_SHEET,totalAssets,Używać spójnie wartości z $X_1$.
+$X_3$ Licznik),EBIT,INCOME_STATEMENT,ebit,Dopasować okres do daty bilansu. Jeśli None: netIncome + interestExpense + incomeTaxExpense.
+Bilans ($X_3$ Mianownik),Total Assets,BALANCE_SHEET,totalAssets,Relacja strumienia do zasobu.
+Bilans ($X_4$ Licznik),Book Value of Equity,BALANCE_SHEET,totalShareholderEquity,"Dla modelu Z'' (Tech/Service) to jest Book Value, a nie Market Cap."
+Bilans ($X_4$ Mianownik),Total Liabilities,BALANCE_SHEET,totalLiabilities,Suma zobowiązań krótko- i długoterminowych.
