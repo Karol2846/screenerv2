@@ -1,12 +1,12 @@
-package com.stock.screener.adapter.web.out.alphavantage;
+package com.stock.screener.collector.adapter.out.web.alphavantage;
 
-import com.stock.screener.adapter.web.out.alphavantage.fixture.JsonFixtureLoader;
-import com.stock.screener.adapter.web.out.alphavantage.model.BalanceSheetResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.IncomeStatementResponse;
-import com.stock.screener.adapter.web.out.alphavantage.model.OverviewResponse;
-import com.stock.screener.application.port.out.alphavantage.RawBalanceSheet;
-import com.stock.screener.application.port.out.alphavantage.RawIncomeStatement;
-import com.stock.screener.application.port.out.alphavantage.RawOverview;
+import com.stock.screener.collector.adapter.out.web.alphavantage.fixture.JsonFixtureLoader;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.BalanceSheetResponse;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.IncomeStatementResponse;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.OverviewResponse;
+import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
+import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

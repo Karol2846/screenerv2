@@ -26,8 +26,10 @@ public class FileTickerReaderAdapter implements TickerReaderPort {
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(tickersFilePath)) {
             if (is == null) {
-                log.warn("Plik {} nie został znaleziony w resources. Zwracam pustą listę.", tickersFilePath);
-                return Collections.emptyList();
+                String errMsg = "Plik " + tickersFilePath
+                        + " nie został znaleziony w resources. Wymagany plik z tickerami do analizy.";
+                log.error(errMsg);
+                throw new IllegalStateException(errMsg);
             }
 
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
@@ -39,9 +41,11 @@ public class FileTickerReaderAdapter implements TickerReaderPort {
                 log.info("Pomyślnie wczytano {} tickerów.", tickers.size());
                 return tickers;
             }
+        } catch (IllegalStateException e) {
+            throw e;
         } catch (Exception e) {
             log.error("Błąd podczas wczytywania pliku z tickerami: {}", tickersFilePath, e);
-            return Collections.emptyList();
+            throw new RuntimeException("Nie udało się odczytać pliku tickerów", e);
         }
     }
 }

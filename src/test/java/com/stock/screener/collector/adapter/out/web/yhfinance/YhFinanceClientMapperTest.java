@@ -1,7 +1,7 @@
-package com.stock.screener.adapter.web.out.yhfinance;
+package com.stock.screener.collector.adapter.out.web.yhfinance;
 
-import com.stock.screener.adapter.web.out.yhfinance.model.*;
-import com.stock.screener.application.port.out.yhfinance.response.YhFinanceResponse;
+import com.stock.screener.collector.adapter.out.web.yhfinance.model.*;
+import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

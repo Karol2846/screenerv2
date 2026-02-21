@@ -1,27 +1,25 @@
-package com.stock.screener.adapter.web.out.alphavantage;
+package com.stock.screener.collector.adapter.out.web.yhfinance;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DisplayName("AlphaVantageResponseLog Entity Tests")
-class AlphaVantageResponseLogTest {
+@DisplayName("YhFinanceResponseLog Entity Tests")
+class YhFinanceResponseLogTest {
 
     @Test
     @DisplayName("Constructor sets all fields correctly")
     void testConstructorSetsFields() {
         // Given
         String ticker = "AAPL";
-        String functionName = "OVERVIEW";
-        String rawResponse = "{\"Symbol\":\"AAPL\",\"Name\":\"Apple Inc\"}";
+        String rawResponse = "{\"quoteSummary\":{\"result\":[{}]}}";
 
         // When
-        var log = new AlphaVantageResponseLog(ticker, functionName, rawResponse);
+        var log = new YhFinanceResponseLog(ticker, rawResponse);
 
         // Then
         assertThat(log.ticker).isEqualTo(ticker);
-        assertThat(log.functionName).isEqualTo(functionName);
         assertThat(log.rawResponse).isEqualTo(rawResponse);
     }
 
@@ -29,11 +27,10 @@ class AlphaVantageResponseLogTest {
     @DisplayName("Default constructor creates empty entity")
     void testDefaultConstructor() {
         // When
-        var log = new AlphaVantageResponseLog();
+        var log = new YhFinanceResponseLog();
 
         // Then
         assertThat(log.ticker).isNull();
-        assertThat(log.functionName).isNull();
         assertThat(log.rawResponse).isNull();
         assertThat(log.requestTimestamp).isNull();
     }
@@ -44,18 +41,19 @@ class AlphaVantageResponseLogTest {
         // Given
         String complexJson = """
                 {
-                    "symbol": "MSFT",
-                    "annualReports": [
-                        {"fiscalDateEnding": "2024-06-30", "totalAssets": "512163000000"}
-                    ]
+                    "quoteSummary": {
+                        "result": [
+                            {"earningsTrend": {"trend": []}, "recommendationTrend": {"trend": []}}
+                        ]
+                    }
                 }
                 """;
 
         // When
-        var log = new AlphaVantageResponseLog("MSFT", "BALANCE_SHEET", complexJson);
+        var log = new YhFinanceResponseLog("MSFT", complexJson);
 
         // Then
-        assertThat(log.rawResponse).contains("MSFT");
-        assertThat(log.rawResponse).contains("512163000000");
+        assertThat(log.ticker).isEqualTo("MSFT");
+        assertThat(log.rawResponse).contains("earningsTrend");
     }
 }

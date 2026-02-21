@@ -1,4 +1,4 @@
-package com.stock.screener.adapter.web.out.alphavantage.fixture;
+package com.stock.screener.collector.adapter.out.web.alphavantage.fixture;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

@@ -31,6 +31,7 @@ dependencies {
 //    implementation 'io.quarkus:quarkus-cache' // Caching (przydatne przy rzadko zmieniających się danych giełdowych)
 
     testImplementation 'io.quarkus:quarkus-junit5'
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.2.1'

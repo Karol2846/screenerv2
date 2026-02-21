@@ -1,0 +1,8 @@
+# Testowy plik tickerów
+AAPL
+# To jest komentarz
+MSFT
+    GOOGL   
+
+# Pusta linia wyżej
+NVDA

@@ -1,7 +1,7 @@
-package com.stock.screener.adapter.web.out.yhfinance;
+package com.stock.screener.collector.adapter.out.web.yhfinance;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.stock.screener.adapter.web.out.yhfinance.model.QuoteSummaryResponse;
+import com.stock.screener.collector.adapter.out.web.yhfinance.model.QuoteSummaryResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
