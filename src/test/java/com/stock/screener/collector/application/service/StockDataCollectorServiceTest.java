@@ -29,6 +29,9 @@ class StockDataCollectorServiceTest {
     @Mock
     private TickerReaderPort tickerReaderPort;
 
+    @Mock
+    private com.stock.screener.collector.application.mapper.StockDataMapper stockDataMapper;
+
     @InjectMocks
     private StockDataCollectorService service;
 
@@ -45,7 +48,8 @@ class StockDataCollectorServiceTest {
         StockDataCollectorService spyService = spy(new StockDataCollectorService(
                 alphaVantageClient,
                 yahooFinanceClient,
-                tickerReaderPort));
+                tickerReaderPort,
+                stockDataMapper));
 
         doReturn(null).when(spyService).collectDataForStock("AAPL");
         doThrow(new RuntimeException("API Limit exceeded")).when(spyService).collectDataForStock("ERROR");

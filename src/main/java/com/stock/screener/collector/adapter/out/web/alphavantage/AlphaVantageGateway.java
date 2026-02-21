@@ -3,10 +3,12 @@ package com.stock.screener.collector.adapter.out.web.alphavantage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.BalanceSheetResponse;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.IncomeStatementResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.OverviewResponse;
 import com.stock.screener.collector.application.port.out.alphavantage.AlphaVantageClient;
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.collector.application.port.out.alphavantage.RawCashFlow;
 import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
 import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
 
@@ -23,6 +25,7 @@ class AlphaVantageGateway implements AlphaVantageClient {
     private static final String OVERVIEW = "OVERVIEW";
     private static final String BALANCE_SHEET = "BALANCE_SHEET";
     private static final String INCOME_STATEMENT = "INCOME_STATEMENT";
+    private static final String CASH_FLOW = "CASH_FLOW";
 
     private final AlphaVantageApiClient client;
     private final ObjectMapper objectMapper;
@@ -30,8 +33,7 @@ class AlphaVantageGateway implements AlphaVantageClient {
     @Inject
     public AlphaVantageGateway(
             @RestClient AlphaVantageApiClient client,
-            ObjectMapper objectMapper
-    ) {
+            ObjectMapper objectMapper) {
         this.client = client;
         this.objectMapper = objectMapper;
     }
@@ -55,6 +57,13 @@ class AlphaVantageGateway implements AlphaVantageClient {
         IncomeStatementResponse response = client.getIncomeStatement(INCOME_STATEMENT, ticker);
         persistLog(ticker, INCOME_STATEMENT, response);
         return AlphaVantageResponseMapper.toRawIncomeStatement(response);
+    }
+
+    @Transactional
+    public RawCashFlow fetchCashFlow(String ticker) {
+        CashFlowResponse response = client.getCashFlow(CASH_FLOW, ticker);
+        persistLog(ticker, CASH_FLOW, response);
+        return AlphaVantageResponseMapper.toRawCashFlow(response);
     }
 
     private void persistLog(String ticker, String functionName, Object response) {

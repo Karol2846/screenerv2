@@ -14,21 +14,23 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @RegisterProvider(AlphaVantageApiKeyFilter.class)
 interface AlphaVantageApiClient {
 
-    @GET
-    OverviewResponse getOverview(
-            @QueryParam("function") String function,
-            @QueryParam("symbol") String symbol
-    );
+        @GET
+        OverviewResponse getOverview(
+                        @QueryParam("function") String function,
+                        @QueryParam("symbol") String symbol);
 
-    @GET
-    BalanceSheetResponse getBalanceSheet(
-            @QueryParam("function") String function,
-            @QueryParam("symbol") String symbol
-    );
+        @GET
+        BalanceSheetResponse getBalanceSheet(
+                        @QueryParam("function") String function,
+                        @QueryParam("symbol") String symbol);
 
-    @GET
-    IncomeStatementResponse getIncomeStatement(
-            @QueryParam("function") String function,
-            @QueryParam("symbol") String symbol
-    );
+        @GET
+        IncomeStatementResponse getIncomeStatement(
+                        @QueryParam("function") String function,
+                        @QueryParam("symbol") String symbol);
+
+        @GET
+        com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowResponse getCashFlow(
+                        @QueryParam("function") String function,
+                        @QueryParam("symbol") String symbol);
 }

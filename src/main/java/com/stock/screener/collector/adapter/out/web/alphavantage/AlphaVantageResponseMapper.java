@@ -2,10 +2,13 @@ package com.stock.screener.collector.adapter.out.web.alphavantage;
 
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.BalanceSheetReport;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.BalanceSheetResponse;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowReport;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.IncomeStatementReport;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.IncomeStatementResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.OverviewResponse;
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.collector.application.port.out.alphavantage.RawCashFlow;
 import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
 import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
 
@@ -13,7 +16,8 @@ import java.util.List;
 
 final class AlphaVantageResponseMapper {
 
-    private AlphaVantageResponseMapper() {}
+    private AlphaVantageResponseMapper() {
+    }
 
     static RawOverview toRawOverview(OverviewResponse r) {
         return RawOverview.builder()
@@ -80,8 +84,17 @@ final class AlphaVantageResponseMapper {
                 .build();
     }
 
+    static RawCashFlow toRawCashFlow(CashFlowResponse r) {
+        return RawCashFlow.builder()
+                .symbol(r.symbol())
+                .annualReports(mapCashFlowReports(r.annualReports()))
+                .quarterlyReports(mapCashFlowReports(r.quarterlyReports()))
+                .build();
+    }
+
     private static List<RawBalanceSheet.Report> mapBalanceSheetReports(List<BalanceSheetReport> reports) {
-        if (reports == null) return List.of();
+        if (reports == null)
+            return List.of();
         return reports.stream()
                 .map(AlphaVantageResponseMapper::toRawBalanceSheetReport)
                 .toList();
@@ -114,7 +127,8 @@ final class AlphaVantageResponseMapper {
     }
 
     private static List<RawIncomeStatement.Report> mapIncomeStatementReports(List<IncomeStatementReport> reports) {
-        if (reports == null) return List.of();
+        if (reports == null)
+            return List.of();
         return reports.stream()
                 .map(AlphaVantageResponseMapper::toRawIncomeStatementReport)
                 .toList();
@@ -141,6 +155,49 @@ final class AlphaVantageResponseMapper {
                 .incomeTaxExpense(r.incomeTaxExpense())
                 .incomeBeforeTax(r.incomeBeforeTax())
                 .netIncomeFromContinuingOperations(r.netIncomeFromContinuingOperations())
+                .build();
+    }
+
+    private static List<RawCashFlow.Report> mapCashFlowReports(List<CashFlowReport> reports) {
+        if (reports == null)
+            return List.of();
+        return reports.stream()
+                .map(AlphaVantageResponseMapper::toRawCashFlowReport)
+                .toList();
+    }
+
+    private static RawCashFlow.Report toRawCashFlowReport(CashFlowReport r) {
+        return RawCashFlow.Report.builder()
+                .fiscalDateEnding(r.fiscalDateEnding())
+                .reportedCurrency(r.reportedCurrency())
+                .operatingCashflow(r.operatingCashflow())
+                .paymentsForOperatingActivities(r.paymentsForOperatingActivities())
+                .proceedsFromOperatingActivities(r.proceedsFromOperatingActivities())
+                .changeInOperatingLiabilities(r.changeInOperatingLiabilities())
+                .changeInOperatingAssets(r.changeInOperatingAssets())
+                .depreciationDepletionAndAmortization(r.depreciationDepletionAndAmortization())
+                .capitalExpenditures(r.capitalExpenditures())
+                .changeInReceivables(r.changeInReceivables())
+                .changeInInventory(r.changeInInventory())
+                .profitLoss(r.profitLoss())
+                .cashflowFromInvestment(r.cashflowFromInvestment())
+                .cashflowFromFinancing(r.cashflowFromFinancing())
+                .proceedsFromRepaymentsOfShortTermDebt(r.proceedsFromRepaymentsOfShortTermDebt())
+                .paymentsForRepurchaseOfCommonStock(r.paymentsForRepurchaseOfCommonStock())
+                .paymentsForRepurchaseOfEquity(r.paymentsForRepurchaseOfEquity())
+                .paymentsForRepurchaseOfPreferredStock(r.paymentsForRepurchaseOfPreferredStock())
+                .dividendPayout(r.dividendPayout())
+                .dividendPayoutCommonStock(r.dividendPayoutCommonStock())
+                .dividendPayoutPreferredStock(r.dividendPayoutPreferredStock())
+                .proceedsFromIssuanceOfCommonStock(r.proceedsFromIssuanceOfCommonStock())
+                .proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet(
+                        r.proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet())
+                .proceedsFromIssuanceOfPreferredStock(r.proceedsFromIssuanceOfPreferredStock())
+                .proceedsFromRepurchaseOfEquity(r.proceedsFromRepurchaseOfEquity())
+                .proceedsFromSaleOfTreasuryStock(r.proceedsFromSaleOfTreasuryStock())
+                .changeInCashAndCashEquivalents(r.changeInCashAndCashEquivalents())
+                .changeInExchangeRate(r.changeInExchangeRate())
+                .netIncome(r.netIncome())
                 .build();
     }
 }

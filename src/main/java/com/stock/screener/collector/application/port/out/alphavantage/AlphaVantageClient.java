@@ -7,4 +7,6 @@ public interface AlphaVantageClient {
     RawBalanceSheet fetchBalanceSheet(String ticker);
 
     RawIncomeStatement fetchIncomeStatement(String ticker);
+
+    RawCashFlow fetchCashFlow(String ticker);
 }

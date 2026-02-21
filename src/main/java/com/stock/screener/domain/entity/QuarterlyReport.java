@@ -78,6 +78,18 @@ public class QuarterlyReport extends PanacheEntity {
 
         FinancialDataSnapshot enrichedSnapshot = enrichWithEntityData(snapshot);
 
+        // Map fresh raw data to own columns if arrived
+        if (snapshot.totalRevenue() != null)
+            this.totalRevenue = snapshot.totalRevenue();
+        if (snapshot.netIncome() != null)
+            this.netIncome = snapshot.netIncome();
+        if (snapshot.totalDebt() != null)
+            this.totalDebt = snapshot.totalDebt();
+        if (snapshot.totalAssets() != null)
+            this.totalAssets = snapshot.totalAssets();
+        if (snapshot.operatingCashFlow() != null)
+            this.operatingCashFlow = snapshot.operatingCashFlow();
+
         recalculateQuickRatio(enrichedSnapshot);
         recalculateInterestCoverageRatio(enrichedSnapshot);
         recalculateAltmanZScore(enrichedSnapshot, sector);
@@ -96,7 +108,11 @@ public class QuarterlyReport extends PanacheEntity {
                 .interestExpense(snapshot.interestExpense())
                 .totalShareholderEquity(snapshot.totalShareholderEquity())
                 .inventory(snapshot.inventory())
-                .totalRevenue(this.totalRevenue) //FIXME: totalRevenue is onlyrevenue from given financialQuater. Change this to cumulative revenue (from 4 quarters)
+                .totalRevenue(snapshot.totalRevenue() != null ? snapshot.totalRevenue() : this.totalRevenue)
+                .totalDebt(snapshot.totalDebt() != null ? snapshot.totalDebt() : this.totalDebt)
+                .netIncome(snapshot.netIncome() != null ? snapshot.netIncome() : this.netIncome)
+                .operatingCashFlow(
+                        snapshot.operatingCashFlow() != null ? snapshot.operatingCashFlow() : this.operatingCashFlow)
                 .build();
     }
 
