@@ -18,27 +18,12 @@ public class StockAnalysisService implements AnalyzeStockUseCase {
 
     @Override
     public AnalysisReport analyzeStock(String ticker) {
-        log.info("Rozpoczęcie analizy i scoringu dla: {}", ticker);
+        log.info("Starting analysis and scoring for: {}", ticker);
 
-        // TODO: 1. Pobierz aktualne dane o spółce
-        // (Stock stock = Stock.findById(ticker); if null -> rzuć wyjątek lub zainicjuj
-        // pobieranie)
-
-        // TODO: 2. Przejdź punktowanie dla: (wg work_plan.md)
-        // - "Bezpieczeństwo" (max 12 pkt, Odrzuca przy: quickRatio < 0.8, altmanZScore
-        // < 1.8)
-        // - "Wzrost spółki" (max 28 pkt)
-        // - "Wycena spółki" (max 30 pkt)
-        // - "Ocena analityków" (max 25 pkt)
-
-        // Przykładowy szkielet:
         List<String> anomalies = new ArrayList<>();
         int score = 0;
-        int maxPossible = 95; // Przykładowo, maksymalna pula bazowa (zależnie od dostępności)
+        int maxPossible = 95;
         String rejectReason = null;
-
-        // Tutaj logika z domain/services np. ScoringEngine.scoreSafety(stock),
-        // ScoringEngine.scoreGrowth(stock)...
 
         return AnalysisReport.builder()
                 .ticker(ticker)

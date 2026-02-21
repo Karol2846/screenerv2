@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Zestawienie wyników Scoring Engine'u dla danej spółki.
+ * Collection of Scoring Engine results for the analyzed stock.
  */
 @Getter
 @Builder
@@ -30,8 +30,7 @@ public class AnalysisReport {
     // List of warnings or interesting findings (e.g., speculation bubble)
     private final List<String> anomalies;
 
-    // Any calculation errors that happened during building metrics (e.g. missing
-    // basic data)
+    // Calculation errors that occurred during metrics building
     private final Set<ReportError> metricErrors;
 
     public boolean isRejected() {
