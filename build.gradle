@@ -26,8 +26,8 @@ dependencies {
     implementation 'io.quarkus:quarkus-scheduler'
 
     // --- UTILS ---
-    compileOnly 'org.projectlombok:lombok:1.18.30'
-    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+    compileOnly 'org.projectlombok:lombok:1.18.42'
+    annotationProcessor 'org.projectlombok:lombok:1.18.42'
 //    implementation 'io.quarkus:quarkus-cache' // Caching (przydatne przy rzadko zmieniających się danych giełdowych)
 
     testImplementation 'io.quarkus:quarkus-junit5'
@@ -40,8 +40,8 @@ group = 'org.example'
 version = '1.0-SNAPSHOT'
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 test {
