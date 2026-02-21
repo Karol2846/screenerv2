@@ -1,0 +1,9 @@
+# Lista spółek do analizy (jeden ticker na linię)
+# Możesz dodawać komentarze używając znaku '#'
+AAPL
+MSFT
+GOOGL
+NVDA
+AMZN
+META
+TSLA

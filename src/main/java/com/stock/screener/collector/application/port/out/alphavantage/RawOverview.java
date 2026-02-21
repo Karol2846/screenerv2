@@ -1,0 +1,53 @@
+package com.stock.screener.collector.application.port.out.alphavantage;
+
+import lombok.Builder;
+
+import java.math.BigDecimal;
+
+@Builder
+public record RawOverview(
+        String symbol,
+        String assetType,
+        String name,
+        String exchange,
+        String currency,
+        String country,
+        String sector,
+        String industry,
+        BigDecimal marketCapitalization,
+        BigDecimal ebitda,
+        BigDecimal peRatio,
+        BigDecimal pegRatio,
+        BigDecimal bookValue,
+        BigDecimal dividendPerShare,
+        BigDecimal dividendYield,
+        BigDecimal eps,
+        BigDecimal revenuePerShareTTM,
+        BigDecimal profitMargin,
+        BigDecimal operatingMarginTTM,
+        BigDecimal returnOnAssetsTTM,
+        BigDecimal returnOnEquityTTM,
+        BigDecimal revenueTTM,
+        BigDecimal grossProfitTTM,
+        BigDecimal quarterlyEarningsGrowthYOY,
+        BigDecimal quarterlyRevenueGrowthYOY,
+        BigDecimal analystTargetPrice,
+        Integer analystRatingStrongBuy,
+        Integer analystRatingBuy,
+        Integer analystRatingHold,
+        Integer analystRatingSell,
+        Integer analystRatingStrongSell,
+        BigDecimal trailingPE,
+        BigDecimal forwardPE,
+        BigDecimal priceToSalesRatioTTM,
+        BigDecimal priceToBookRatio,
+        BigDecimal evToRevenue,
+        BigDecimal evToEBITDA,
+        BigDecimal beta,
+        BigDecimal weekHigh52,
+        BigDecimal weekLow52,
+        BigDecimal movingAverage50Day,
+        BigDecimal movingAverage200Day,
+        BigDecimal sharesOutstanding,
+        String fiscalYearEnd
+) {}
