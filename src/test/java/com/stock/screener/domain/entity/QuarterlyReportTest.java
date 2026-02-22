@@ -408,15 +408,15 @@ class QuarterlyReportTest {
         }
 
         @Test
-        @DisplayName("Manufacturing sector with null totalRevenue should fail AltmanZScore")
+        @DisplayName("Manufacturing sector with null revenueTTM should fail AltmanZScore")
         void testManufacturingWithNullRevenueFails() {
-            // Given: Snapshot with null totalRevenue (required for manufacturing Z-Score)
+            // Given: Snapshot with null revenueTTM (required for manufacturing Z-Score)
             var snapshot = aFinancialDataSnapshot()
-                    .withNullTotalRevenue()
+                    .withNullRevenueTTM()
                     .build();
 
-            // And: Entity also has null totalRevenue
-            quarterlyReport.totalRevenue = null;
+            // And: Entity also has null revenueTTM
+            quarterlyReport.revenueTTM = null;
 
             // When: Updating metrics for manufacturing sector (ENERGY)
             quarterlyReport.updateMetrics(snapshot, Sector.ENERGY);
@@ -429,25 +429,25 @@ class QuarterlyReportTest {
                     .anyMatch(error ->
                             error.metric() == MetricType.ALTMAN_Z_SCORE &&
                                     error.errorType() == CalculationErrorType.MISSING_DATA &&
-                                    error.reason().contains("totalRevenue")
+                                    error.reason().contains("revenueTTM")
                     );
         }
 
         @Test
-        @DisplayName("Non-manufacturing sector with null totalRevenue should succeed")
+        @DisplayName("Non-manufacturing sector with null revenueTTM should succeed")
         void testNonManufacturingWithNullRevenueSucceeds() {
-            // Given: Snapshot with null totalRevenue (NOT required for non-manufacturing Z'' formula)
+            // Given: Snapshot with null revenueTTM (NOT required for non-manufacturing Z'' formula)
             var snapshot = aFinancialDataSnapshot()
-                    .withNullTotalRevenue()
+                    .withNullRevenueTTM()
                     .build();
 
-            // And: Entity has totalRevenue (but it's not used for non-manufacturing)
-            quarterlyReport.totalRevenue = null;
+            // And: Entity has revenueTTM (but it's not used for non-manufacturing)
+            quarterlyReport.revenueTTM = null;
 
             // When: Updating metrics for non-manufacturing sector (TECHNOLOGY)
             quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
-            // Then: AltmanZScore should still be computed (totalRevenue not required)
+            // Then: AltmanZScore should still be computed (revenueTTM not required)
             assertThat(quarterlyReport.altmanZScore).isNotNull();
         }
     }
@@ -550,20 +550,20 @@ class QuarterlyReportTest {
         }
 
         @Test
-        @DisplayName("Snapshot totalRevenue enriched from entity for manufacturing sector")
+        @DisplayName("Snapshot revenueTTM enriched from entity for manufacturing sector")
         void testTotalRevenueEnrichmentFromEntity() {
-            // Given: Snapshot with null totalRevenue
+            // Given: Snapshot with null revenueTTM
             var snapshot = aFinancialDataSnapshot()
-                    .withNullTotalRevenue()
+                    .withNullRevenueTTM()
                     .build();
 
-            // And: Entity has totalRevenue set (for manufacturing sector)
-            quarterlyReport.totalRevenue = new BigDecimal("900000");
+            // And: Entity has revenueTTM set (for manufacturing sector)
+            quarterlyReport.revenueTTM = new BigDecimal("900000");
 
             // When: Updating metrics for manufacturing sector
             quarterlyReport.updateMetrics(snapshot, Sector.ENERGY);
 
-            // Then: AltmanZScore should be computed using entity's totalRevenue
+            // Then: AltmanZScore should be computed using entity's revenueTTM
             assertThat(quarterlyReport.altmanZScore).isNotNull();
         }
 

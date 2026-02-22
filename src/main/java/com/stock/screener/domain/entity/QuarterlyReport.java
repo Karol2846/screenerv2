@@ -41,6 +41,7 @@ public class QuarterlyReport extends PanacheEntity {
 
     // --- P&L ---
     public BigDecimal totalRevenue;
+    public BigDecimal revenueTTM;
     public BigDecimal netIncome;
 
     // --- Balance Sheet ---
@@ -81,6 +82,8 @@ public class QuarterlyReport extends PanacheEntity {
         // Map fresh raw data to own columns if arrived
         if (snapshot.totalRevenue() != null)
             this.totalRevenue = snapshot.totalRevenue();
+        if (snapshot.revenueTTM() != null)
+            this.revenueTTM = snapshot.revenueTTM();
         if (snapshot.netIncome() != null)
             this.netIncome = snapshot.netIncome();
         if (snapshot.totalDebt() != null)
@@ -109,6 +112,7 @@ public class QuarterlyReport extends PanacheEntity {
                 .totalShareholderEquity(snapshot.totalShareholderEquity())
                 .inventory(snapshot.inventory())
                 .totalRevenue(snapshot.totalRevenue() != null ? snapshot.totalRevenue() : this.totalRevenue)
+                .revenueTTM(snapshot.revenueTTM() != null ? snapshot.revenueTTM() : this.revenueTTM)
                 .totalDebt(snapshot.totalDebt() != null ? snapshot.totalDebt() : this.totalDebt)
                 .netIncome(snapshot.netIncome() != null ? snapshot.netIncome() : this.netIncome)
                 .operatingCashFlow(

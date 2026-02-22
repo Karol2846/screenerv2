@@ -81,11 +81,16 @@ public class MonthlyReport extends PanacheEntity {
     }
 
     void updateRawFields(MarketDataSnapshot snapshot) {
-        this.forwardPeRatio = snapshot.forwardPeRatio();
-        this.forwardEpsGrowth = snapshot.forwardEpsGrowth();
-        this.forwardRevenueGrowth = snapshot.forwardRevenueGrowth();
-        this.targetPrice = snapshot.targetPrice();
-        this.analystRatings = snapshot.analystRatings();
+        if (snapshot.forwardPeRatio() != null)
+            this.forwardPeRatio = snapshot.forwardPeRatio();
+        if (snapshot.forwardEpsGrowth() != null)
+            this.forwardEpsGrowth = snapshot.forwardEpsGrowth();
+        if (snapshot.forwardRevenueGrowth() != null)
+            this.forwardRevenueGrowth = snapshot.forwardRevenueGrowth();
+        if (snapshot.targetPrice() != null)
+            this.targetPrice = snapshot.targetPrice();
+        if (snapshot.analystRatings() != null)
+            this.analystRatings = snapshot.analystRatings();
     }
 
     void recalculatePsRatio(MarketDataSnapshot snapshot) {

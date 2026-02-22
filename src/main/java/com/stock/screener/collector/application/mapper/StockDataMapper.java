@@ -24,7 +24,6 @@ public class StockDataMapper {
             builder.marketCap(overview.marketCapitalization())
                     .revenueTTM(overview.revenueTTM())
                     .forwardPeRatio(overview.forwardPE())
-                    .pegRatio(overview.pegRatio())
                     .targetPrice(overview.analystTargetPrice());
         }
 
@@ -73,6 +72,7 @@ public class StockDataMapper {
         if (latestIncome != null) {
             builder.interestExpense(latestIncome.interestExpense())
                     .totalRevenue(latestIncome.totalRevenue())
+                    .revenueTTM(calculateRevenueTTM(incomeStatement))
                     .netIncome(latestIncome.netIncome());
         }
 
@@ -88,6 +88,8 @@ public class StockDataMapper {
     /**
      * Calculates total debt using shortLongTermDebtTotal (pre-calculated by AlphaVantage).
      * Falls back to shortTermDebt + longTermDebt when the pre-calculated field is null.
+     * NOTE: CSV spec says shortLongTermDebtTotal + longTermDebt, but that would double-count.
+     * shortLongTermDebtTotal already includes both short- and long-term debt.
      */
     private BigDecimal calculateTotalDebt(RawBalanceSheet.Report balance) {
         if (balance == null) {
@@ -103,7 +105,8 @@ public class StockDataMapper {
 
     /**
      * Resolves retained earnings from the balance sheet.
-     * Fallback: totalShareholderEquity - commonStock (when retainedEarnings is null).
+     * Fallback: totalShareholderEquity - (commonStock + additionalPaidInCapital).
+     * Per CSV spec row 22: "If None: totalShareholderEquity - (commonStock + additionalPaidInCapital)."
      */
     private BigDecimal resolveRetainedEarnings(RawBalanceSheet.Report balance) {
         if (balance == null) {
@@ -113,7 +116,12 @@ public class StockDataMapper {
             return balance.retainedEarnings();
         }
         if (balance.totalShareholderEquity() != null && balance.commonStock() != null) {
-            return balance.totalShareholderEquity().subtract(balance.commonStock());
+            BigDecimal apic = balance.additionalPaidInCapital() != null
+                    ? balance.additionalPaidInCapital()
+                    : BigDecimal.ZERO;
+            return balance.totalShareholderEquity()
+                    .subtract(balance.commonStock())
+                    .subtract(apic);
         }
         return null;
     }
@@ -135,6 +143,21 @@ public class StockDataMapper {
             return income.netIncome().add(interest).add(tax);
         }
         return null;
+    }
+
+    /**
+     * Calculates Revenue TTM by summing totalRevenue from the 4 most recent quarterly reports.
+     */
+    private BigDecimal calculateRevenueTTM(RawIncomeStatement income) {
+        if (income == null || income.quarterlyReports() == null || income.quarterlyReports().isEmpty()) {
+            return null;
+        }
+        
+        return income.quarterlyReports().stream()
+                .limit(4)
+                .map(RawIncomeStatement.Report::totalRevenue)
+                .filter(java.util.Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**

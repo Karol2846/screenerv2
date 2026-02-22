@@ -18,7 +18,8 @@ public record ForwardPeg(BigDecimal value) implements FinancialMetric {
     }
 
     private static ForwardPeg calculate(MarketDataSnapshot snapshot) {
-        BigDecimal result = FinancialMetric.divide(snapshot.forwardPeRatio(), snapshot.forwardEpsGrowth());
+        BigDecimal growthAsPercentage = snapshot.forwardEpsGrowth().multiply(new BigDecimal("100"));
+        BigDecimal result = FinancialMetric.divide(snapshot.forwardPeRatio(), growthAsPercentage);
         return new ForwardPeg(result);
     }
 }

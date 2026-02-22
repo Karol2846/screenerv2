@@ -44,11 +44,11 @@ class AltmanScoreCalculatorTest {
         }
 
         @Test
-        @DisplayName("Manufacturing sector with null totalRevenue should fail with MISSING_DATA")
+        @DisplayName("Manufacturing sector with null revenueTTM should fail with MISSING_DATA")
         void testManufacturingWithNullRevenueShouldFail() {
-            // Given: Snapshot with null totalRevenue (required for manufacturing)
+            // Given: Snapshot with null revenueTTM (required for manufacturing)
             var snapshot = baseSnapshot()
-                    .totalRevenue(null)
+                    .revenueTTM(null)
                     .build();
 
             // When: Computing Z-Score for manufacturing sector
@@ -59,7 +59,7 @@ class AltmanScoreCalculatorTest {
 
             result.onFailure(failure -> {
                 assertThat(failure.type()).isEqualTo(CalculationErrorType.MISSING_DATA);
-                assertThat(failure.reason()).contains("totalRevenue");
+                assertThat(failure.reason()).contains("revenueTTM");
             });
         }
     }
@@ -86,17 +86,17 @@ class AltmanScoreCalculatorTest {
         }
 
         @Test
-        @DisplayName("Non-Manufacturing sector with null totalRevenue should succeed (revenue not required)")
+        @DisplayName("Non-Manufacturing sector with null revenueTTM should succeed (revenue not required)")
         void testNonManufacturingWithNullRevenueCanSucceed() {
-            // Given: Snapshot with null totalRevenue (NOT required for non-manufacturing)
+            // Given: Snapshot with null revenueTTM (NOT required for non-manufacturing)
             var snapshot = baseSnapshot()
-                    .totalRevenue(null)
+                    .revenueTTM(null)
                     .build();
 
             // When: Computing Z''-Score for non-manufacturing sector
             CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
-            // Then: Should succeed (totalRevenue is not required for non-manufacturing formula)
+            // Then: Should succeed (revenueTTM is not required for non-manufacturing formula)
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
         }
     }
@@ -347,7 +347,8 @@ class AltmanScoreCalculatorTest {
                 .retainedEarnings(new BigDecimal("150000"))
                 .ebit(new BigDecimal("100000"))
                 .totalShareholderEquity(new BigDecimal("600000"))
-                .totalRevenue(new BigDecimal("800000"));
+                .totalRevenue(new BigDecimal("800000"))
+                .revenueTTM(new BigDecimal("800000"));
     }
 
     static Stream<Arguments> manufacturingSectorsProvider() {

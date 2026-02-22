@@ -20,7 +20,7 @@ class ForwardPegTest {
         // Given: Snapshot with valid forward PE and EPS growth
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("20.0")
-                .withForwardEpsGrowth("10.0")
+                .withForwardEpsGrowth("0.10")
                 .build();
 
         // When: Computing ForwardPeg
@@ -39,12 +39,12 @@ class ForwardPegTest {
         // Given: Two snapshots with different PE ratios
         var snapshot1 = aMarketDataSnapshot()
                 .withForwardPeRatio("15.0")
-                .withForwardEpsGrowth("10.0")
+                .withForwardEpsGrowth("0.10")
                 .build();
 
         var snapshot2 = aMarketDataSnapshot()
                 .withForwardPeRatio("30.0")
-                .withForwardEpsGrowth("10.0")
+                .withForwardEpsGrowth("0.10")
                 .build();
 
         // When: Computing ForwardPeg for both
@@ -71,7 +71,7 @@ class ForwardPegTest {
         // Given: Snapshot with null forwardPeRatio
         var snapshot = aMarketDataSnapshot()
                 .withNullForwardPeRatio()
-                .withForwardEpsGrowth("10.0")
+                .withForwardEpsGrowth("0.10")
                 .build();
 
         // When: Computing ForwardPeg
@@ -134,7 +134,7 @@ class ForwardPegTest {
         // Given: Complete snapshot
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("25.0")
-                .withForwardEpsGrowth("7.0")
+                .withForwardEpsGrowth("0.07")
                 .build();
 
         // When: Computing ForwardPeg
@@ -152,7 +152,7 @@ class ForwardPegTest {
         // Given: Low PE with high growth
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("10.0")
-                .withForwardEpsGrowth("25.0")
+                .withForwardEpsGrowth("0.25")
                 .build();
 
         // When: Computing ForwardPeg
@@ -171,7 +171,7 @@ class ForwardPegTest {
         // Given: High PE with low growth
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("50.0")
-                .withForwardEpsGrowth("5.0")
+                .withForwardEpsGrowth("0.05")
                 .build();
 
         // When: Computing ForwardPeg
@@ -190,7 +190,7 @@ class ForwardPegTest {
         // Given: Negative EPS growth (company shrinking)
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("20.0")
-                .withForwardEpsGrowth("-5.0")
+                .withForwardEpsGrowth("-0.05")
                 .build();
 
         // When: Computing ForwardPeg

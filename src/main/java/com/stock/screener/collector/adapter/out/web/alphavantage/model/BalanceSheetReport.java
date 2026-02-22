@@ -27,5 +27,6 @@ public record BalanceSheetReport(
         @JsonProperty("currentLongTermDebt") BigDecimal currentLongTermDebt,
         @JsonProperty("longTermDebtNoncurrent") BigDecimal longTermDebtNoncurrent,
         @JsonProperty("shortLongTermDebtTotal") BigDecimal shortLongTermDebtTotal,
-        @JsonProperty("commonStockSharesOutstanding") BigDecimal commonStockSharesOutstanding
+        @JsonProperty("commonStockSharesOutstanding") BigDecimal commonStockSharesOutstanding,
+        @JsonProperty("additionalPaidInCapital") BigDecimal additionalPaidInCapital
 ) {}

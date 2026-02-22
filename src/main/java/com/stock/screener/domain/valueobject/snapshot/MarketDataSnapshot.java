@@ -11,7 +11,6 @@ public record MarketDataSnapshot(
         BigDecimal marketCap,
         BigDecimal revenueTTM,
         BigDecimal forwardPeRatio,
-        BigDecimal pegRatio,
         BigDecimal targetPrice,
 
         // === Yahoo Finance ===

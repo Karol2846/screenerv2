@@ -8,10 +8,16 @@ import com.stock.screener.collector.application.port.out.yhfinance.YahooFinanceC
 import com.stock.screener.domain.entity.MonthlyReport;
 import com.stock.screener.domain.entity.QuarterlyReport;
 import com.stock.screener.domain.entity.Stock;
+import com.stock.screener.domain.valueobject.Sector;
+import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
+import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import java.time.LocalDate;
 
 @Slf4j
 @ApplicationScoped
@@ -63,9 +69,10 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         return stock;
     }
 
-    private void updateMarketData(Stock stock,
-            com.stock.screener.collector.application.port.out.alphavantage.RawOverview rawOverview,
-            com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse yhResponse) {
+    private void updateMarketData(Stock stock, RawOverview rawOverview, YhFinanceResponse yhResponse) {
+        if (rawOverview != null && rawOverview.sector() != null) {
+            stock.sector = Sector.fromString(rawOverview.sector());
+        }
 
         var snapshot = stockDataMapper.toMarketDataSnapshot(rawOverview, yhResponse);
         stock.marketData = stockDataMapper.toMarketData(snapshot);
@@ -98,14 +105,13 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         qReport.persist();
     }
 
-    private java.time.LocalDate resolveFiscalDate(
-            com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet rawBalance) {
+    private LocalDate resolveFiscalDate(RawBalanceSheet rawBalance) {
         if (rawBalance != null && rawBalance.quarterlyReports() != null && !rawBalance.quarterlyReports().isEmpty()) {
             String dateStr = rawBalance.quarterlyReports().getFirst().fiscalDateEnding();
             if (dateStr != null) {
-                return java.time.LocalDate.parse(dateStr);
+                return LocalDate.parse(dateStr);
             }
         }
-        return java.time.LocalDate.now();
+        return LocalDate.now();
     }
 }

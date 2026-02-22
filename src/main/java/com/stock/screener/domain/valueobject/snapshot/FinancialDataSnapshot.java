@@ -16,6 +16,7 @@ public record FinancialDataSnapshot(
                 BigDecimal totalShareholderEquity,
                 BigDecimal inventory,
                 BigDecimal totalRevenue,
+                BigDecimal revenueTTM,
                 BigDecimal totalDebt,
                 BigDecimal netIncome,
                 BigDecimal operatingCashFlow) {

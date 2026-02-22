@@ -93,7 +93,7 @@ class MonthlyReportTest {
         // Given: Snapshot with valid forward PE and EPS growth
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("20.0")
-                .withForwardEpsGrowth("10.0")
+                .withForwardEpsGrowth("0.10")
                 .build();
 
         // When: Updating metrics
@@ -562,7 +562,7 @@ class MonthlyReportTest {
         // Given: Negative EPS growth (company losing momentum)
         var snapshot = aMarketDataSnapshot()
                 .withForwardPeRatio("20.0")
-                .withForwardEpsGrowth("-5.0")
+                .withForwardEpsGrowth("-0.05")
                 .build();
 
         // When: Updating metrics
@@ -600,7 +600,7 @@ class MonthlyReportTest {
     void testSmallDecimalPrecision() {
         // Given: Small fractional values
         var snapshot = aMarketDataSnapshot()
-                .withForwardPeRatio("0.5")
+                .withForwardPeRatio("50.0")
                 .withForwardEpsGrowth("0.25")
                 .build();
 

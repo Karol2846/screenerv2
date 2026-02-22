@@ -55,7 +55,7 @@ public class AltmanScoreCalculator {
 
     private static CalculationResult<AltmanZScore> calculateManufacturing(FinancialDataSnapshot snapshot) {
         return baseValidation(snapshot)
-                .require("totalRevenue", FinancialDataSnapshot::totalRevenue)
+                .require("revenueTTM", FinancialDataSnapshot::revenueTTM)
                 .validate(AltmanScoreCalculator::computeManufacturingScore);
     }
 
@@ -118,9 +118,9 @@ public class AltmanScoreCalculator {
         return divide(snapshot.totalShareholderEquity(), snapshot.totalLiabilities());
     }
 
-    // T5 = Total Revenue / Total Assets (only for manufacturing)
+    // T5 = Revenue TTM / Total Assets (only for manufacturing)
     private static BigDecimal calculateT5(FinancialDataSnapshot snapshot) {
-        return divide(snapshot.totalRevenue(), snapshot.totalAssets());
+        return divide(snapshot.revenueTTM(), snapshot.totalAssets());
     }
 
     private static BigDecimal divide(BigDecimal numerator, BigDecimal denominator) {

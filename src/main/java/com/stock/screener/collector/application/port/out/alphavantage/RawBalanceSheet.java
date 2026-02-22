@@ -33,6 +33,7 @@ public record RawBalanceSheet(
             BigDecimal currentLongTermDebt,
             BigDecimal longTermDebtNoncurrent,
             BigDecimal shortLongTermDebtTotal,
-            BigDecimal commonStockSharesOutstanding
+            BigDecimal commonStockSharesOutstanding,
+            BigDecimal additionalPaidInCapital
     ) {}
 }

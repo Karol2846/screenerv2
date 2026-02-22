@@ -16,6 +16,7 @@ public final class FinancialDataSnapshotFixture {
     private BigDecimal totalShareholderEquity = new BigDecimal("600000");
     private BigDecimal inventory = new BigDecimal("100000");
     private BigDecimal totalRevenue = new BigDecimal("800000");
+    private BigDecimal revenueTTM = new BigDecimal("800000");
 
     private FinancialDataSnapshotFixture() {}
 
@@ -127,6 +128,16 @@ public final class FinancialDataSnapshotFixture {
         return this;
     }
 
+    public FinancialDataSnapshotFixture withRevenueTTM(String revenueTTM) {
+        this.revenueTTM = new BigDecimal(revenueTTM);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullRevenueTTM() {
+        this.revenueTTM = null;
+        return this;
+    }
+
     public FinancialDataSnapshot build() {
         return FinancialDataSnapshot.builder()
                 .totalCurrentAssets(totalCurrentAssets)
@@ -139,6 +150,7 @@ public final class FinancialDataSnapshotFixture {
                 .totalShareholderEquity(totalShareholderEquity)
                 .inventory(inventory)
                 .totalRevenue(totalRevenue)
+                .revenueTTM(revenueTTM)
                 .build();
     }
 }
