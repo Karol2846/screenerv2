@@ -28,44 +28,13 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
     public Stock collectDataForStock(String ticker) {
         log.info("Starting data collection for: {}", ticker);
 
-        Stock stock = Stock.findById(ticker);
-        if (stock == null) {
-            stock = new Stock();
-            stock.ticker = ticker;
-            stock.persist();
-        }
+        Stock stock = findOrCreateStock(ticker);
 
         var rawOverview = alphaVantageClient.fetchOverview(ticker);
         var yhResponse = yahooFinanceClient.getQuoteSummary(ticker);
 
-        var snapshot = stockDataMapper.toMarketDataSnapshot(rawOverview, yhResponse);
-
-        stock.marketData = stockDataMapper.toMarketData(snapshot);
-
-        MonthlyReport report = MonthlyReport.find("stock", stock).firstResult();
-        if (report == null) {
-            report = new MonthlyReport();
-            report.stock = stock;
-        }
-
-        report.updateMetrics(snapshot);
-        report.persist();
-
-        var rawBalance = alphaVantageClient.fetchBalanceSheet(ticker);
-        var rawIncome = alphaVantageClient.fetchIncomeStatement(ticker);
-        var rawCash = alphaVantageClient.fetchCashFlow(ticker);
-
-        var financialSnapshot = stockDataMapper.toFinancialDataSnapshot(rawBalance, rawIncome, rawCash);
-
-        QuarterlyReport qReport = QuarterlyReport.find("stock", stock).firstResult();
-        if (qReport == null) {
-            qReport = new QuarterlyReport();
-            qReport.stock = stock;
-            qReport.fiscalDateEnding = java.time.LocalDate.now(); // Dummy, docelowo z raportu
-        }
-
-        qReport.updateMetrics(financialSnapshot, stock.sector);
-        qReport.persist();
+        updateMarketData(stock, rawOverview, yhResponse);
+        updateFinancialData(stock, ticker);
 
         return stock;
     }
@@ -82,5 +51,61 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         });
 
         log.info("Collection pipeline finished.");
+    }
+
+    private Stock findOrCreateStock(String ticker) {
+        Stock stock = Stock.findById(ticker);
+        if (stock == null) {
+            stock = new Stock();
+            stock.ticker = ticker;
+            stock.persist();
+        }
+        return stock;
+    }
+
+    private void updateMarketData(Stock stock,
+            com.stock.screener.collector.application.port.out.alphavantage.RawOverview rawOverview,
+            com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse yhResponse) {
+
+        var snapshot = stockDataMapper.toMarketDataSnapshot(rawOverview, yhResponse);
+        stock.marketData = stockDataMapper.toMarketData(snapshot);
+
+        MonthlyReport report = MonthlyReport.find("stock", stock).firstResult();
+        if (report == null) {
+            report = new MonthlyReport();
+            report.stock = stock;
+        }
+
+        report.updateMetrics(snapshot);
+        report.persist();
+    }
+
+    private void updateFinancialData(Stock stock, String ticker) {
+        var rawBalance = alphaVantageClient.fetchBalanceSheet(ticker);
+        var rawIncome = alphaVantageClient.fetchIncomeStatement(ticker);
+        var rawCash = alphaVantageClient.fetchCashFlow(ticker);
+
+        var financialSnapshot = stockDataMapper.toFinancialDataSnapshot(rawBalance, rawIncome, rawCash);
+
+        QuarterlyReport qReport = QuarterlyReport.find("stock", stock).firstResult();
+        if (qReport == null) {
+            qReport = new QuarterlyReport();
+            qReport.stock = stock;
+            qReport.fiscalDateEnding = resolveFiscalDate(rawBalance);
+        }
+
+        qReport.updateMetrics(financialSnapshot, stock.sector);
+        qReport.persist();
+    }
+
+    private java.time.LocalDate resolveFiscalDate(
+            com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet rawBalance) {
+        if (rawBalance != null && rawBalance.quarterlyReports() != null && !rawBalance.quarterlyReports().isEmpty()) {
+            String dateStr = rawBalance.quarterlyReports().getFirst().fiscalDateEnding();
+            if (dateStr != null) {
+                return java.time.LocalDate.parse(dateStr);
+            }
+        }
+        return java.time.LocalDate.now();
     }
 }

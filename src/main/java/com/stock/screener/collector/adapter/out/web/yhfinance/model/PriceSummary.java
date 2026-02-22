@@ -4,13 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
+import java.math.BigDecimal;
+
 @Builder
 @Jacksonized
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record QuoteSummaryResult(
-        EarningsTrend earningsTrend,
-        RecommendationTrend recommendationTrend,
-        PriceSummary price
-) {
-}
-
+public record PriceSummary(
+        BigDecimal regularMarketPrice
+) {}

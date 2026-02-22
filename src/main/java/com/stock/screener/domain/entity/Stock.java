@@ -34,7 +34,7 @@ public class Stock extends PanacheEntityBase {
 
 //TODO: new problem to think of:
 // think about how to merge alpha vantage & yhFinance api calls in monthlyReport - to now waste requests from api's
-// MonthlyReportSnapshoot requires some data from YhFinance & some from alphaVAntage.
+// MonthlyReportsnapshot requires some data from YhFinance & some from alphaVAntage.
 // It's data will be fetched once a month.
 // but alphaVantage api's data also needs to be fetched once every three months - for quaterly report.
 // Maybe the solution will be to gave data from persist log if current data was already fettched

@@ -4,7 +4,7 @@ import com.stock.screener.domain.kernel.ReportError;
 import com.stock.screener.domain.service.AltmanScoreCalculator;
 import com.stock.screener.domain.valueobject.AltmanZScore;
 import com.stock.screener.domain.valueobject.Sector;
-import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
+import com.stock.screener.domain.valueobject.snapshot.FinancialDataSnapshot;
 import com.stock.screener.domain.valueobject.InterestCoverageRatio;
 import com.stock.screener.domain.valueobject.QuickRatio;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;

@@ -1,6 +1,6 @@
 package com.stock.screener.domain.valueobject.fixtures;
 
-import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
+import com.stock.screener.domain.valueobject.snapshot.FinancialDataSnapshot;
 
 import java.math.BigDecimal;
 

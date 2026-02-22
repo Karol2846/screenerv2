@@ -1,4 +1,4 @@
-package com.stock.screener.domain.valueobject.snapshoot;
+package com.stock.screener.domain.valueobject.snapshot;
 
 import lombok.Builder;
 

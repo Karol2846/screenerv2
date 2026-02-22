@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 @Builder
 public record YhFinanceResponse(
     String ticker,
+    BigDecimal currentPrice,
     BigDecimal forwardEpsGrowth,
     BigDecimal forwardRevenueGrowth,
     AnalystRatings analystRatings

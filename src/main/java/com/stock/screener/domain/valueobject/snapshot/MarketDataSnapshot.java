@@ -1,4 +1,4 @@
-package com.stock.screener.domain.valueobject.snapshoot;
+package com.stock.screener.domain.valueobject.snapshot;
 
 import com.stock.screener.domain.valueobject.AnalystRatings;
 import lombok.Builder;
@@ -7,17 +7,16 @@ import java.math.BigDecimal;
 
 @Builder
 public record MarketDataSnapshot(
-        // === Alpha Vantage (AV) ===
         BigDecimal currentPrice,
         BigDecimal marketCap,
         BigDecimal revenueTTM,
         BigDecimal forwardPeRatio,
+        BigDecimal pegRatio,
         BigDecimal targetPrice,
 
-        // === Yahoo Finance (YH) ===
+        // === Yahoo Finance ===
         BigDecimal forwardEpsGrowth,
         BigDecimal forwardRevenueGrowth,
         AnalystRatings analystRatings
 ) {
 }
-

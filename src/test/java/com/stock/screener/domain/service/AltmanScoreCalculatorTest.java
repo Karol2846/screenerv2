@@ -4,7 +4,7 @@ import com.stock.screener.domain.kernel.CalculationErrorType;
 import com.stock.screener.domain.kernel.CalculationResult;
 import com.stock.screener.domain.valueobject.AltmanZScore;
 import com.stock.screener.domain.valueobject.Sector;
-import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
+import com.stock.screener.domain.valueobject.snapshot.FinancialDataSnapshot;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

@@ -23,7 +23,7 @@ class YhFinanceGateway implements YahooFinanceClient {
     private final YhFinanceApiClient apiClient;
     private final ObjectMapper objectMapper;
 
-    private static final String DEFAULT_MODULES = "earningsTrend,recommendationTrend";
+    private static final String DEFAULT_MODULES = "earningsTrend,recommendationTrend,price";
     private static final String DEFAULT_LANG = "en";
     private static final String DEFAULT_REGION = "US";
 

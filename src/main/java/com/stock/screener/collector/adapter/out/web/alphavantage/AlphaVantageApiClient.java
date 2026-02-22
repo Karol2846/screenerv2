@@ -1,6 +1,7 @@
 package com.stock.screener.collector.adapter.out.web.alphavantage;
 
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.BalanceSheetResponse;
+import com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.IncomeStatementResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.OverviewResponse;
 import jakarta.ws.rs.GET;
@@ -30,7 +31,7 @@ interface AlphaVantageApiClient {
                         @QueryParam("symbol") String symbol);
 
         @GET
-        com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowResponse getCashFlow(
+        CashFlowResponse getCashFlow(
                         @QueryParam("function") String function,
                         @QueryParam("symbol") String symbol);
 }

@@ -6,7 +6,7 @@ import com.stock.screener.domain.valueobject.ForwardPeg;
 import com.stock.screener.domain.valueobject.PsRatio;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
 import com.stock.screener.domain.valueobject.UpsidePotential;
-import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
+import com.stock.screener.domain.valueobject.snapshot.MarketDataSnapshot;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;

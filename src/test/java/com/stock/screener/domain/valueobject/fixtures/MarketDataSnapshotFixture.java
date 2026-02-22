@@ -1,7 +1,7 @@
 package com.stock.screener.domain.valueobject.fixtures;
 
 import com.stock.screener.domain.valueobject.AnalystRatings;
-import com.stock.screener.domain.valueobject.snapshoot.MarketDataSnapshot;
+import com.stock.screener.domain.valueobject.snapshot.MarketDataSnapshot;
 
 import java.math.BigDecimal;
 
@@ -11,6 +11,7 @@ public final class MarketDataSnapshotFixture {
     private BigDecimal marketCap = new BigDecimal("1000000000");
     private BigDecimal revenueTTM = new BigDecimal("500000000");
     private BigDecimal forwardPeRatio = new BigDecimal("25.0");
+    private BigDecimal pegRatio = new BigDecimal("2.10");
     private BigDecimal targetPrice = new BigDecimal("180.00");
     private BigDecimal forwardEpsGrowth = new BigDecimal("15.0");
     private BigDecimal forwardRevenueGrowth = new BigDecimal("12.5");
@@ -179,6 +180,7 @@ public final class MarketDataSnapshotFixture {
                 .marketCap(marketCap)
                 .revenueTTM(revenueTTM)
                 .forwardPeRatio(forwardPeRatio)
+                .pegRatio(pegRatio)
                 .targetPrice(targetPrice)
                 .forwardEpsGrowth(forwardEpsGrowth)
                 .forwardRevenueGrowth(forwardRevenueGrowth)

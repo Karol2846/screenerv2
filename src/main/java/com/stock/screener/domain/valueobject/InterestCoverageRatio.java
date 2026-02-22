@@ -2,7 +2,7 @@ package com.stock.screener.domain.valueobject;
 
 import com.stock.screener.domain.kernel.CalculationGuard;
 import com.stock.screener.domain.kernel.CalculationResult;
-import com.stock.screener.domain.valueobject.snapshoot.FinancialDataSnapshot;
+import com.stock.screener.domain.valueobject.snapshot.FinancialDataSnapshot;
 import jakarta.persistence.Embeddable;
 
 import java.math.BigDecimal;
