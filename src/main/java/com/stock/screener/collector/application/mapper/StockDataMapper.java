@@ -17,15 +17,17 @@ import java.util.List;
 @ApplicationScoped
 public class StockDataMapper {
 
-    public MarketDataSnapshot toMarketDataSnapshot(RawOverview overview, YhFinanceResponse yhResponse) {
+    public MarketDataSnapshot toMarketDataSnapshot(RawOverview overview, YhFinanceResponse yhResponse,
+            RawIncomeStatement incomeStatement) {
         var builder = MarketDataSnapshot.builder();
 
         if (overview != null) {
             builder.marketCap(overview.marketCapitalization())
-                    .revenueTTM(overview.revenueTTM())
                     .forwardPeRatio(overview.forwardPE())
                     .targetPrice(overview.analystTargetPrice());
         }
+
+        builder.revenueTTM(calculateRevenueTTM(incomeStatement));
 
         if (yhResponse != null) {
             builder.currentPrice(yhResponse.currentPrice())

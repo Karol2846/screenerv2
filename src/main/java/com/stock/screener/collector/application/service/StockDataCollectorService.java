@@ -10,6 +10,7 @@ import com.stock.screener.domain.entity.QuarterlyReport;
 import com.stock.screener.domain.entity.Stock;
 import com.stock.screener.domain.valueobject.Sector;
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
 import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
 import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -37,10 +38,11 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         Stock stock = findOrCreateStock(ticker);
 
         var rawOverview = alphaVantageClient.fetchOverview(ticker);
+        var rawIncome = alphaVantageClient.fetchIncomeStatement(ticker);
         var yhResponse = yahooFinanceClient.getQuoteSummary(ticker);
 
-        updateMarketData(stock, rawOverview, yhResponse);
-        updateFinancialData(stock, ticker);
+        updateMarketData(stock, rawOverview, yhResponse, rawIncome);
+        updateFinancialData(stock, ticker, rawIncome);
 
         return stock;
     }
@@ -69,12 +71,13 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         return stock;
     }
 
-    private void updateMarketData(Stock stock, RawOverview rawOverview, YhFinanceResponse yhResponse) {
+    private void updateMarketData(Stock stock, RawOverview rawOverview, YhFinanceResponse yhResponse,
+            RawIncomeStatement rawIncome) {
         if (rawOverview != null && rawOverview.sector() != null) {
             stock.sector = Sector.fromString(rawOverview.sector());
         }
 
-        var snapshot = stockDataMapper.toMarketDataSnapshot(rawOverview, yhResponse);
+        var snapshot = stockDataMapper.toMarketDataSnapshot(rawOverview, yhResponse, rawIncome);
         stock.marketData = stockDataMapper.toMarketData(snapshot);
 
         MonthlyReport report = MonthlyReport.find("stock", stock).firstResult();
@@ -87,9 +90,8 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         report.persist();
     }
 
-    private void updateFinancialData(Stock stock, String ticker) {
+    private void updateFinancialData(Stock stock, String ticker, RawIncomeStatement rawIncome) {
         var rawBalance = alphaVantageClient.fetchBalanceSheet(ticker);
-        var rawIncome = alphaVantageClient.fetchIncomeStatement(ticker);
         var rawCash = alphaVantageClient.fetchCashFlow(ticker);
 
         var financialSnapshot = stockDataMapper.toFinancialDataSnapshot(rawBalance, rawIncome, rawCash);

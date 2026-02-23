@@ -218,7 +218,7 @@ class AltmanScoreCalculatorTest {
                     .build();
 
             // When: Computing Z-Score
-            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.MINING);
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.BASIC_MATERIALS);
 
             // Then: Should fail with MISSING_DATA
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -354,8 +354,8 @@ class AltmanScoreCalculatorTest {
     static Stream<Arguments> manufacturingSectorsProvider() {
         return Stream.of(
                 Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
-                Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
-                Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
+                Arguments.of(Sector.INDUSTRIALS, new BigDecimal("2.6000")),
+                Arguments.of(Sector.BASIC_MATERIALS, new BigDecimal("2.6000"))
         );
     }
 
@@ -364,6 +364,8 @@ class AltmanScoreCalculatorTest {
                 Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
                 Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
                 Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
+                Arguments.of(Sector.CONSUMER_STAPLES, new BigDecimal("4.7040")),
+                Arguments.of(Sector.COMMUNICATION_SERVICES, new BigDecimal("4.7040")),
                 Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
         );
     }

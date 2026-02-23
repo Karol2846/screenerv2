@@ -14,8 +14,8 @@ import java.math.RoundingMode;
  * <p>
  * Supports two formulas:
  * <ul>
- *   <li>Original Z-Score for manufacturing sectors (ENERGY, MINING, UTILITIES)</li>
- *   <li>Z''-Score for non-manufacturing sectors (TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE)</li>
+ *   <li>Original Z-Score for manufacturing sectors (ENERGY, INDUSTRIALS, BASIC_MATERIALS)</li>
+ *   <li>Z''-Score for non-manufacturing sectors (TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, CONSUMER_STAPLES, COMMUNICATION_SERVICES, REAL_ESTATE)</li>
  * </ul>
  * <p>
  * This calculator only computes the numerical value (a fact).
@@ -47,8 +47,9 @@ public class AltmanScoreCalculator {
      */
     public static CalculationResult<AltmanZScore> calculate(FinancialDataSnapshot snapshot, Sector sector) {
         return switch (sector) {
-            case ENERGY, MINING, UTILITIES -> calculateManufacturing(snapshot);
-            case TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE -> calculateNonManufacturing(snapshot);
+            case ENERGY, INDUSTRIALS, BASIC_MATERIALS -> calculateManufacturing(snapshot);
+            case TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, CONSUMER_STAPLES,
+                 COMMUNICATION_SERVICES, REAL_ESTATE -> calculateNonManufacturing(snapshot);
             default -> CalculationResult.skip("Altman Z-Score not applicable for %s sector".formatted(sector));
         };
     }

@@ -8,12 +8,15 @@ import lombok.RequiredArgsConstructor;
 public enum Sector {
     TECHNOLOGY("Technology"),
     HEALTHCARE("Healthcare"),
-    FINANCE("Finance"),
+    FINANCE("Financial Services"),
     ENERGY("Energy"),
-    CONSUMER_DISCRETIONARY("Consumer Discretionary"),
+    CONSUMER_DISCRETIONARY("Consumer Cyclical"),
+    CONSUMER_STAPLES("Consumer Defensive"),
+    INDUSTRIALS("Industrials"),
+    COMMUNICATION_SERVICES("Communication Services"),
+    BASIC_MATERIALS("Basic Materials"),
     REAL_ESTATE("Real Estate"),
     UTILITIES("Utilities"),
-    MINING("Mining"),
     OTHER("Other");
 
     private final String displayName;

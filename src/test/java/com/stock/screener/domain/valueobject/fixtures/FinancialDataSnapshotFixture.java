@@ -17,6 +17,9 @@ public final class FinancialDataSnapshotFixture {
     private BigDecimal inventory = new BigDecimal("100000");
     private BigDecimal totalRevenue = new BigDecimal("800000");
     private BigDecimal revenueTTM = new BigDecimal("800000");
+    private BigDecimal totalDebt = new BigDecimal("300000");
+    private BigDecimal netIncome = new BigDecimal("120000");
+    private BigDecimal operatingCashFlow = new BigDecimal("150000");
 
     private FinancialDataSnapshotFixture() {}
 
@@ -138,6 +141,36 @@ public final class FinancialDataSnapshotFixture {
         return this;
     }
 
+    public FinancialDataSnapshotFixture withTotalDebt(String totalDebt) {
+        this.totalDebt = new BigDecimal(totalDebt);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullTotalDebt() {
+        this.totalDebt = null;
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNetIncome(String netIncome) {
+        this.netIncome = new BigDecimal(netIncome);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullNetIncome() {
+        this.netIncome = null;
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withOperatingCashFlow(String operatingCashFlow) {
+        this.operatingCashFlow = new BigDecimal(operatingCashFlow);
+        return this;
+    }
+
+    public FinancialDataSnapshotFixture withNullOperatingCashFlow() {
+        this.operatingCashFlow = null;
+        return this;
+    }
+
     public FinancialDataSnapshot build() {
         return FinancialDataSnapshot.builder()
                 .totalCurrentAssets(totalCurrentAssets)
@@ -151,6 +184,9 @@ public final class FinancialDataSnapshotFixture {
                 .inventory(inventory)
                 .totalRevenue(totalRevenue)
                 .revenueTTM(revenueTTM)
+                .totalDebt(totalDebt)
+                .netIncome(netIncome)
+                .operatingCashFlow(operatingCashFlow)
                 .build();
     }
 }

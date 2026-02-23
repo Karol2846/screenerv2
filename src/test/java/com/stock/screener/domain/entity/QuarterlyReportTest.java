@@ -127,7 +127,7 @@ class QuarterlyReportTest {
         }
 
         @ParameterizedTest(name = "Manufacturing sector {0} should compute classic Altman Z-Score")
-        @EnumSource(value = Sector.class, names = {"ENERGY", "MINING", "UTILITIES"})
+        @EnumSource(value = Sector.class, names = {"ENERGY", "INDUSTRIALS", "BASIC_MATERIALS"})
         @DisplayName("Manufacturing sectors produce valid classic Z-Score")
         void testManufacturingSectorsProduceValidScore(Sector sector) {
             // Given: Complete snapshot
