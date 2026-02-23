@@ -7,11 +7,10 @@ import jakarta.persistence.*;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * Lekki agregat reprezentujący spółkę giełdową.
- * <p>
- * Zawiera tylko podstawowe dane identyfikacyjne i rynkowe.
- * Raporty ({@link MonthlyReport}, {@link QuarterlyReport}) są dostępne
- * przez ich własne repozytoria/Active Record, a nie przez nawigację z Stock.
+ * Lightweight aggregate representing a publicly listed company.
+ * Contains only basic identification and market data.
+ * Reports ({@link MonthlyReport}, {@link QuarterlyReport}) are accessible
+ * through their own repositories/Active Record, not via navigation from Stock.
  * </p>
  */
 @Slf4j

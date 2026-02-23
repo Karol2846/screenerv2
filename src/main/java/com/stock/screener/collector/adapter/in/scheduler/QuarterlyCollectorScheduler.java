@@ -15,6 +15,7 @@ public class QuarterlyCollectorScheduler {
     private final CollectQuarterlyDataUseCase collectQuarterlyDataUseCase;
     private final TickerReaderPort tickerReaderPort;
 
+//    TODO: this should not run just every 3 months, but rather search for stocks with updatedAt > 3 months....
     @Scheduled(cron = "{collector.scheduler.quarterly.cron}", identity = "quarterly-collector")
     void run() {
         log.info("Quarterly collector scheduler triggered");
