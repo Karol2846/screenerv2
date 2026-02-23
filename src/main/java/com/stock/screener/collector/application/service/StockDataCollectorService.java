@@ -37,11 +37,9 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
 
         Stock stock = findOrCreateStock(ticker);
 
-        var rawOverview = alphaVantageClient.fetchOverview(ticker);
         var rawIncome = alphaVantageClient.fetchIncomeStatement(ticker);
-        var yhResponse = yahooFinanceClient.getQuoteSummary(ticker);
 
-        updateMarketData(stock, rawOverview, yhResponse, rawIncome);
+        updateMarketData(stock, ticker, rawIncome);
         updateFinancialData(stock, ticker, rawIncome);
 
         return stock;
@@ -71,8 +69,10 @@ public class StockDataCollectorService implements CollectStockDataUseCase {
         return stock;
     }
 
-    private void updateMarketData(Stock stock, RawOverview rawOverview, YhFinanceResponse yhResponse,
-            RawIncomeStatement rawIncome) {
+    private void updateMarketData(Stock stock, String ticker, RawIncomeStatement rawIncome) {
+        var rawOverview = alphaVantageClient.fetchOverview(ticker);
+        var yhResponse = yahooFinanceClient.getQuoteSummary(ticker);
+
         if (rawOverview != null && rawOverview.sector() != null) {
             stock.sector = Sector.fromString(rawOverview.sector());
         }
