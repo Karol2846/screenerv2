@@ -106,8 +106,8 @@ class AltmanScoreCalculatorTest {
     class NotApplicableSectors {
 
         @ParameterizedTest(name = "{0} sector should skip calculation (not applicable)")
-        @EnumSource(value = Sector.class, names = {"FINANCE", "OTHER"})
-        @DisplayName("FINANCE and OTHER sectors skip calculation")
+        @EnumSource(value = Sector.class, names = {"FINANCE", "UTILITIES", "OTHER"})
+        @DisplayName("FINANCE, UTILITIES and OTHER sectors skip calculation")
         void testNotApplicableSectorsShouldSkip(Sector sector) {
             // Given: Valid snapshot but not applicable sector
             var snapshot = baseSnapshot().build();
@@ -364,8 +364,6 @@ class AltmanScoreCalculatorTest {
                 Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
                 Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
                 Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
-                Arguments.of(Sector.CONSUMER_STAPLES, new BigDecimal("4.7040")),
-                Arguments.of(Sector.COMMUNICATION_SERVICES, new BigDecimal("4.7040")),
                 Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
         );
     }

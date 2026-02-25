@@ -29,9 +29,11 @@ import static com.stock.screener.domain.kernel.ReportError.fromSkipped;
 @Table(name = "quarterly_report")
 public class QuarterlyReport extends PanacheEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stock_ticker", nullable = false)
-    public Stock stock;
+    @Column(name = "stock_ticker", length = 10, nullable = false)
+    public String ticker;
+
+    @Enumerated(EnumType.STRING)
+    public Sector sector;
 
     @Column(nullable = false)
     public LocalDate fiscalDateEnding;

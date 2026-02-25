@@ -49,7 +49,7 @@ public class AltmanScoreCalculator {
         return switch (sector) {
             case ENERGY, INDUSTRIALS, BASIC_MATERIALS -> calculateManufacturing(snapshot);
             case TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, CONSUMER_STAPLES,
-                 COMMUNICATION_SERVICES, REAL_ESTATE -> calculateNonManufacturing(snapshot);
+                    COMMUNICATION_SERVICES, REAL_ESTATE -> calculateNonManufacturing(snapshot);
             default -> CalculationResult.skip("Altman Z-Score not applicable for %s sector".formatted(sector));
         };
     }

@@ -5,13 +5,11 @@ import com.stock.screener.collector.application.port.out.alphavantage.RawCashFlo
 import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
 import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
 import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
-import com.stock.screener.domain.valueobject.MarketData;
 import com.stock.screener.domain.valueobject.snapshot.FinancialDataSnapshot;
 import com.stock.screener.domain.valueobject.snapshot.MarketDataSnapshot;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @ApplicationScoped
@@ -37,15 +35,6 @@ public class StockDataMapper {
         }
 
         return builder.build();
-    }
-
-    public MarketData toMarketData(MarketDataSnapshot snapshot) {
-        return MarketData.builder()
-                .currentPrice(snapshot.currentPrice())
-                .marketCap(snapshot.marketCap())
-                .forwardPeRatio(snapshot.forwardPeRatio())
-                .lastUpdated(LocalDateTime.now())
-                .build();
     }
 
     public FinancialDataSnapshot toFinancialDataSnapshot(RawBalanceSheet balanceSheet,

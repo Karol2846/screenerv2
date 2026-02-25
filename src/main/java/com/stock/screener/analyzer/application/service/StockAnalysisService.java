@@ -1,7 +1,6 @@
 package com.stock.screener.analyzer.application.service;
 
 import com.stock.screener.analyzer.application.port.in.AnalyzeStockUseCase;
-import com.stock.screener.domain.entity.Stock;
 import com.stock.screener.domain.valueobject.AnalysisReport;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
