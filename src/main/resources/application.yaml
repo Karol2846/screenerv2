@@ -5,6 +5,8 @@ quarkus:
     instrumentation: true
   analytics:
     disabled: false
+  scheduler:
+    enabled: false  # Schedulers disabled — use REST controllers instead
 
   hibernate-orm:
     active: true
@@ -47,8 +49,6 @@ alphavantage:
 
 collector:
   scheduler:
-    daily:
-      cron: "0 0 0 * * ?"
     monthly:
       cron: "0 0 1 1 * ?"
     quarterly:
