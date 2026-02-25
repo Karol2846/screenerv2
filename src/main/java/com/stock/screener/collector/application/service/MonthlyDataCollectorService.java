@@ -1,6 +1,5 @@
 package com.stock.screener.collector.application.service;
 
-import com.stock.screener.collector.application.mapper.StockDataMapper;
 import com.stock.screener.collector.application.port.in.CollectMonthlyDataUseCase;
 import com.stock.screener.collector.application.port.out.alphavantage.AlphaVantageClient;
 import com.stock.screener.collector.application.port.out.yhfinance.YahooFinanceClient;
@@ -14,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class MonthlyDataCollectorService implements CollectMonthlyDataUseCase {
+class MonthlyDataCollectorService implements CollectMonthlyDataUseCase {
 
     private final AlphaVantageClient alphaVantageClient;
     private final YahooFinanceClient yahooFinanceClient;

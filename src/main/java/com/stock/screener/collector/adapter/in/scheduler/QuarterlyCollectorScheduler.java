@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class QuarterlyCollectorScheduler {
+class QuarterlyCollectorScheduler {
 
     private final CollectQuarterlyDataUseCase collectQuarterlyDataUseCase;
     private final TickerReaderPort tickerReaderPort;

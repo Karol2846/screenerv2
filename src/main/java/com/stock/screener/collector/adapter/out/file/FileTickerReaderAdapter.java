@@ -14,7 +14,7 @@ import java.util.List;
 
 @Slf4j
 @ApplicationScoped
-public class FileTickerReaderAdapter implements TickerReaderPort {
+class FileTickerReaderAdapter implements TickerReaderPort {
 
     @ConfigProperty(name = "screener.tickers.file.path", defaultValue = "tickers.txt")
     String tickersFilePath;

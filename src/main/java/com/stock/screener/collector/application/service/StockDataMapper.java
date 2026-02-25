@@ -1,4 +1,4 @@
-package com.stock.screener.collector.application.mapper;
+package com.stock.screener.collector.application.service;
 
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
 import com.stock.screener.collector.application.port.out.alphavantage.RawCashFlow;
@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @ApplicationScoped
-public class StockDataMapper {
+class StockDataMapper {
 
     public MarketDataSnapshot toMarketDataSnapshot(RawOverview overview, YhFinanceResponse yhResponse) {
         var builder = MarketDataSnapshot.builder();

@@ -1,6 +1,5 @@
 package com.stock.screener.collector.application.service;
 
-import com.stock.screener.collector.application.mapper.StockDataMapper;
 import com.stock.screener.collector.application.port.in.CollectQuarterlyDataUseCase;
 import com.stock.screener.collector.application.port.out.alphavantage.AlphaVantageClient;
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
@@ -17,7 +16,7 @@ import java.time.LocalDate;
 @Slf4j
 @ApplicationScoped
 @RequiredArgsConstructor
-public class QuarterlyDataCollectorService implements CollectQuarterlyDataUseCase {
+class QuarterlyDataCollectorService implements CollectQuarterlyDataUseCase {
 
     private final AlphaVantageClient alphaVantageClient;
     private final StockDataMapper stockDataMapper;
