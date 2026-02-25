@@ -7,12 +7,12 @@ import com.stock.screener.collector.adapter.out.web.alphavantage.model.OverviewR
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
-import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
+import org.eclipse.microprofile.rest.client.annotation.ClientHeaderParam;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/query")
 @RegisterRestClient(configKey = "alphavantage-api")
-@RegisterProvider(AlphaVantageApiKeyFilter.class)
+@ClientHeaderParam(name = "x-rapidapi-key", value = "${alphavantage.api.key}")
 interface AlphaVantageApiClient {
 
         @GET

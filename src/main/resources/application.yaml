@@ -36,13 +36,13 @@ quarkus:
 
 yhfinance:
   api:
-    key: '47V6xQ2zoF7cimj8UKKid5UfhYtyamBb6fI2GV1d'
+    key: ${YH_FINANCE_API_KEY}
     base-url: 'https://yfapi.net'
 
 alphavantage:
   api:
-    key: ${ALPHA_VANTAGE_API_KEY:demo}
-    base-url: 'https://www.alphavantage.co'
+    key: ${AV_API_KEY}
+    base-url: 'https://alpha-vantage.p.rapidapi.com/'
 
 #link to yhfinance API:
 #  https://financeapi.net/
