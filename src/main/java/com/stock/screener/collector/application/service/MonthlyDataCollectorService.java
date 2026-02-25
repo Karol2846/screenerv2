@@ -5,7 +5,7 @@ import com.stock.screener.collector.application.port.in.CollectMonthlyDataUseCas
 import com.stock.screener.collector.application.port.out.alphavantage.AlphaVantageClient;
 import com.stock.screener.collector.application.port.out.yhfinance.YahooFinanceClient;
 import com.stock.screener.domain.entity.MonthlyReport;
-import com.stock.screener.domain.entity.Stock;
+import com.stock.screener.domain.valueobject.Sector;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,30 +25,22 @@ public class MonthlyDataCollectorService implements CollectMonthlyDataUseCase {
     public void collectMonthlyData(String ticker) {
         log.info("Monthly collection for: {}", ticker);
 
-        Stock stock = findOrCreateStock(ticker);
-
         var rawOverview = alphaVantageClient.fetchOverview(ticker);
         var yhResponse = yahooFinanceClient.getQuoteSummary(ticker);
 
         var snapshot = stockDataMapper.toMarketDataSnapshot(rawOverview, yhResponse);
 
-        MonthlyReport report = MonthlyReport.find("stock", stock).firstResult();
+        MonthlyReport report = MonthlyReport.find("ticker", ticker).firstResult();
         if (report == null) {
             report = new MonthlyReport();
-            report.stock = stock;
+            report.ticker = ticker;
+        }
+
+        if (rawOverview != null && rawOverview.sector() != null) {
+            report.sector = Sector.fromString(rawOverview.sector());
         }
 
         report.updateMetrics(snapshot);
         report.persist();
-    }
-
-    private Stock findOrCreateStock(String ticker) {
-        Stock stock = Stock.findById(ticker);
-        if (stock == null) {
-            stock = new Stock();
-            stock.ticker = ticker;
-            stock.persist();
-        }
-        return stock;
     }
 }

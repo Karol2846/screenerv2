@@ -4,8 +4,9 @@ import com.stock.screener.collector.application.mapper.StockDataMapper;
 import com.stock.screener.collector.application.port.in.CollectQuarterlyDataUseCase;
 import com.stock.screener.collector.application.port.out.alphavantage.AlphaVantageClient;
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
+import com.stock.screener.domain.entity.MonthlyReport;
 import com.stock.screener.domain.entity.QuarterlyReport;
-import com.stock.screener.domain.entity.Stock;
+import com.stock.screener.domain.valueobject.Sector;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,33 +27,29 @@ public class QuarterlyDataCollectorService implements CollectQuarterlyDataUseCas
     public void collectQuarterlyData(String ticker) {
         log.info("Quarterly collection for: {}", ticker);
 
-        Stock stock = findOrCreateStock(ticker);
-
         var rawBalance = alphaVantageClient.fetchBalanceSheet(ticker);
         var rawIncome = alphaVantageClient.fetchIncomeStatement(ticker);
         var rawCash = alphaVantageClient.fetchCashFlow(ticker);
 
         var financialSnapshot = stockDataMapper.toFinancialDataSnapshot(rawBalance, rawIncome, rawCash);
 
-        QuarterlyReport qReport = QuarterlyReport.find("stock", stock).firstResult();
+        Sector sector = resolveSector(ticker);
+
+        QuarterlyReport qReport = QuarterlyReport.find("ticker", ticker).firstResult();
         if (qReport == null) {
             qReport = new QuarterlyReport();
-            qReport.stock = stock;
+            qReport.ticker = ticker;
             qReport.fiscalDateEnding = resolveFiscalDate(rawBalance);
         }
 
-        qReport.updateMetrics(financialSnapshot, stock.sector);
+        qReport.sector = sector;
+        qReport.updateMetrics(financialSnapshot, sector);
         qReport.persist();
     }
 
-    private Stock findOrCreateStock(String ticker) {
-        Stock stock = Stock.findById(ticker);
-        if (stock == null) {
-            stock = new Stock();
-            stock.ticker = ticker;
-            stock.persist();
-        }
-        return stock;
+    private Sector resolveSector(String ticker) {
+        MonthlyReport monthly = MonthlyReport.find("ticker", ticker).firstResult();
+        return monthly != null && monthly.sector != null ? monthly.sector : Sector.OTHER;
     }
 
     private LocalDate resolveFiscalDate(RawBalanceSheet rawBalance) {

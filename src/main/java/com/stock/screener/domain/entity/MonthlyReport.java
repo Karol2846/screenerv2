@@ -5,6 +5,7 @@ import com.stock.screener.domain.valueobject.AnalystRatings;
 import com.stock.screener.domain.valueobject.ForwardPeg;
 import com.stock.screener.domain.valueobject.PsRatio;
 import com.stock.screener.domain.valueobject.ReportIntegrityStatus;
+import com.stock.screener.domain.valueobject.Sector;
 import com.stock.screener.domain.valueobject.UpsidePotential;
 import com.stock.screener.domain.valueobject.snapshot.MarketDataSnapshot;
 import io.quarkus.hibernate.orm.panache.PanacheEntity;
@@ -27,9 +28,11 @@ import static com.stock.screener.domain.kernel.ReportError.fromFailure;
 @Table(name = "monthly_report")
 public class MonthlyReport extends PanacheEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "stock_ticker", nullable = false)
-    public Stock stock;
+    @Column(name = "stock_ticker", length = 10, nullable = false)
+    public String ticker;
+
+    @Enumerated(EnumType.STRING)
+    public Sector sector;
 
     public BigDecimal forwardRevenueGrowth;
     public BigDecimal forwardEpsGrowth;
