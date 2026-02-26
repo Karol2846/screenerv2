@@ -16,7 +16,6 @@ class MonthlyCollectorController {
     private final CollectMonthlyDataUseCase collectMonthlyDataUseCase;
     private final TickerReaderPort tickerReaderPort;
 
-    //FIXME: while testing monthly report I discovered error in response serialization !!!
     @POST
     @Path("/{ticker}")
     @Produces(MediaType.APPLICATION_JSON)

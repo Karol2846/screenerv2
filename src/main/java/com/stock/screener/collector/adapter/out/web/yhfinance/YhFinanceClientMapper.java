@@ -14,7 +14,7 @@ class YhFinanceClientMapper {
         var builder = YhFinanceResponse.builder().ticker(ticker);
 
         if (result.price() != null) {
-            builder.currentPrice(result.price().regularMarketPrice());
+            builder.currentPrice(map(result.price().regularMarketPrice()));
         }
 
         if (result.earningsTrend() != null && result.earningsTrend().trend() != null

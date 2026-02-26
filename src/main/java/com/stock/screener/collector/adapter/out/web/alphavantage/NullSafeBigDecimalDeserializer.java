@@ -11,7 +11,7 @@ import java.math.BigDecimal;
  * Handles AlphaVantage quirks where numeric fields can arrive as "None", "-", or "".
  * Maps those to null instead of blowing up.
  */
-public class NullSafeBigDecimalDeserializer extends NumberDeserializers.BigDecimalDeserializer {
+ class NullSafeBigDecimalDeserializer extends NumberDeserializers.BigDecimalDeserializer {
 
     @Override
     public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
