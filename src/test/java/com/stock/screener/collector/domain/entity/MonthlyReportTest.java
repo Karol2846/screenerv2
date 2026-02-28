@@ -1,0 +1,711 @@
+package com.stock.screener.collector.domain.entity;
+
+import com.stock.screener.collector.domain.kernel.CalculationErrorType;
+import com.stock.screener.collector.domain.kernel.MetricType;
+import com.stock.screener.collector.domain.valueobject.ReportIntegrityStatus;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
+import static com.stock.screener.collector.domain.valueobject.fixtures.MarketDataSnapshotFixture.aMarketDataSnapshot;
+import static com.stock.screener.collector.domain.valueobject.fixtures.MarketDataSnapshotFixture.avOnlySnapshot;
+import static com.stock.screener.collector.domain.valueobject.fixtures.MarketDataSnapshotFixture.yhOnlySnapshot;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+
+@DisplayName("MonthlyReport Entity Tests - Sociable Testing")
+class MonthlyReportTest {
+
+    private static final BigDecimal PRECISION = new BigDecimal("0.0001");
+
+    private MonthlyReport monthlyReport;
+
+    @BeforeEach
+    void setUp() {
+        monthlyReport = new MonthlyReport();
+    }
+
+    @Nested
+    @DisplayName("Happy Path - Complete Snapshot Updates")
+    class HappyPathTests {
+
+        @Test
+        @DisplayName("updateMetrics() with complete snapshot updates all simple fields atomically")
+        void testUpdateMetricsUpdatesSimpleFields() {
+        // Given: Complete market data snapshot
+        var snapshot = aMarketDataSnapshot().build();
+
+        // When: Updating metrics atomically
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: All simple fields should be updated
+        assertThat(monthlyReport.forwardPeRatio)
+                .isEqualByComparingTo(new BigDecimal("25.0"));
+
+        assertThat(monthlyReport.forwardEpsGrowth)
+                .isEqualByComparingTo(new BigDecimal("15.0"));
+
+        assertThat(monthlyReport.forwardRevenueGrowth)
+                .isEqualByComparingTo(new BigDecimal("12.5"));
+
+        assertThat(monthlyReport.targetPrice)
+                .isEqualByComparingTo(new BigDecimal("180.00"));
+
+        assertThat(monthlyReport.analystRatings)
+                .isNotNull()
+                .satisfies(ratings -> {
+                    assertThat(ratings.strongBuy()).isEqualTo(5);
+                    assertThat(ratings.buy()).isEqualTo(10);
+                    assertThat(ratings.hold()).isEqualTo(3);
+                    assertThat(ratings.sell()).isEqualTo(1);
+                    assertThat(ratings.strongSell()).isEqualTo(0);
+                });
+    }
+
+    @Test
+    @DisplayName("updateMetrics() correctly computes PsRatio Value Object")
+    void testUpdateMetricsComputesPsRatio() {
+        // Given: Snapshot with valid market cap and revenue
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("1000000000")
+                .withRevenueTTM("500000000")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: PsRatio should be computed correctly (1000000000 / 500000000 = 2.0)
+        assertThat(monthlyReport.psRatio)
+                .isNotNull()
+                .satisfies(psRatio -> assertThat(psRatio.value())
+                        .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
+
+        // And: No calculation errors for PS_RATIO
+        assertNoCalculationErrorFor(MetricType.PS_RATIO);
+    }
+
+    @Test
+    @DisplayName("updateMetrics() correctly computes ForwardPeg Value Object")
+    void testUpdateMetricsComputesForwardPeg() {
+        // Given: Snapshot with valid forward PE and EPS growth
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("0.10")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should be computed correctly (20.0 / 10.0 = 2.0)
+        assertThat(monthlyReport.forwardPegRatio)
+                .isNotNull()
+                .satisfies(peg -> assertThat(peg.value())
+                        .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
+
+        // And: No calculation errors for FORWARD_PEG
+        assertNoCalculationErrorFor(MetricType.FORWARD_PEG);
+    }
+
+    @Test
+    @DisplayName("updateMetrics() correctly computes UpsidePotential Value Object")
+    void testUpdateMetricsComputesUpsidePotential() {
+        // Given: Snapshot with target price and current price
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withTargetPrice("125.00")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Upside should be computed correctly ((125 - 100) / 100 * 100 = 25%)
+        assertThat(monthlyReport.upsidePotential)
+                .isNotNull()
+                .satisfies(upside -> assertThat(upside.value())
+                        .isCloseTo(new BigDecimal("25.0000"), within(PRECISION)));
+
+        // And: No calculation errors for UPSIDE_POTENTIAL
+        assertNoCalculationErrorFor(MetricType.UPSIDE_POTENTIAL);
+    }
+
+    @Test
+    @DisplayName("updateMetrics() updates all complex metrics in one atomic operation")
+    void testUpdateMetricsIsAtomic() {
+        // Given: Complete snapshot
+        var snapshot = aMarketDataSnapshot().build();
+
+        // When: Updating metrics once
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: All three complex metrics should be populated
+        assertThat(monthlyReport.psRatio).isNotNull();
+        assertThat(monthlyReport.forwardPegRatio).isNotNull();
+        assertThat(monthlyReport.upsidePotential).isNotNull();
+
+        // And: No calculation errors
+        assertThat(monthlyReport.calculationErrors).isEmpty();
+
+        // And: Integrity status should be READY_FOR_ANALYSIS
+        assertThat(monthlyReport.integrityStatus).isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
+    }
+    } // End HappyPathTests
+
+    @Nested
+    @DisplayName("Calculation Error Tracking")
+    class CalculationErrorTests {
+
+    // === Calculation Error Tracking Tests ===
+
+    @Test
+    @DisplayName("Missing marketCap causes PsRatio to fail and track error")
+    void testMissingMarketCapTracksError() {
+        // Given: Snapshot with missing marketCap
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: PsRatio should be null
+        assertThat(monthlyReport.psRatio).isNull();
+
+        // And: Calculation error should be tracked with correct field name
+        assertMissingDataError(MetricType.PS_RATIO, "marketCap");
+    }
+
+    @Test
+    @DisplayName("Zero revenueTTM causes PsRatio to fail with DIVISION_BY_ZERO")
+    void testZeroRevenueCausesPsRatioFailure() {
+        // Given: Snapshot with zero revenue
+        var snapshot = aMarketDataSnapshot()
+                .withZeroRevenueTTM()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: PsRatio should be null
+        assertThat(monthlyReport.psRatio).isNull();
+
+        // And: Error should be tracked as DIVISION_BY_ZERO
+        assertCalculationError(MetricType.PS_RATIO);
+    }
+
+    @Test
+    @DisplayName("Missing forwardPeRatio causes ForwardPeg to fail and track error")
+    void testMissingForwardPeTracksError() {
+        // Given: Snapshot with missing forwardPeRatio
+        var snapshot = aMarketDataSnapshot()
+                .withNullForwardPeRatio()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should be null
+        assertThat(monthlyReport.forwardPegRatio).isNull();
+
+        // And: Calculation error should be tracked
+        assertMissingDataError(MetricType.FORWARD_PEG, "forwardPeRatio");
+    }
+
+    @Test
+    @DisplayName("Zero forwardEpsGrowth causes ForwardPeg to fail with DIVISION_BY_ZERO")
+    void testZeroEpsGrowthCausesForwardPegFailure() {
+        // Given: Snapshot with zero EPS growth
+        var snapshot = aMarketDataSnapshot()
+                .withZeroForwardEpsGrowth()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should be null
+        assertThat(monthlyReport.forwardPegRatio).isNull();
+
+        // And: Error should be tracked as DIVISION_BY_ZERO
+        assertCalculationError(MetricType.FORWARD_PEG);
+    }
+
+    @Test
+    @DisplayName("Missing targetPrice causes UpsidePotential to fail and track error")
+    void testMissingTargetPriceTracksError() {
+        // Given: Snapshot with missing targetPrice
+        var snapshot = aMarketDataSnapshot()
+                .withNullTargetPrice()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: UpsidePotential should be null
+        assertThat(monthlyReport.upsidePotential).isNull();
+
+        // And: Calculation error should be tracked
+        assertMissingDataError(MetricType.UPSIDE_POTENTIAL, "targetPrice");
+    }
+
+    @Test
+    @DisplayName("Multiple missing fields cause multiple errors to be tracked")
+    void testMultipleMissingFieldsTrackMultipleErrors() {
+        // Given: Snapshot with multiple missing fields
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()          // PsRatio will fail
+                .withNullForwardPeRatio()     // ForwardPeg will fail
+                .withNullTargetPrice()        // UpsidePotential will fail
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: All three metrics should be null
+        assertThat(monthlyReport.psRatio).isNull();
+        assertThat(monthlyReport.forwardPegRatio).isNull();
+        assertThat(monthlyReport.upsidePotential).isNull();
+
+        // And: Three errors should be tracked
+        assertThat(monthlyReport.calculationErrors).hasSize(3);
+
+        assertThat(monthlyReport.calculationErrors)
+                .anyMatch(error -> error.metric() == MetricType.PS_RATIO);
+
+        assertThat(monthlyReport.calculationErrors)
+                .anyMatch(error -> error.metric() == MetricType.FORWARD_PEG);
+
+        assertThat(monthlyReport.calculationErrors)
+                .anyMatch(error -> error.metric() == MetricType.UPSIDE_POTENTIAL);
+    }
+
+    @Test
+    @DisplayName("Errors from previous update are cleared on subsequent update")
+    void testErrorsClearedOnSubsequentUpdate() {
+        // Given: First update with missing data
+        var incompleteSnapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
+                .build();
+
+        monthlyReport.updateMetrics(incompleteSnapshot);
+        assertThat(monthlyReport.calculationErrors).isNotEmpty();
+
+        // When: Second update with complete data
+        var completeSnapshotData = aMarketDataSnapshot().build();
+        monthlyReport.updateMetrics(completeSnapshotData);
+
+        // Then: Previous errors should be cleared
+        assertThat(monthlyReport.calculationErrors).isEmpty();
+
+        // And: All metrics should be computed
+        assertThat(monthlyReport.psRatio).isNotNull();
+        assertThat(monthlyReport.forwardPegRatio).isNotNull();
+        assertThat(monthlyReport.upsidePotential).isNotNull();
+    }
+    } // End CalculationErrorTests
+
+    @Nested
+    @DisplayName("Report Integrity Status Determination")
+    class IntegrityStatusTests {
+
+    // === ReportIntegrityStatus Tests ===
+
+    @Test
+    @DisplayName("Complete snapshot results in READY_FOR_ANALYSIS integrity status")
+    void testCompleteSnapshotProducesCompleteStatus() {
+        // Given: Complete snapshot with all AV and YH data
+        var snapshot = aMarketDataSnapshot().build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Status should be READY_FOR_ANALYSIS
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
+    }
+
+    @Test
+    @DisplayName("AV + partial YH data (only forwardEpsGrowth) allows ForwardPeg computation, status is PRICING_DATA_COLLECTED")
+    void testAvWithPartialYhProducesAvFetchedCompleted() {
+        // Given: Snapshot with AV data + only forwardEpsGrowth from YH
+        // (missing analystRatings and forwardRevenueGrowth)
+        var snapshot = aMarketDataSnapshot()
+                .withNullAnalystRatings()
+                .withNullForwardRevenueGrowth()
+                // forwardEpsGrowth remains - allows ForwardPeg computation
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: All computed metrics should be present (including hybrid ForwardPeg)
+        assertThat(monthlyReport.psRatio).isNotNull();
+        assertThat(monthlyReport.forwardPegRatio).isNotNull();
+        assertThat(monthlyReport.upsidePotential).isNotNull();
+
+        // And: Partial YH data
+        assertThat(monthlyReport.forwardEpsGrowth).isNotNull();
+        assertThat(monthlyReport.analystRatings).isNull();
+        assertThat(monthlyReport.forwardRevenueGrowth).isNull();
+
+        // And: Status should be PRICING_DATA_COLLECTED because:
+        // - Pricing data is complete (psRatio, upsidePotential)
+        // - Fundamental data is NOT complete (missing analystRatings, forwardRevenueGrowth)
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.PRICING_DATA_COLLECTED);
+    }
+
+    @Test
+    @DisplayName("Only pricing data (without fundamentals) results in PRICING_DATA_COLLECTED status")
+    void testAvOnlyProducesAvFetchedCompletedStatus() {
+        // Given: Snapshot with only pricing data (fundamental data missing)
+        // ForwardPeg cannot be computed without forwardEpsGrowth (fundamental field) - that's expected
+        var snapshot = avOnlySnapshot().build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Pure pricing metrics should be computed
+        assertThat(monthlyReport.psRatio).isNotNull();
+        assertThat(monthlyReport.upsidePotential).isNotNull();
+        
+        // And: ForwardPeg (hybrid metric) should be null - it needs fundamental forwardEpsGrowth
+        assertThat(monthlyReport.forwardPegRatio).isNull();
+
+        // And: Fundamental fields should be null
+        assertThat(monthlyReport.forwardEpsGrowth).isNull();
+        assertThat(monthlyReport.forwardRevenueGrowth).isNull();
+        assertThat(monthlyReport.analystRatings).isNull();
+
+        // And: Status should be PRICING_DATA_COLLECTED (pricing metrics are OK)
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.PRICING_DATA_COLLECTED);
+    }
+
+    @Test
+    @DisplayName("Only fundamental data results in FUNDAMENTALS_COLLECTED status")
+    void testYhOnlyProducesYhCompletedStatus() {
+        // Given: Snapshot with only fundamental data (pricing data missing)
+        var snapshot = yhOnlySnapshot().build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Fundamental fields should be populated
+        assertThat(monthlyReport.forwardEpsGrowth).isNotNull();
+        assertThat(monthlyReport.forwardRevenueGrowth).isNotNull();
+        assertThat(monthlyReport.analystRatings).isNotNull();
+
+        // And: Pricing-dependent metrics should be null
+        assertThat(monthlyReport.psRatio).isNull();
+        assertThat(monthlyReport.forwardPegRatio).isNull();
+        assertThat(monthlyReport.upsidePotential).isNull();
+
+        // And: Status should be FUNDAMENTALS_COLLECTED
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
+    }
+
+    @Test
+    @DisplayName("Missing both AV and YH data results in MISSING_DATA status")
+    void testMissingBothProducesMissingDataStatus() {
+        // Given: Snapshot with incomplete data from both sources
+        var snapshot = aMarketDataSnapshot()
+                // Incomplete AV data (psRatio cannot be computed)
+                .withNullMarketCap()  // Missing for psRatio
+                // Incomplete YH data
+                .withNullForwardEpsGrowth()  // Missing
+                .withNullAnalystRatings()  // Missing
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Status should be MISSING_DATA
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.MISSING_DATA);
+    }
+
+    @Test
+    @DisplayName("Partial pricing data (missing one field) is not considered complete")
+    void testPartialAvDataNotComplete() {
+        // Given: Snapshot with most pricing data but missing one critical field
+        var snapshot = aMarketDataSnapshot()
+                .withNullRevenueTTM()  // Missing - breaks psRatio
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: psRatio should be null
+        assertThat(monthlyReport.psRatio).isNull();
+
+        // And: Even though other pricing metrics might succeed, pricing is not complete
+        // Status depends on fundamentals being complete
+        assertThat(monthlyReport.integrityStatus)
+                .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
+    }
+
+    @Test
+    @DisplayName("Updating metrics twice with different data changes all fields")
+    void testUpdateMetricsTwiceChangesAllFields() {
+        // Given: First snapshot
+        var snapshot1 = aMarketDataSnapshot()
+                .withCurrentPrice("100.00")
+                .withMarketCap("1000000000")
+                .build();
+
+        monthlyReport.updateMetrics(snapshot1);
+
+        BigDecimal firstPrice = monthlyReport.forwardPeRatio;
+        BigDecimal firstPsRatio = monthlyReport.psRatio.value();
+
+        // When: Second update with different data
+        var snapshot2 = aMarketDataSnapshot()
+                .withCurrentPrice("200.00")
+                .withMarketCap("2000000000")
+                .withForwardPeRatio("30.0")
+                .build();
+
+        monthlyReport.updateMetrics(snapshot2);
+
+        // Then: Simple fields should change
+        assertThat(monthlyReport.forwardPeRatio)
+                .isNotEqualTo(firstPrice);
+
+        // And: Complex metrics should be recalculated
+        assertThat(monthlyReport.psRatio.value())
+                .isNotEqualTo(firstPsRatio);
+    }
+    } // End IntegrityStatusTests
+
+    @Nested
+    @DisplayName("Edge Cases & Defensive Tests")
+    class EdgeCaseTests {
+
+    @Test
+    @DisplayName("ReportError includes timestamp and all required fields")
+    void testReportErrorStructure() {
+        // Given: Snapshot with missing data
+        var snapshot = aMarketDataSnapshot()
+                .withNullMarketCap()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Error should have all required fields
+        assertThat(monthlyReport.calculationErrors)
+                .hasSize(1)
+                .first()
+                .satisfies(error -> {
+                    assertThat(error.metric()).isEqualTo(MetricType.PS_RATIO);
+                    assertThat(error.errorType()).isEqualTo(CalculationErrorType.MISSING_DATA);
+                    assertThat(error.reason()).isNotBlank();
+                    assertThat(error.occurredAt()).isNotNull();
+                });
+    }
+
+    @Test
+    @DisplayName("Negative upside potential is computed correctly when current price > target price")
+    void testNegativeUpsidePotential() {
+        // Given: Snapshot where current price exceeds target price
+        var snapshot = aMarketDataSnapshot()
+                .withCurrentPrice("200.00")
+                .withTargetPrice("150.00")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: Upside should be negative ((150 - 200) / 200 * 100 = -25%)
+        assertThat(monthlyReport.upsidePotential)
+                .isNotNull()
+                .satisfies(upside -> assertThat(upside.value())
+                        .isCloseTo(new BigDecimal("-25.0000"), within(PRECISION)));
+    }
+
+    @Test
+    @DisplayName("Zero currentPrice causes UpsidePotential to fail with DIVISION_BY_ZERO")
+    void testZeroCurrentPriceCausesUpsidePotentialFailure() {
+        // Given: Snapshot with zero current price
+        var snapshot = aMarketDataSnapshot()
+                .withZeroCurrentPrice()
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: UpsidePotential should be null
+        assertThat(monthlyReport.upsidePotential).isNull();
+
+        // And: Error should be tracked as DIVISION_BY_ZERO
+        assertCalculationError(MetricType.UPSIDE_POTENTIAL);
+    }
+
+    // === Edge Cases & Defensive Tests ===
+
+    @Test
+    @DisplayName("updateMetrics() with null snapshot throws NullPointerException")
+    void testNullSnapshotThrowsException() {
+        // Given: null snapshot
+        // When/Then: Should throw NPE (or consider adding null check in domain)
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                () -> monthlyReport.updateMetrics(null)
+        ).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    @DisplayName("Negative forwardEpsGrowth produces valid ForwardPeg (growth stock losing momentum)")
+    void testNegativeForwardEpsGrowthProducesValidPeg() {
+        // Given: Negative EPS growth (company losing momentum)
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("20.0")
+                .withForwardEpsGrowth("-0.05")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should be computed (20 / -5 = -4.0)
+        // Negative PEG indicates declining earnings - this is valid business scenario
+        assertThat(monthlyReport.forwardPegRatio)
+                .isNotNull()
+                .satisfies(peg -> assertThat(peg.value())
+                        .isCloseTo(new BigDecimal("-4.0000"), within(PRECISION)));
+    }
+
+    @Test
+    @DisplayName("Very large numbers don't cause overflow in calculations")
+    void testLargeNumbersHandledCorrectly() {
+        // Given: Very large market cap (Apple-like)
+        var snapshot = aMarketDataSnapshot()
+                .withMarketCap("3000000000000")  // 3 trillion
+                .withRevenueTTM("400000000000")   // 400 billion
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: PsRatio should be computed correctly (3T / 400B = 7.5)
+        assertThat(monthlyReport.psRatio)
+                .isNotNull()
+                .satisfies(psRatio -> assertThat(psRatio.value())
+                        .isCloseTo(new BigDecimal("7.5000"), within(PRECISION)));
+    }
+
+    @Test
+    @DisplayName("Very small decimal values preserve precision")
+    void testSmallDecimalPrecision() {
+        // Given: Small fractional values
+        var snapshot = aMarketDataSnapshot()
+                .withForwardPeRatio("50.0")
+                .withForwardEpsGrowth("0.25")
+                .build();
+
+        // When: Updating metrics
+        monthlyReport.updateMetrics(snapshot);
+
+        // Then: ForwardPeg should preserve precision (0.5 / 0.25 = 2.0)
+        assertThat(monthlyReport.forwardPegRatio)
+                .isNotNull()
+                .satisfies(peg -> assertThat(peg.value())
+                        .isCloseTo(new BigDecimal("2.0000"), within(PRECISION)));
+    }
+    } // End EdgeCaseTests
+
+    @Nested
+    @DisplayName("Idempotency & State Consistency")
+    class IdempotencyTests {
+
+        @Test
+        @DisplayName("updateMetrics() called twice with same snapshot is idempotent")
+        void testUpdateMetricsIsIdempotent() {
+            // Given: Complete snapshot
+            var snapshot = aMarketDataSnapshot().build();
+
+            // When: Called twice
+            monthlyReport.updateMetrics(snapshot);
+            var firstPsRatio = monthlyReport.psRatio.value();
+            var firstForwardPeg = monthlyReport.forwardPegRatio.value();
+            var firstUpside = monthlyReport.upsidePotential.value();
+
+            monthlyReport.updateMetrics(snapshot);
+
+            // Then: Values should be identical
+            assertThat(monthlyReport.psRatio.value()).isEqualByComparingTo(firstPsRatio);
+            assertThat(monthlyReport.forwardPegRatio.value()).isEqualByComparingTo(firstForwardPeg);
+            assertThat(monthlyReport.upsidePotential.value()).isEqualByComparingTo(firstUpside);
+            assertThat(monthlyReport.calculationErrors).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Partial AV with only upsidePotential null still marks AV as incomplete")
+        void testPartialAvOnlyUpsidePotentialNull() {
+            // Given: Snapshot missing currentPrice (breaks upsidePotential only)
+            var snapshot = aMarketDataSnapshot()
+                    .withNullCurrentPrice()
+                    .build();
+
+            // When: Updating metrics
+            monthlyReport.updateMetrics(snapshot);
+
+            // Then: psRatio should be computed, upsidePotential should be null
+            assertThat(monthlyReport.psRatio).isNotNull();
+            assertThat(monthlyReport.upsidePotential).isNull();
+
+            // And: Pricing data is NOT complete (requires both psRatio AND upsidePotential)
+            // Status should be FUNDAMENTALS_COLLECTED (fundamental fields are present)
+            assertThat(monthlyReport.integrityStatus)
+                    .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
+        }
+
+        @Test
+        @DisplayName("Partial AV with only psRatio null still marks AV as incomplete")
+        void testPartialAvOnlyPsRatioNull() {
+            // Given: Snapshot missing marketCap (breaks psRatio only)
+            var snapshot = aMarketDataSnapshot()
+                    .withNullMarketCap()
+                    .build();
+
+            // When: Updating metrics
+            monthlyReport.updateMetrics(snapshot);
+
+            // Then: upsidePotential should be computed, psRatio should be null
+            assertThat(monthlyReport.upsidePotential).isNotNull();
+            assertThat(monthlyReport.psRatio).isNull();
+
+            // And: Pricing data is NOT complete
+            assertThat(monthlyReport.integrityStatus)
+                    .isEqualTo(ReportIntegrityStatus.FUNDAMENTALS_COLLECTED);
+        }
+    } // End IdempotencyTests
+
+    // === Helper Methods for Assertions ===
+
+    private void assertCalculationError(MetricType metric) {
+        assertThat(monthlyReport.calculationErrors)
+                .as("Expected calculation error for %s with type %s", metric, CalculationErrorType.DIVISION_BY_ZERO)
+                .anyMatch(error ->
+                        error.metric() == metric &&
+                                error.errorType() == CalculationErrorType.DIVISION_BY_ZERO
+                );
+    }
+
+    private void assertNoCalculationErrorFor(MetricType metric) {
+        assertThat(monthlyReport.calculationErrors)
+                .as("Expected no calculation error for %s", metric)
+                .noneMatch(error -> error.metric() == metric);
+    }
+
+    private void assertMissingDataError(MetricType metric, String expectedField) {
+        assertThat(monthlyReport.calculationErrors)
+                .as("Expected MISSING_DATA error for %s mentioning '%s'", metric, expectedField)
+                .anyMatch(error ->
+                        error.metric() == metric &&
+                                error.errorType() == CalculationErrorType.MISSING_DATA &&
+                                error.reason().contains(expectedField)
+                );
+    }
+}

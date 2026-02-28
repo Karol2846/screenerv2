@@ -5,8 +5,8 @@ import com.stock.screener.collector.application.port.out.alphavantage.RawCashFlo
 import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
 import com.stock.screener.collector.application.port.out.alphavantage.RawOverview;
 import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
-import com.stock.screener.domain.valueobject.snapshot.FinancialDataSnapshot;
-import com.stock.screener.domain.valueobject.snapshot.MarketDataSnapshot;
+import com.stock.screener.collector.domain.valueobject.snapshot.FinancialDataSnapshot;
+import com.stock.screener.collector.domain.valueobject.snapshot.MarketDataSnapshot;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.math.BigDecimal;

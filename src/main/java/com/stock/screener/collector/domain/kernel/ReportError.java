@@ -1,0 +1,30 @@
+package com.stock.screener.collector.domain.kernel;
+
+import java.time.LocalDateTime;
+
+public record ReportError(
+        MetricType metric,
+        String reason,
+        CalculationErrorType errorType,
+        LocalDateTime occurredAt
+) {
+
+    public static ReportError fromFailure(MetricType metric, CalculationResult.Failure<?> failure) {
+        return new ReportError(
+                metric,
+                failure.reason(),
+                failure.type(),
+                LocalDateTime.now()
+        );
+    }
+
+    public static ReportError fromSkipped(MetricType metric, CalculationResult.Skipped<?> skipped) {
+        return new ReportError(
+                metric,
+                skipped.reason(),
+                skipped.type(),
+                LocalDateTime.now()
+        );
+    }
+}
+

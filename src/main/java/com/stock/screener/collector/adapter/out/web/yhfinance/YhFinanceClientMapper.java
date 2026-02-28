@@ -5,7 +5,7 @@ import com.stock.screener.collector.adapter.out.web.yhfinance.model.QuoteSummary
 import com.stock.screener.collector.adapter.out.web.yhfinance.model.RawFmtValue;
 import com.stock.screener.collector.adapter.out.web.yhfinance.model.RecommendationTrendItem;
 import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
-import com.stock.screener.domain.valueobject.AnalystRatings;
+import com.stock.screener.collector.domain.valueobject.AnalystRatings;
 import java.math.BigDecimal;
 
 class YhFinanceClientMapper {

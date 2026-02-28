@@ -1,6 +1,6 @@
 package com.stock.screener.collector.application.port.out.yhfinance.response;
 
-import com.stock.screener.domain.valueobject.AnalystRatings;
+import com.stock.screener.collector.domain.valueobject.AnalystRatings;
 import lombok.Builder;
 
 import java.math.BigDecimal;

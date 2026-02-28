@@ -1,0 +1,23 @@
+package com.stock.screener.collector.domain.valueobject.snapshot;
+
+import lombok.Builder;
+
+import java.math.BigDecimal;
+
+@Builder
+public record FinancialDataSnapshot(
+                BigDecimal totalCurrentAssets,
+                BigDecimal totalCurrentLiabilities,
+                BigDecimal totalAssets,
+                BigDecimal totalLiabilities,
+                BigDecimal retainedEarnings,
+                BigDecimal ebit,
+                BigDecimal interestExpense,
+                BigDecimal totalShareholderEquity,
+                BigDecimal inventory,
+                BigDecimal totalRevenue,
+                BigDecimal revenueTTM,
+                BigDecimal totalDebt,
+                BigDecimal netIncome,
+                BigDecimal operatingCashFlow) {
+}
