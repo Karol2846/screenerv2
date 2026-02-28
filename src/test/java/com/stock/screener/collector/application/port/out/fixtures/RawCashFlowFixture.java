@@ -7,7 +7,8 @@ import java.util.List;
 
 public final class RawCashFlowFixture {
 
-    private String symbol = "AAPL";
+    // Defaults aligned with integrationTest/resources/stubs/cash_flow.json (META)
+    private String symbol = "META";
     private List<RawCashFlow.Report> annualReports = List.of();
     private List<RawCashFlow.Report> quarterlyReports = List.of(aReport().build());
 
@@ -53,35 +54,36 @@ public final class RawCashFlowFixture {
 
     public static final class ReportFixture {
 
-        private String fiscalDateEnding = "2024-09-30";
+        // Defaults aligned with first quarterly report from integrationTest/resources/stubs/cash_flow.json (META)
+        private String fiscalDateEnding = "2025-12-31";
         private String reportedCurrency = "USD";
-        private BigDecimal operatingCashflow = new BigDecimal("118254000000");
+        private BigDecimal operatingCashflow = new BigDecimal("36214000000");
         private BigDecimal paymentsForOperatingActivities = null;
         private BigDecimal proceedsFromOperatingActivities = null;
-        private BigDecimal changeInOperatingLiabilities = new BigDecimal("21648000000");
-        private BigDecimal changeInOperatingAssets = new BigDecimal("-2789000000");
-        private BigDecimal depreciationDepletionAndAmortization = new BigDecimal("11426000000");
-        private BigDecimal capitalExpenditures = new BigDecimal("9959000000");
-        private BigDecimal changeInReceivables = new BigDecimal("-5048000000");
-        private BigDecimal changeInInventory = new BigDecimal("-1236000000");
-        private BigDecimal profitLoss = new BigDecimal("93736000000");
-        private BigDecimal cashflowFromInvestment = new BigDecimal("-1175000000");
-        private BigDecimal cashflowFromFinancing = new BigDecimal("-121983000000");
+        private BigDecimal changeInOperatingLiabilities = null;
+        private BigDecimal changeInOperatingAssets = null;
+        private BigDecimal depreciationDepletionAndAmortization = new BigDecimal("5411000000");
+        private BigDecimal capitalExpenditures = new BigDecimal("21383000000");
+        private BigDecimal changeInReceivables = null;
+        private BigDecimal changeInInventory = null;
+        private BigDecimal profitLoss = null;
+        private BigDecimal cashflowFromInvestment = new BigDecimal("-34187000000");
+        private BigDecimal cashflowFromFinancing = new BigDecimal("25149000000");
         private BigDecimal proceedsFromRepaymentsOfShortTermDebt = null;
-        private BigDecimal paymentsForRepurchaseOfCommonStock = new BigDecimal("94949000000");
-        private BigDecimal paymentsForRepurchaseOfEquity = new BigDecimal("94949000000");
+        private BigDecimal paymentsForRepurchaseOfCommonStock = null;
+        private BigDecimal paymentsForRepurchaseOfEquity = null;
         private BigDecimal paymentsForRepurchaseOfPreferredStock = null;
-        private BigDecimal dividendPayout = new BigDecimal("15025000000");
-        private BigDecimal dividendPayoutCommonStock = new BigDecimal("15025000000");
+        private BigDecimal dividendPayout = new BigDecimal("1338000000");
+        private BigDecimal dividendPayoutCommonStock = new BigDecimal("1338000000");
         private BigDecimal dividendPayoutPreferredStock = null;
         private BigDecimal proceedsFromIssuanceOfCommonStock = null;
         private BigDecimal proceedsFromIssuanceOfLongTermDebtAndCapitalSecuritiesNet = null;
         private BigDecimal proceedsFromIssuanceOfPreferredStock = null;
-        private BigDecimal proceedsFromRepurchaseOfEquity = new BigDecimal("-94949000000");
+        private BigDecimal proceedsFromRepurchaseOfEquity = new BigDecimal("26248000000");
         private BigDecimal proceedsFromSaleOfTreasuryStock = null;
-        private BigDecimal changeInCashAndCashEquivalents = new BigDecimal("-4916000000");
+        private BigDecimal changeInCashAndCashEquivalents = null;
         private BigDecimal changeInExchangeRate = null;
-        private BigDecimal netIncome = new BigDecimal("93736000000");
+        private BigDecimal netIncome = new BigDecimal("22768000000");
 
         private ReportFixture() {}
 

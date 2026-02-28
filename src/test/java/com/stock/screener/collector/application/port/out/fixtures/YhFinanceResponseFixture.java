@@ -7,16 +7,17 @@ import java.math.BigDecimal;
 
 public final class YhFinanceResponseFixture {
 
-    private String ticker = "AAPL";
-    private BigDecimal currentPrice = new BigDecimal("175.50");
-    private BigDecimal forwardEpsGrowth = new BigDecimal("0.15");
-    private BigDecimal forwardRevenueGrowth = new BigDecimal("0.12");
+    // Defaults aligned with integrationTest/resources/stubs/yh_finance_response.json (META)
+    private String ticker = "META";
+    private BigDecimal currentPrice = new BigDecimal("648.18");
+    private BigDecimal forwardEpsGrowth = new BigDecimal("0.1866");
+    private BigDecimal forwardRevenueGrowth = new BigDecimal("0.177");
     private AnalystRatings analystRatings = AnalystRatings.builder()
-            .strongBuy(10)
-            .buy(15)
+            .strongBuy(11)
+            .buy(51)
             .hold(5)
-            .sell(2)
-            .strongSell(1)
+            .sell(0)
+            .strongSell(0)
             .build();
 
     private YhFinanceResponseFixture() {}

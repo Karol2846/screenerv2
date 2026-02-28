@@ -7,7 +7,8 @@ import java.util.List;
 
 public final class RawIncomeStatementFixture {
 
-    private String symbol = "AAPL";
+    // Defaults aligned with integrationTest/resources/stubs/income_statement.json (META)
+    private String symbol = "META";
     private List<RawIncomeStatement.Report> annualReports = List.of();
     private List<RawIncomeStatement.Report> quarterlyReports = List.of(aReport().build());
 
@@ -53,25 +54,26 @@ public final class RawIncomeStatementFixture {
 
     public static final class ReportFixture {
 
-        private String fiscalDateEnding = "2024-09-30";
+        // Defaults aligned with first quarterly report from integrationTest/resources/stubs/income_statement.json (META)
+        private String fiscalDateEnding = "2025-12-31";
         private String reportedCurrency = "USD";
-        private BigDecimal grossProfit = new BigDecimal("180683000000");
-        private BigDecimal totalRevenue = new BigDecimal("391035000000");
-        private BigDecimal costOfRevenue = new BigDecimal("210352000000");
-        private BigDecimal costOfGoodsAndServicesSold = new BigDecimal("210352000000");
-        private BigDecimal operatingIncome = new BigDecimal("123216000000");
-        private BigDecimal sellingGeneralAndAdministrative = new BigDecimal("26097000000");
-        private BigDecimal researchAndDevelopment = new BigDecimal("31370000000");
-        private BigDecimal operatingExpenses = new BigDecimal("267819000000");
-        private BigDecimal netIncome = new BigDecimal("93736000000");
-        private BigDecimal ebit = new BigDecimal("123216000000");
-        private BigDecimal ebitda = new BigDecimal("134642000000");
-        private BigDecimal depreciationAndAmortization = new BigDecimal("11426000000");
-        private BigDecimal interestIncome = new BigDecimal("3034000000");
-        private BigDecimal interestExpense = new BigDecimal("3200000000");
-        private BigDecimal incomeTaxExpense = new BigDecimal("29749000000");
-        private BigDecimal incomeBeforeTax = new BigDecimal("123485000000");
-        private BigDecimal netIncomeFromContinuingOperations = new BigDecimal("93736000000");
+        private BigDecimal grossProfit = new BigDecimal("48988000000");
+        private BigDecimal totalRevenue = new BigDecimal("59894000000");
+        private BigDecimal costOfRevenue = new BigDecimal("10906000000");
+        private BigDecimal costOfGoodsAndServicesSold = new BigDecimal("10906000000");
+        private BigDecimal operatingIncome = new BigDecimal("24745000000");
+        private BigDecimal sellingGeneralAndAdministrative = new BigDecimal("3697000000");
+        private BigDecimal researchAndDevelopment = new BigDecimal("17136000000");
+        private BigDecimal operatingExpenses = new BigDecimal("24243000000");
+        private BigDecimal netIncome = new BigDecimal("22768000000");
+        private BigDecimal ebit = new BigDecimal("26061000000");
+        private BigDecimal ebitda = new BigDecimal("31472000000");
+        private BigDecimal depreciationAndAmortization = new BigDecimal("5411000000");
+        private BigDecimal interestIncome = new BigDecimal("625000000");
+        private BigDecimal interestExpense = new BigDecimal("708000000");
+        private BigDecimal incomeTaxExpense = new BigDecimal("2585000000");
+        private BigDecimal incomeBeforeTax = new BigDecimal("25353000000");
+        private BigDecimal netIncomeFromContinuingOperations = new BigDecimal("22768000000");
 
         private ReportFixture() {}
 

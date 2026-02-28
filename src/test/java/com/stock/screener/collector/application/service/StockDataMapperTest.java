@@ -168,7 +168,7 @@ class StockDataMapperTest {
             assertThat(result.totalAssets()).isNotNull();
             assertThat(result.totalLiabilities()).isNotNull();
             assertThat(result.totalShareholderEquity()).isNotNull();
-            assertThat(result.inventory()).isNotNull();
+            assertThat(result.inventory()).isNull(); // META has no inventory
 
             // Then — Income statement fields
             assertThat(result.interestExpense()).isNotNull();
@@ -615,7 +615,7 @@ class StockDataMapperTest {
 
             // Then
             assertThat(result.operatingCashFlow())
-                    .isEqualByComparingTo(new BigDecimal("118254000000"));
+                    .isEqualByComparingTo(new BigDecimal("36214000000"));
         }
 
         @Test

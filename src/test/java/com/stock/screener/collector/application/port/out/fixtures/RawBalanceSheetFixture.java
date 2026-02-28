@@ -7,7 +7,8 @@ import java.util.List;
 
 public final class RawBalanceSheetFixture {
 
-    private String symbol = "AAPL";
+    // Defaults aligned with integrationTest/resources/stubs/balance_sheet.json (META)
+    private String symbol = "META";
     private List<RawBalanceSheet.Report> annualReports = List.of();
     private List<RawBalanceSheet.Report> quarterlyReports = List.of(aReport().build());
 
@@ -53,28 +54,29 @@ public final class RawBalanceSheetFixture {
 
     public static final class ReportFixture {
 
-        private String fiscalDateEnding = "2024-09-30";
+        // Defaults aligned with first quarterly report from integrationTest/resources/stubs/balance_sheet.json (META)
+        private String fiscalDateEnding = "2025-12-31";
         private String reportedCurrency = "USD";
-        private BigDecimal totalAssets = new BigDecimal("364980000000");
-        private BigDecimal totalCurrentAssets = new BigDecimal("152987000000");
-        private BigDecimal totalNonCurrentAssets = new BigDecimal("211993000000");
-        private BigDecimal totalLiabilities = new BigDecimal("308030000000");
-        private BigDecimal totalCurrentLiabilities = new BigDecimal("176392000000");
-        private BigDecimal totalNonCurrentLiabilities = new BigDecimal("131638000000");
-        private BigDecimal totalShareholderEquity = new BigDecimal("56950000000");
-        private BigDecimal retainedEarnings = new BigDecimal("4336000000");
-        private BigDecimal commonStock = new BigDecimal("83276000000");
-        private BigDecimal cashAndCashEquivalents = new BigDecimal("29943000000");
-        private BigDecimal cashAndShortTermInvestments = new BigDecimal("65171000000");
-        private BigDecimal inventory = new BigDecimal("7286000000");
-        private BigDecimal currentNetReceivables = new BigDecimal("66243000000");
-        private BigDecimal shortTermDebt = new BigDecimal("22511000000");
-        private BigDecimal longTermDebt = new BigDecimal("96304000000");
-        private BigDecimal currentLongTermDebt = new BigDecimal("10912000000");
-        private BigDecimal longTermDebtNoncurrent = new BigDecimal("96304000000");
-        private BigDecimal shortLongTermDebtTotal = new BigDecimal("118815000000");
-        private BigDecimal commonStockSharesOutstanding = new BigDecimal("15408095000");
-        private BigDecimal additionalPaidInCapital = new BigDecimal("0");
+        private BigDecimal totalAssets = new BigDecimal("366021000000");
+        private BigDecimal totalCurrentAssets = new BigDecimal("108722000000");
+        private BigDecimal totalNonCurrentAssets = new BigDecimal("257299000000");
+        private BigDecimal totalLiabilities = new BigDecimal("148778000000");
+        private BigDecimal totalCurrentLiabilities = new BigDecimal("41836000000");
+        private BigDecimal totalNonCurrentLiabilities = new BigDecimal("106942000000");
+        private BigDecimal totalShareholderEquity = new BigDecimal("217243000000");
+        private BigDecimal retainedEarnings = new BigDecimal("121179000000");
+        private BigDecimal commonStock = null;
+        private BigDecimal cashAndCashEquivalents = new BigDecimal("35873000000");
+        private BigDecimal cashAndShortTermInvestments = new BigDecimal("35873000000");
+        private BigDecimal inventory = null;
+        private BigDecimal currentNetReceivables = new BigDecimal("19769000000");
+        private BigDecimal shortTermDebt = new BigDecimal("2213000000");
+        private BigDecimal longTermDebt = new BigDecimal("58744000000");
+        private BigDecimal currentLongTermDebt = null;
+        private BigDecimal longTermDebtNoncurrent = null;
+        private BigDecimal shortLongTermDebtTotal = new BigDecimal("83897000000");
+        private BigDecimal commonStockSharesOutstanding = new BigDecimal("2574000000");
+        private BigDecimal additionalPaidInCapital = null;
 
         private ReportFixture() {}
 
