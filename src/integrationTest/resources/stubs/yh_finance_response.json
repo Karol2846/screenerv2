@@ -1,0 +1,116 @@
+{
+  "quoteSummary": {
+    "error": null,
+    "result": [
+      {
+        "price": {
+          "regularMarketPrice": {
+            "fmt": "648.18",
+            "raw": 648.18,
+            "longFmt": null
+          }
+        },
+        "earningsTrend": {
+          "trend": [
+            {
+              "growth": {
+                "fmt": "4.59%",
+                "raw": 0.045900002,
+                "longFmt": null
+              },
+              "period": "0q",
+              "revenueEstimate": {
+                "growth": {
+                  "fmt": "31.02%",
+                  "raw": 0.3102,
+                  "longFmt": null
+                }
+              }
+            },
+            {
+              "growth": {
+                "fmt": "0.26%",
+                "raw": 0.0026,
+                "longFmt": null
+              },
+              "period": "+1q",
+              "revenueEstimate": {
+                "growth": {
+                  "fmt": "25.39%",
+                  "raw": 0.2539,
+                  "longFmt": null
+                }
+              }
+            },
+            {
+              "growth": {
+                "fmt": "1.89%",
+                "raw": 0.0189,
+                "longFmt": null
+              },
+              "period": "0y",
+              "revenueEstimate": {
+                "growth": {
+                  "fmt": "24.95%",
+                  "raw": 0.2495,
+                  "longFmt": null
+                }
+              }
+            },
+            {
+              "growth": {
+                "fmt": "18.66%",
+                "raw": 0.1866,
+                "longFmt": null
+              },
+              "period": "+1y",
+              "revenueEstimate": {
+                "growth": {
+                  "fmt": "17.70%",
+                  "raw": 0.177,
+                  "longFmt": null
+                }
+              }
+            }
+          ]
+        },
+        "recommendationTrend": {
+          "trend": [
+            {
+              "buy": 51,
+              "hold": 5,
+              "sell": 0,
+              "period": "0m",
+              "strongBuy": 11,
+              "strongSell": 0
+            },
+            {
+              "buy": 51,
+              "hold": 5,
+              "sell": 0,
+              "period": "-1m",
+              "strongBuy": 11,
+              "strongSell": 0
+            },
+            {
+              "buy": 50,
+              "hold": 7,
+              "sell": 0,
+              "period": "-2m",
+              "strongBuy": 10,
+              "strongSell": 0
+            },
+            {
+              "buy": 50,
+              "hold": 8,
+              "sell": 0,
+              "period": "-3m",
+              "strongBuy": 10,
+              "strongSell": 0
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
