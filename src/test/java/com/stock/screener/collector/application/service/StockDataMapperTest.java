@@ -1,7 +1,5 @@
 package com.stock.screener.collector.application.service;
 
-import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
-import com.stock.screener.collector.application.port.out.alphavantage.RawIncomeStatement;
 import com.stock.screener.collector.domain.valueobject.AnalystRatings;
 import com.stock.screener.collector.domain.valueobject.snapshot.FinancialDataSnapshot;
 import com.stock.screener.collector.domain.valueobject.snapshot.MarketDataSnapshot;
@@ -11,6 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+import com.stock.screener.collector.application.port.out.fixtures.RawBalanceSheetFixture;
+import com.stock.screener.collector.application.port.out.fixtures.RawIncomeStatementFixture;
 
 import static com.stock.screener.collector.application.port.out.fixtures.RawBalanceSheetFixture.aRawBalanceSheet;
 import static com.stock.screener.collector.application.port.out.fixtures.RawCashFlowFixture.aRawCashFlow;
@@ -626,19 +627,6 @@ class StockDataMapperTest {
 
             // Then
             assertThat(result.operatingCashFlow()).isNull();
-        }
-    }
-
-    // --- Helper: access to fixture Report builders for readability ---
-    private static final class RawBalanceSheetFixture {
-        static com.stock.screener.collector.application.port.out.fixtures.RawBalanceSheetFixture.ReportFixture aReport() {
-            return com.stock.screener.collector.application.port.out.fixtures.RawBalanceSheetFixture.aReport();
-        }
-    }
-
-    private static final class RawIncomeStatementFixture {
-        static com.stock.screener.collector.application.port.out.fixtures.RawIncomeStatementFixture.ReportFixture aReport() {
-            return com.stock.screener.collector.application.port.out.fixtures.RawIncomeStatementFixture.aReport();
         }
     }
 }
