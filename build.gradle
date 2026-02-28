@@ -8,6 +8,22 @@ repositories {
     mavenLocal()
 }
 
+// ─────────────────────────────────────────────────────────────
+// Integration-test source set
+// ─────────────────────────────────────────────────────────────
+sourceSets {
+    integrationTest {
+        java.srcDir 'src/integrationTest/java'
+        resources.srcDir 'src/integrationTest/resources'
+        compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
+        runtimeClasspath += output + compileClasspath
+    }
+}
+
+configurations {
+    integrationTestImplementation.extendsFrom testImplementation
+}
+
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
 
@@ -35,6 +51,10 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation 'com.tngtech.archunit:archunit-junit5:1.2.1'
+
+    // --- INTEGRATION TESTS ---
+    // quarkus-junit5, rest-assured, assertj inherited via integrationTestImplementation.extendsFrom testImplementation
+    integrationTestImplementation 'org.wiremock:wiremock:3.12.1'
 }
 
 group = 'org.example'
@@ -45,15 +65,30 @@ java {
     targetCompatibility = JavaVersion.VERSION_25
 }
 
-test {
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
     systemProperty "java.util.logging.manager", "org.jboss.logmanager.LogManager"
     jvmArgs "--add-opens", "java.base/java.lang=ALL-UNNAMED"
-}
-compileJava {
-    options.encoding = 'UTF-8'
-    options.compilerArgs << '-parameters'
+    
+    testLogging {
+        events "passed", "skipped", "failed"
+        showExceptions true
+        showStackTraces true
+    }
 }
 
-compileTestJava {
+tasks.register('integrationTest', Test) {
+    description = 'Runs integration tests against the WireMock server.'
+    group = 'verification'
+
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    shouldRunAfter test
+}
+
+check.dependsOn integrationTest
+
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
 }

@@ -1,0 +1,26 @@
+# Integration test Quarkus configuration
+# Overrides REST client URLs to point to the WireMock server running on port 8089.
+# API keys are set to dummy values – WireMock stubs only check that the header is present.
+
+quarkus:
+  rest-client:
+    alphavantage-api:
+      url: http://localhost:8089
+      scope: jakarta.inject.Singleton
+      connect-timeout: 5000
+      read-timeout: 10000
+    yhfinance-api:
+      url: http://localhost:8089
+      scope: jakarta.inject.Singleton
+      connect-timeout: 5000
+      read-timeout: 10000
+
+alphavantage:
+  api:
+    key: test-alphavantage-key
+    base-url: http://localhost:8089
+
+yhfinance:
+  api:
+    key: test-yhfinance-key
+    base-url: http://localhost:8089
