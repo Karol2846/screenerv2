@@ -51,20 +51,20 @@ class StockDataMapperTest {
             MarketDataSnapshot result = mapper.toMarketDataSnapshot(overview, yhResponse);
 
             // Then — AlphaVantage fields
-            assertThat(result.marketCap()).isEqualByComparingTo(new BigDecimal("2800000000000"));
-            assertThat(result.revenueTTM()).isEqualByComparingTo(new BigDecimal("391035000000"));
-            assertThat(result.forwardPeRatio()).isEqualByComparingTo(new BigDecimal("25.00"));
-            assertThat(result.targetPrice()).isEqualByComparingTo(new BigDecimal("235.00"));
+            assertThat(result.marketCap()).isEqualByComparingTo(overview.marketCapitalization());
+            assertThat(result.revenueTTM()).isEqualByComparingTo(overview.revenueTTM());
+            assertThat(result.forwardPeRatio()).isEqualByComparingTo(overview.forwardPE());
+            assertThat(result.targetPrice()).isEqualByComparingTo(overview.analystTargetPrice());
 
             // Then — Yahoo Finance fields
-            assertThat(result.currentPrice()).isEqualByComparingTo(new BigDecimal("175.50"));
-            assertThat(result.forwardEpsGrowth()).isEqualByComparingTo(new BigDecimal("0.15"));
-            assertThat(result.forwardRevenueGrowth()).isEqualByComparingTo(new BigDecimal("0.12"));
-            assertThat(result.analystRatings().strongBuy()).isEqualTo(11);
-            assertThat(result.analystRatings().buy()).isEqualTo(51);
-            assertThat(result.analystRatings().hold()).isEqualTo(5);
-            assertThat(result.analystRatings().sell()).isEqualTo(0);
-            assertThat(result.analystRatings().strongSell()).isEqualTo(0);
+            assertThat(result.currentPrice()).isEqualByComparingTo(yhResponse.currentPrice());
+            assertThat(result.forwardEpsGrowth()).isEqualByComparingTo(yhResponse.forwardEpsGrowth());
+            assertThat(result.forwardRevenueGrowth()).isEqualByComparingTo(yhResponse.forwardRevenueGrowth());
+            assertThat(result.analystRatings().strongBuy()).isEqualTo(yhResponse.analystRatings().strongBuy());
+            assertThat(result.analystRatings().buy()).isEqualTo(yhResponse.analystRatings().buy());
+            assertThat(result.analystRatings().hold()).isEqualTo(yhResponse.analystRatings().hold());
+            assertThat(result.analystRatings().sell()).isEqualTo(yhResponse.analystRatings().sell());
+            assertThat(result.analystRatings().strongSell()).isEqualTo(yhResponse.analystRatings().strongSell());
         }
 
         @Test
@@ -76,11 +76,11 @@ class StockDataMapperTest {
             // When
             MarketDataSnapshot result = mapper.toMarketDataSnapshot(overview, null);
 
-            // Then — AlphaVantage fields match fixture defaults
-            assertThat(result.marketCap()).isEqualByComparingTo(new BigDecimal("1661943284000"));
-            assertThat(result.revenueTTM()).isEqualByComparingTo(new BigDecimal("200965997000"));
-            assertThat(result.forwardPeRatio()).isEqualByComparingTo(new BigDecimal("21.28"));
-            assertThat(result.targetPrice()).isEqualByComparingTo(new BigDecimal("861.42"));
+            // Then — AlphaVantage fields match overview input
+            assertThat(result.marketCap()).isEqualByComparingTo(overview.marketCapitalization());
+            assertThat(result.revenueTTM()).isEqualByComparingTo(overview.revenueTTM());
+            assertThat(result.forwardPeRatio()).isEqualByComparingTo(overview.forwardPE());
+            assertThat(result.targetPrice()).isEqualByComparingTo(overview.analystTargetPrice());
 
             // Then — Yahoo Finance fields null
             assertThat(result.currentPrice()).isNull();
@@ -104,15 +104,15 @@ class StockDataMapperTest {
             assertThat(result.forwardPeRatio()).isNull();
             assertThat(result.targetPrice()).isNull();
 
-            // Then — Yahoo Finance fields match fixture defaults
-            assertThat(result.currentPrice()).isEqualByComparingTo(new BigDecimal("648.18"));
-            assertThat(result.forwardEpsGrowth()).isEqualByComparingTo(new BigDecimal("0.1866"));
-            assertThat(result.forwardRevenueGrowth()).isEqualByComparingTo(new BigDecimal("0.177"));
-            assertThat(result.analystRatings().strongBuy()).isEqualTo(11);
-            assertThat(result.analystRatings().buy()).isEqualTo(51);
-            assertThat(result.analystRatings().hold()).isEqualTo(5);
-            assertThat(result.analystRatings().sell()).isEqualTo(0);
-            assertThat(result.analystRatings().strongSell()).isEqualTo(0);
+            // Then — Yahoo Finance fields match yhResponse input
+            assertThat(result.currentPrice()).isEqualByComparingTo(yhResponse.currentPrice());
+            assertThat(result.forwardEpsGrowth()).isEqualByComparingTo(yhResponse.forwardEpsGrowth());
+            assertThat(result.forwardRevenueGrowth()).isEqualByComparingTo(yhResponse.forwardRevenueGrowth());
+            assertThat(result.analystRatings().strongBuy()).isEqualTo(yhResponse.analystRatings().strongBuy());
+            assertThat(result.analystRatings().buy()).isEqualTo(yhResponse.analystRatings().buy());
+            assertThat(result.analystRatings().hold()).isEqualTo(yhResponse.analystRatings().hold());
+            assertThat(result.analystRatings().sell()).isEqualTo(yhResponse.analystRatings().sell());
+            assertThat(result.analystRatings().strongSell()).isEqualTo(yhResponse.analystRatings().strongSell());
         }
 
         @Test
@@ -144,11 +144,11 @@ class StockDataMapperTest {
             MarketDataSnapshot result = mapper.toMarketDataSnapshot(null, yhResponse);
 
             // Then
-            assertThat(result.analystRatings().strongBuy()).isEqualTo(10);
-            assertThat(result.analystRatings().buy()).isEqualTo(15);
-            assertThat(result.analystRatings().hold()).isEqualTo(5);
-            assertThat(result.analystRatings().sell()).isEqualTo(2);
-            assertThat(result.analystRatings().strongSell()).isEqualTo(1);
+            assertThat(result.analystRatings().strongBuy()).isEqualTo(yhResponse.analystRatings().strongBuy());
+            assertThat(result.analystRatings().buy()).isEqualTo(yhResponse.analystRatings().buy());
+            assertThat(result.analystRatings().hold()).isEqualTo(yhResponse.analystRatings().hold());
+            assertThat(result.analystRatings().sell()).isEqualTo(yhResponse.analystRatings().sell());
+            assertThat(result.analystRatings().strongSell()).isEqualTo(yhResponse.analystRatings().strongSell());
         }
     }
 
@@ -166,31 +166,35 @@ class StockDataMapperTest {
             var incomeStatement = aRawIncomeStatement().build();
             var cashFlow = aRawCashFlow().build();
 
+            var latestBalance = balanceSheet.quarterlyReports().getFirst();
+            var latestIncome = incomeStatement.quarterlyReports().getFirst();
+            var latestCash = cashFlow.quarterlyReports().getFirst();
+
             // When
             FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
                     balanceSheet, incomeStatement, cashFlow);
 
             // Then — Balance sheet fields
-            assertThat(result.totalCurrentAssets()).isEqualByComparingTo(new BigDecimal("108722000000"));
-            assertThat(result.totalCurrentLiabilities()).isEqualByComparingTo(new BigDecimal("41836000000"));
-            assertThat(result.totalAssets()).isEqualByComparingTo(new BigDecimal("366021000000"));
-            assertThat(result.totalLiabilities()).isEqualByComparingTo(new BigDecimal("148778000000"));
-            assertThat(result.totalShareholderEquity()).isEqualByComparingTo(new BigDecimal("217243000000"));
-            assertThat(result.inventory()).isNull();
+            assertThat(result.totalCurrentAssets()).isEqualByComparingTo(latestBalance.totalCurrentAssets());
+            assertThat(result.totalCurrentLiabilities()).isEqualByComparingTo(latestBalance.totalCurrentLiabilities());
+            assertThat(result.totalAssets()).isEqualByComparingTo(latestBalance.totalAssets());
+            assertThat(result.totalLiabilities()).isEqualByComparingTo(latestBalance.totalLiabilities());
+            assertThat(result.totalShareholderEquity()).isEqualByComparingTo(latestBalance.totalShareholderEquity());
+            assertThat(result.inventory()).isEqualTo(latestBalance.inventory());
 
             // Then — Income statement fields
-            assertThat(result.interestExpense()).isEqualByComparingTo(new BigDecimal("708000000"));
-            assertThat(result.totalRevenue()).isEqualByComparingTo(new BigDecimal("59894000000"));
-            assertThat(result.netIncome()).isEqualByComparingTo(new BigDecimal("22768000000"));
+            assertThat(result.interestExpense()).isEqualByComparingTo(latestIncome.interestExpense());
+            assertThat(result.totalRevenue()).isEqualByComparingTo(latestIncome.totalRevenue());
+            assertThat(result.netIncome()).isEqualByComparingTo(latestIncome.netIncome());
 
             // Then — Derived fields
-            assertThat(result.retainedEarnings()).isEqualByComparingTo(new BigDecimal("121179000000"));
-            assertThat(result.ebit()).isEqualByComparingTo(new BigDecimal("26061000000"));
-            assertThat(result.totalDebt()).isEqualByComparingTo(new BigDecimal("83897000000"));
-            assertThat(result.revenueTTM()).isEqualByComparingTo(new BigDecimal("59894000000"));
+            assertThat(result.retainedEarnings()).isEqualByComparingTo(latestBalance.retainedEarnings());
+            assertThat(result.ebit()).isEqualByComparingTo(latestIncome.ebit());
+            assertThat(result.totalDebt()).isEqualByComparingTo(latestBalance.shortLongTermDebtTotal());
+            assertThat(result.revenueTTM()).isEqualByComparingTo(latestIncome.totalRevenue());
 
             // Then — Cash flow fields
-            assertThat(result.operatingCashFlow()).isEqualByComparingTo(new BigDecimal("36214000000"));
+            assertThat(result.operatingCashFlow()).isEqualByComparingTo(latestCash.operatingCashflow());
         }
 
         @Test
@@ -639,6 +643,7 @@ class StockDataMapperTest {
         void mapsOperatingCashFlow() {
             // Given
             var cashFlow = aRawCashFlow().build();
+            var latestCash = cashFlow.quarterlyReports().getFirst();
 
             // When
             FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
@@ -646,7 +651,7 @@ class StockDataMapperTest {
 
             // Then
             assertThat(result.operatingCashFlow())
-                    .isEqualByComparingTo(new BigDecimal("36214000000"));
+                    .isEqualByComparingTo(latestCash.operatingCashflow());
         }
 
         @Test
