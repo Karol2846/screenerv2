@@ -16,12 +16,17 @@ sourceSets {
         java.srcDir 'src/integrationTest/java'
         resources.srcDir 'src/integrationTest/resources'
         compileClasspath += sourceSets.main.output + configurations.testCompileClasspath
-        runtimeClasspath += output + compileClasspath
+        runtimeClasspath += output + compileClasspath + configurations.testRuntimeClasspath
     }
+}
+
+processIntegrationTestResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 configurations {
     integrationTestImplementation.extendsFrom testImplementation
+    integrationTestRuntimeOnly.extendsFrom testRuntimeOnly
 }
 
 dependencies {

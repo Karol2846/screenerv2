@@ -1,8 +1,17 @@
 # Integration test Quarkus configuration
-# Overrides REST client URLs to point to the WireMock server running on port 8089.
-# API keys are set to dummy values – WireMock stubs only check that the header is present.
 
 quarkus:
+  datasource:
+    devservices:
+      enabled: true
+  hibernate-orm:
+    schema-management:
+      strategy: validate
+    physical-naming-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
+  flyway:
+    migrate-at-start: true
+  scheduler:
+    enabled: false
   rest-client:
     alphavantage-api:
       url: http://localhost:8089
