@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 
 public final class YhFinanceResponseFixture {
 
-    // Defaults aligned with integrationTest/resources/stubs/yh_finance_response.json (META)
     private String ticker = "META";
     private BigDecimal currentPrice = new BigDecimal("648.18");
     private BigDecimal forwardEpsGrowth = new BigDecimal("0.1866");

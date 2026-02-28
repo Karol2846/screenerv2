@@ -7,7 +7,6 @@ import java.util.List;
 
 public final class RawBalanceSheetFixture {
 
-    // Defaults aligned with integrationTest/resources/stubs/balance_sheet.json (META)
     private String symbol = "META";
     private List<RawBalanceSheet.Report> annualReports = List.of();
     private List<RawBalanceSheet.Report> quarterlyReports = List.of(aReport().build());
@@ -54,7 +53,6 @@ public final class RawBalanceSheetFixture {
 
     public static final class ReportFixture {
 
-        // Defaults aligned with first quarterly report from integrationTest/resources/stubs/balance_sheet.json (META)
         private String fiscalDateEnding = "2025-12-31";
         private String reportedCurrency = "USD";
         private BigDecimal totalAssets = new BigDecimal("366021000000");

@@ -6,7 +6,6 @@ import java.math.BigDecimal;
 
 public final class RawOverviewFixture {
 
-    // Defaults aligned with integrationTest/resources/stubs/overview.json (META)
     private String symbol = "META";
     private String assetType = "Common Stock";
     private String name = "Meta Platforms Inc.";
