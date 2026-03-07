@@ -33,6 +33,7 @@ public class QuarterlyReport extends PanacheEntity {
     public String ticker;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     public Sector sector;
 
     @Column(nullable = false)

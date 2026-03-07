@@ -14,6 +14,8 @@ public enum Sector {
     REAL_ESTATE("Real Estate"),
     UTILITIES("Utilities"),
     MINING("Mining"),
+    CONSUMER_CYCLICAL("CONSUMER CYCLICAL"),
+    COMMUNICATION_SERVICES("COMMUNICATION SERVICES"),
     OTHER("Other");
 
     private final String displayName;

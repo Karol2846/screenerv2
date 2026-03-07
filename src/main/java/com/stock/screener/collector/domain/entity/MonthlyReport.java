@@ -32,6 +32,7 @@ public class MonthlyReport extends PanacheEntity {
     public String ticker;
 
     @Enumerated(EnumType.STRING)
+    @Column(length = 30)
     public Sector sector;
 
     public BigDecimal forwardRevenueGrowth;
