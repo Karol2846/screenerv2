@@ -6,6 +6,20 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
  * Registration helper for YhFinance WireMock stubs.
+ *
+ * <p>Obtain the {@link WireMockServer} instance from the injected field in your test class:
+ * <pre>{@code
+ * @QuarkusTest
+ * @QuarkusTestResource(WireMockTestResource.class)
+ * class MyIT {
+ *     WireMockServer wireMock;
+ *
+ *     @BeforeEach
+ *     void setup() {
+ *         YhFinanceWireMock.stubQuoteSummary(wireMock, "AAPL");
+ *     }
+ * }
+ * }</pre>
  */
 public final class YhFinanceWireMock {
 
@@ -24,8 +38,7 @@ public final class YhFinanceWireMock {
     private YhFinanceWireMock() {
     }
 
-    public static void stubQuoteSummary(String symbol) {
-        WireMockServer server = WireMockServerConfig.getServer();
+    public static void stubQuoteSummary(WireMockServer server, String symbol) {
         String path = String.format(API_PATH_TEMPLATE, symbol);
 
         server.stubFor(

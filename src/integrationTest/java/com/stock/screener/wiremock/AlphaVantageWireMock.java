@@ -6,6 +6,20 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
  * Registration helper for AlphaVantage WireMock stubs.
+ *
+ * <p>Obtain the {@link WireMockServer} instance from the injected field in your test class:
+ * <pre>{@code
+ * @QuarkusTest
+ * @QuarkusTestResource(WireMockTestResource.class)
+ * class MyIT {
+ *     WireMockServer wireMock;
+ *
+ *     @BeforeEach
+ *     void setup() {
+ *         AlphaVantageWireMock.stubOverview(wireMock, "AAPL");
+ *     }
+ * }
+ * }</pre>
  */
 public final class AlphaVantageWireMock {
 
@@ -27,32 +41,30 @@ public final class AlphaVantageWireMock {
     private AlphaVantageWireMock() {
     }
 
-    public static void stubOverview(String symbol) {
-        registerStub(symbol, FUNCTION_OVERVIEW, OVERVIEW_FILE);
+    public static void stubOverview(WireMockServer server, String symbol) {
+        registerStub(server, symbol, FUNCTION_OVERVIEW, OVERVIEW_FILE);
     }
 
-    public static void stubBalanceSheet(String symbol) {
-        registerStub(symbol, FUNCTION_BALANCE_SHEET, BALANCE_SHEET_FILE);
+    public static void stubBalanceSheet(WireMockServer server, String symbol) {
+        registerStub(server, symbol, FUNCTION_BALANCE_SHEET, BALANCE_SHEET_FILE);
     }
 
-    public static void stubIncomeStatement(String symbol) {
-        registerStub(symbol, FUNCTION_INCOME_STATEMENT, INCOME_STATEMENT_FILE);
+    public static void stubIncomeStatement(WireMockServer server, String symbol) {
+        registerStub(server, symbol, FUNCTION_INCOME_STATEMENT, INCOME_STATEMENT_FILE);
     }
 
-    public static void stubCashFlow(String symbol) {
-        registerStub(symbol, FUNCTION_CASH_FLOW, CASH_FLOW_FILE);
+    public static void stubCashFlow(WireMockServer server, String symbol) {
+        registerStub(server, symbol, FUNCTION_CASH_FLOW, CASH_FLOW_FILE);
     }
 
-    public static void stubAll(String symbol) {
-        stubOverview(symbol);
-        stubBalanceSheet(symbol);
-        stubIncomeStatement(symbol);
-        stubCashFlow(symbol);
+    public static void stubAll(WireMockServer server, String symbol) {
+        stubOverview(server, symbol);
+        stubBalanceSheet(server, symbol);
+        stubIncomeStatement(server, symbol);
+        stubCashFlow(server, symbol);
     }
 
-    private static void registerStub(String symbol, String function, String stubFile) {
-        WireMockServer server = WireMockServerConfig.getServer();
-
+    private static void registerStub(WireMockServer server, String symbol, String function, String stubFile) {
         server.stubFor(
                 get(urlPathEqualTo(API_PATH))
                         .withQueryParam(PARAM_FUNCTION, equalTo(function))
