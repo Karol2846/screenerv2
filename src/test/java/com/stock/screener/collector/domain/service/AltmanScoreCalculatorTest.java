@@ -2,7 +2,6 @@ package com.stock.screener.collector.domain.service;
 
 import com.stock.screener.collector.domain.kernel.CalculationErrorType;
 import com.stock.screener.collector.domain.kernel.CalculationResult;
-import com.stock.screener.collector.domain.service.AltmanScoreCalculator;
 import com.stock.screener.collector.domain.valueobject.AltmanZScore;
 import com.stock.screener.common.Sector;
 import com.stock.screener.collector.domain.valueobject.snapshot.FinancialDataSnapshot;
@@ -28,7 +27,7 @@ class AltmanScoreCalculatorTest {
     class ManufacturingSectors {
 
         @ParameterizedTest(name = "Manufacturing sector {0} should compute Z-Score successfully")
-        @MethodSource("com.stock.screener.domain.service.AltmanScoreCalculatorTest#manufacturingSectorsProvider")
+        @MethodSource("manufacturingSectorsProvider")
         @DisplayName("Manufacturing sectors produce valid Z-Score")
         void testManufacturingSectorsProduceValidScore(Sector sector, BigDecimal expectedScore) {
             // Given: Complete financial snapshot for manufacturing
@@ -63,6 +62,14 @@ class AltmanScoreCalculatorTest {
                 assertThat(failure.reason()).contains("revenueTTM");
             });
         }
+
+        static Stream<Arguments> manufacturingSectorsProvider() {
+            return Stream.of(
+                    Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
+                    Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
+                    Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
+            );
+        }
     }
 
     @Nested
@@ -70,7 +77,7 @@ class AltmanScoreCalculatorTest {
     class NonManufacturingSectors {
 
         @ParameterizedTest(name = "Non-Manufacturing sector {0} should compute Z''-Score successfully")
-        @MethodSource("com.stock.screener.domain.service.AltmanScoreCalculatorTest#nonManufacturingSectorsProvider")
+        @MethodSource("nonManufacturingSectorsProvider")
         @DisplayName("Non-Manufacturing sectors produce valid Z''-Score")
         void testNonManufacturingSectorsProduceValidScore(Sector sector, BigDecimal expectedScore) {
             // Given: Complete financial snapshot for non-manufacturing
@@ -99,6 +106,15 @@ class AltmanScoreCalculatorTest {
 
             // Then: Should succeed (revenueTTM is not required for non-manufacturing formula)
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
+        }
+
+        static Stream<Arguments> nonManufacturingSectorsProvider() {
+            return Stream.of(
+                    Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
+                    Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
+                    Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
+                    Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
+            );
         }
     }
 
@@ -350,23 +366,6 @@ class AltmanScoreCalculatorTest {
                 .totalShareholderEquity(new BigDecimal("600000"))
                 .totalRevenue(new BigDecimal("800000"))
                 .revenueTTM(new BigDecimal("800000"));
-    }
-
-    static Stream<Arguments> manufacturingSectorsProvider() {
-        return Stream.of(
-                Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
-                Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
-                Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
-        );
-    }
-
-    static Stream<Arguments> nonManufacturingSectorsProvider() {
-        return Stream.of(
-                Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
-                Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
-                Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
-                Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
-        );
     }
 }
 
