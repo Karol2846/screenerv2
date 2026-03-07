@@ -40,4 +40,21 @@ public final class YhFinanceWireMock {
                                         .withHeader("Content-Type", "application/json")
                                         .withBody(StubFileReader.read(STUB_FILE))));
     }
+
+    public static void stubQuoteSummaryError(String symbol, int status) {
+        WireMockServer server = WireMockServerConfig.getServer();
+        String path = String.format(API_PATH_TEMPLATE, symbol);
+
+        server.stubFor(
+                get(urlPathEqualTo(path))
+                        .withQueryParam(PARAM_MODULES, equalTo(DEFAULT_MODULES))
+                        .withQueryParam(PARAM_LANG, equalTo(DEFAULT_LANG))
+                        .withQueryParam(PARAM_REGION, equalTo(DEFAULT_REGION))
+                        .withHeader(HEADER_API_KEY, matching(".+"))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(status)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withBody("{\"error\":\"API error\"}")));
+    }
 }

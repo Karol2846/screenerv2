@@ -50,6 +50,32 @@ public final class AlphaVantageWireMock {
         stubCashFlow(symbol);
     }
 
+    public static void stubOverviewError(String symbol, int status) {
+        registerErrorStub(symbol, FUNCTION_OVERVIEW, status);
+    }
+
+    public static void stubAllErrors(String symbol, int status) {
+        registerErrorStub(symbol, FUNCTION_OVERVIEW, status);
+        registerErrorStub(symbol, FUNCTION_BALANCE_SHEET, status);
+        registerErrorStub(symbol, FUNCTION_INCOME_STATEMENT, status);
+        registerErrorStub(symbol, FUNCTION_CASH_FLOW, status);
+    }
+
+    private static void registerErrorStub(String symbol, String function, int status) {
+        WireMockServer server = WireMockServerConfig.getServer();
+
+        server.stubFor(
+                get(urlPathEqualTo(API_PATH))
+                        .withQueryParam(PARAM_FUNCTION, equalTo(function))
+                        .withQueryParam(PARAM_SYMBOL, equalTo(symbol))
+                        .withHeader(HEADER_API_KEY, matching(".+"))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(status)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withBody("{\"error\":\"API error\"}")));
+    }
+
     private static void registerStub(String symbol, String function, String stubFile) {
         WireMockServer server = WireMockServerConfig.getServer();
 
