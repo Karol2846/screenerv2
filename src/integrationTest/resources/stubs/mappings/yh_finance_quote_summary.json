@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/v11/finance/quoteSummary/META",
+    "queryParameters": {
+      "modules": { "equalTo": "earningsTrend,recommendationTrend,price" },
+      "lang": { "equalTo": "en" },
+      "region": { "equalTo": "US" }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "yh_finance_response.json"
+  }
+}

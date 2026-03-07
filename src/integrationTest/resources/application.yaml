@@ -12,24 +12,3 @@ quarkus:
     migrate-at-start: true
   scheduler:
     enabled: false
-  rest-client:
-    alphavantage-api:
-      url: http://localhost:8089
-      scope: jakarta.inject.Singleton
-      connect-timeout: 5000
-      read-timeout: 10000
-    yhfinance-api:
-      url: http://localhost:8089
-      scope: jakarta.inject.Singleton
-      connect-timeout: 5000
-      read-timeout: 10000
-
-alphavantage:
-  api:
-    key: test-alphavantage-key
-    base-url: http://localhost:8089
-
-yhfinance:
-  api:
-    key: test-yhfinance-key
-    base-url: http://localhost:8089
