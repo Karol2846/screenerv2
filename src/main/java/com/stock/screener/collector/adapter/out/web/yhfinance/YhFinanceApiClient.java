@@ -28,3 +28,8 @@ interface YhFinanceApiClient {
     );
 }
 
+//TODO: zaimplementuj rateLimiter-y dla yhFinance i alphaVantage. dla pewności sprawdź dokłądnie wartości na rapid api i yhFinance.api
+// być może nie będą mogły być in-memory. Jeśli aplikacja będzie uruchamiana 'z zewnątrz' przez endpoint,
+// to rate limit musi być zapisany na twardo - w pliku/bazie danych.
+// next:
+// Przygotuj spójny obiekt który analyzer przyjmie do filtrowania. wszystkie wymagania powinny być w pliku work_plan.md
