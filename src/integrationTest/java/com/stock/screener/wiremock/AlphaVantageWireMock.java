@@ -7,19 +7,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 /**
  * Registration helper for AlphaVantage WireMock stubs.
  *
- * <p>Obtain the {@link WireMockServer} instance from the injected field in your test class:
- * <pre>{@code
- * @QuarkusTest
- * @QuarkusTestResource(WireMockTestResource.class)
- * class MyIT {
- *     WireMockServer wireMock;
- *
- *     @BeforeEach
- *     void setup() {
- *         AlphaVantageWireMock.stubOverview(wireMock, "AAPL");
- *     }
- * }
- * }</pre>
+ * <p>Methods without a {@link WireMockServer} parameter resolve the server automatically via
+ * {@link WireMockTestResource#getServer()} and are convenient for use in static
+ * {@code @BeforeAll} methods. Methods that accept an explicit server are available as overloads
+ * for tests that have a {@link WireMockServer} field injected by {@link WireMockTestResource}.
  */
 public final class AlphaVantageWireMock {
 
@@ -40,6 +31,45 @@ public final class AlphaVantageWireMock {
 
     private AlphaVantageWireMock() {
     }
+
+    // ── No-arg server variants (use WireMockTestResource.getServer()) ──
+
+    public static void stubOverview(String symbol) {
+        registerStub(WireMockTestResource.getServer(), symbol, FUNCTION_OVERVIEW, OVERVIEW_FILE);
+    }
+
+    public static void stubBalanceSheet(String symbol) {
+        registerStub(WireMockTestResource.getServer(), symbol, FUNCTION_BALANCE_SHEET, BALANCE_SHEET_FILE);
+    }
+
+    public static void stubIncomeStatement(String symbol) {
+        registerStub(WireMockTestResource.getServer(), symbol, FUNCTION_INCOME_STATEMENT, INCOME_STATEMENT_FILE);
+    }
+
+    public static void stubCashFlow(String symbol) {
+        registerStub(WireMockTestResource.getServer(), symbol, FUNCTION_CASH_FLOW, CASH_FLOW_FILE);
+    }
+
+    public static void stubAll(String symbol) {
+        stubOverview(symbol);
+        stubBalanceSheet(symbol);
+        stubIncomeStatement(symbol);
+        stubCashFlow(symbol);
+    }
+
+    public static void stubOverviewError(String symbol, int status) {
+        registerErrorStub(WireMockTestResource.getServer(), symbol, FUNCTION_OVERVIEW, status);
+    }
+
+    public static void stubAllErrors(String symbol, int status) {
+        WireMockServer server = WireMockTestResource.getServer();
+        registerErrorStub(server, symbol, FUNCTION_OVERVIEW, status);
+        registerErrorStub(server, symbol, FUNCTION_BALANCE_SHEET, status);
+        registerErrorStub(server, symbol, FUNCTION_INCOME_STATEMENT, status);
+        registerErrorStub(server, symbol, FUNCTION_CASH_FLOW, status);
+    }
+
+    // ── Explicit server overloads (for tests with injected WireMockServer field) ──
 
     public static void stubOverview(WireMockServer server, String symbol) {
         registerStub(server, symbol, FUNCTION_OVERVIEW, OVERVIEW_FILE);
@@ -64,6 +94,19 @@ public final class AlphaVantageWireMock {
         stubCashFlow(server, symbol);
     }
 
+    public static void stubOverviewError(WireMockServer server, String symbol, int status) {
+        registerErrorStub(server, symbol, FUNCTION_OVERVIEW, status);
+    }
+
+    public static void stubAllErrors(WireMockServer server, String symbol, int status) {
+        registerErrorStub(server, symbol, FUNCTION_OVERVIEW, status);
+        registerErrorStub(server, symbol, FUNCTION_BALANCE_SHEET, status);
+        registerErrorStub(server, symbol, FUNCTION_INCOME_STATEMENT, status);
+        registerErrorStub(server, symbol, FUNCTION_CASH_FLOW, status);
+    }
+
+    // ── Private helpers ────────────────────────────────────────────────
+
     private static void registerStub(WireMockServer server, String symbol, String function, String stubFile) {
         server.stubFor(
                 get(urlPathEqualTo(API_PATH))
@@ -75,5 +118,18 @@ public final class AlphaVantageWireMock {
                                         .withStatus(200)
                                         .withHeader("Content-Type", "application/json")
                                         .withBody(StubFileReader.read(stubFile))));
+    }
+
+    private static void registerErrorStub(WireMockServer server, String symbol, String function, int status) {
+        server.stubFor(
+                get(urlPathEqualTo(API_PATH))
+                        .withQueryParam(PARAM_FUNCTION, equalTo(function))
+                        .withQueryParam(PARAM_SYMBOL, equalTo(symbol))
+                        .withHeader(HEADER_API_KEY, matching(".+"))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(status)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withBody("{\"error\":\"API error\"}")));
     }
 }

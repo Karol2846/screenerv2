@@ -23,10 +23,30 @@ import java.util.Map;
  *     WireMockServer wireMock; // injected automatically by type
  * }
  * }</pre>
+ *
+ * <p>The running instance is also accessible via {@link #getServer()} for use in
+ * static {@code @BeforeAll} methods where field injection is unavailable.
  */
 public class WireMockTestResource implements QuarkusTestResourceLifecycleManager {
 
-    private WireMockServer server;
+    private static WireMockServer server;
+
+    /**
+     * Returns the running {@link WireMockServer} instance.
+     *
+     * <p>Prefer using the injected field where possible. This method exists for
+     * static {@code @BeforeAll} methods that cannot access instance fields.
+     *
+     * @throws IllegalStateException if the server has not been started yet
+     */
+    public static WireMockServer getServer() {
+        if (server == null || !server.isRunning()) {
+            throw new IllegalStateException(
+                    "WireMock server is not running. "
+                            + "Ensure the test class is annotated with @QuarkusTestResource(WireMockTestResource.class).");
+        }
+        return server;
+    }
 
     @Override
     public Map<String, String> start() {

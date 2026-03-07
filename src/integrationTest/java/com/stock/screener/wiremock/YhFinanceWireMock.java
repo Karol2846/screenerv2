@@ -7,19 +7,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 /**
  * Registration helper for YhFinance WireMock stubs.
  *
- * <p>Obtain the {@link WireMockServer} instance from the injected field in your test class:
- * <pre>{@code
- * @QuarkusTest
- * @QuarkusTestResource(WireMockTestResource.class)
- * class MyIT {
- *     WireMockServer wireMock;
- *
- *     @BeforeEach
- *     void setup() {
- *         YhFinanceWireMock.stubQuoteSummary(wireMock, "AAPL");
- *     }
- * }
- * }</pre>
+ * <p>Methods without a {@link WireMockServer} parameter resolve the server automatically via
+ * {@link WireMockTestResource#getServer()} and are convenient for use in static
+ * {@code @BeforeAll} methods. Methods that accept an explicit server are available as overloads
+ * for tests that have a {@link WireMockServer} field injected by {@link WireMockTestResource}.
  */
 public final class YhFinanceWireMock {
 
@@ -38,6 +29,18 @@ public final class YhFinanceWireMock {
     private YhFinanceWireMock() {
     }
 
+    // ── No-arg server variants (use WireMockTestResource.getServer()) ──
+
+    public static void stubQuoteSummary(String symbol) {
+        stubQuoteSummary(WireMockTestResource.getServer(), symbol);
+    }
+
+    public static void stubQuoteSummaryError(String symbol, int status) {
+        stubQuoteSummaryError(WireMockTestResource.getServer(), symbol, status);
+    }
+
+    // ── Explicit server overloads (for tests with injected WireMockServer field) ──
+
     public static void stubQuoteSummary(WireMockServer server, String symbol) {
         String path = String.format(API_PATH_TEMPLATE, symbol);
 
@@ -52,5 +55,21 @@ public final class YhFinanceWireMock {
                                         .withStatus(200)
                                         .withHeader("Content-Type", "application/json")
                                         .withBody(StubFileReader.read(STUB_FILE))));
+    }
+
+    public static void stubQuoteSummaryError(WireMockServer server, String symbol, int status) {
+        String path = String.format(API_PATH_TEMPLATE, symbol);
+
+        server.stubFor(
+                get(urlPathEqualTo(path))
+                        .withQueryParam(PARAM_MODULES, equalTo(DEFAULT_MODULES))
+                        .withQueryParam(PARAM_LANG, equalTo(DEFAULT_LANG))
+                        .withQueryParam(PARAM_REGION, equalTo(DEFAULT_REGION))
+                        .withHeader(HEADER_API_KEY, matching(".+"))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(status)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withBody("{\"error\":\"API error\"}")));
     }
 }
