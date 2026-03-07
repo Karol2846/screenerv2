@@ -194,31 +194,86 @@ class MonthlyReportCollectionIT {
     @DisplayName("Error Scenarios")
     class ErrorScenarios {
 
-        private static final String ERROR_TICKER = "FAIL";
+        private static final String AV_ERROR_TICKER = "AVFAIL";
+        private static final String YH_ERROR_TICKER = "YHFAIL";
+        private static final String BOTH_ERROR_TICKER = "BOTHFAIL";
 
         @BeforeAll
         static void stubErrors() {
-            AlphaVantageWireMock.stubOverviewError(ERROR_TICKER, 500);
-            YhFinanceWireMock.stubQuoteSummaryError(ERROR_TICKER, 500);
+            AlphaVantageWireMock.stubOverviewError(AV_ERROR_TICKER, 500);
+            YhFinanceWireMock.stubQuoteSummary(AV_ERROR_TICKER);
+
+            AlphaVantageWireMock.stubOverview(YH_ERROR_TICKER);
+            YhFinanceWireMock.stubQuoteSummaryError(YH_ERROR_TICKER, 500);
+
+            AlphaVantageWireMock.stubOverviewError(BOTH_ERROR_TICKER, 500);
+            YhFinanceWireMock.stubQuoteSummaryError(BOTH_ERROR_TICKER, 500);
         }
 
         @Test
-        @DisplayName("Returns 500 when external APIs fail")
-        void shouldReturn500WhenApisFail() {
-            given()
-                    .post("/api/collector/monthly/{ticker}", ERROR_TICKER)
+        @DisplayName("Returns 500 with 'external api throw unknown error' when AlphaVantage fails")
+        void shouldReturn500WithErrorMessageWhenAlphaVantageFails() {
+            String body = given()
+                    .post("/api/collector/monthly/{ticker}", AV_ERROR_TICKER)
                     .then()
-                    .statusCode(500);
+                    .statusCode(500)
+                    .extract().body().asString();
+
+            assertThat(body).isEqualTo("External api throw unknown error");
         }
 
         @Test
-        @DisplayName("No report persisted when collection fails")
-        void shouldNotPersistReportOnFailure() {
+        @DisplayName("Returns 500 with 'External api throw unknown error' when YhFinance fails")
+        void shouldReturn500WithErrorMessageWhenYhFinanceFails() {
+            String body = given()
+                    .post("/api/collector/monthly/{ticker}", YH_ERROR_TICKER)
+                    .then()
+                    .statusCode(500)
+                    .extract().body().asString();
+
+            assertThat(body).isEqualTo("External api throw unknown error");
+        }
+
+        @Test
+        @DisplayName("Returns 500 with 'External api throw unknown error' when both APIs fail")
+        void shouldReturn500WhenBothApisFail() {
+            String body = given()
+                    .post("/api/collector/monthly/{ticker}", BOTH_ERROR_TICKER)
+                    .then()
+                    .statusCode(500)
+                    .extract().body().asString();
+
+            assertThat(body).isEqualTo("External api throw unknown error");
+        }
+
+        @Test
+        @DisplayName("No report persisted when AlphaVantage fails")
+        void shouldNotPersistReportWhenAlphaVantageFails() {
             given()
-                    .post("/api/collector/monthly/{ticker}", ERROR_TICKER)
+                    .post("/api/collector/monthly/{ticker}", AV_ERROR_TICKER)
                     .then();
 
-            assertThat(MonthlyReport.count("ticker", ERROR_TICKER)).isZero();
+            assertThat(MonthlyReport.count("ticker", AV_ERROR_TICKER)).isZero();
+        }
+
+        @Test
+        @DisplayName("No report persisted when YhFinance fails")
+        void shouldNotPersistReportWhenYhFinanceFails() {
+            given()
+                    .post("/api/collector/monthly/{ticker}", YH_ERROR_TICKER)
+                    .then();
+
+            assertThat(MonthlyReport.count("ticker", YH_ERROR_TICKER)).isZero();
+        }
+
+        @Test
+        @DisplayName("No report persisted when both APIs fail")
+        void shouldNotPersistReportWhenBothFail() {
+            given()
+                    .post("/api/collector/monthly/{ticker}", BOTH_ERROR_TICKER)
+                    .then();
+
+            assertThat(MonthlyReport.count("ticker", BOTH_ERROR_TICKER)).isZero();
         }
     }
 }
