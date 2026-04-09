@@ -20,61 +20,35 @@ Base package: `com.stock.screener`
 
 ```
 com.stock.screener
-├── adapter/                    ← INFRASTRUCTURE LAYER (outgoing adapters)
-│   └── web/out/
-│       ├── yhfinance/          ← YH Finance API Adapter
-│       │   ├── YhFinanceApiClient.java        (MicroProfile REST Client interface)
-│       │   ├── YhFinanceGateway.java          (implements YahooFinanceClient port)
-│       │   ├── YhFinanceClientMapper.java     (DTO → domain command mapping)
-│       │   ├── YhFinanceResponseLog.java      (entity logging raw JSON responses)
-│       │   ├── exception/                     (ClientException, YhFinanceApiException, ExceptionMapper)
-│       │   └── model/                         (DTOs: QuoteSummaryResponse, EarningsTrend, RecommendationTrend, etc.)
-│       └── alphavantage/       ← Alpha Vantage API Adapter
-│           ├── AlphaVantageApiClient.java      (MicroProfile REST Client interface)
-│           ├── AlphaVantageGateway.java        (implements AlphaVantageClient port)
-│           ├── AlphaVantageApiKeyFilter.java   (filter injecting API key into requests)
-│           └── AlphaVantageResponseLog.java    (entity logging raw JSON responses)
-│
-├── application/                ← APPLICATION LAYER (ports)
-│   └── port/out/
-│       ├── yhfinance/
-│       │   ├── YahooFinanceClient.java         (PORT — interface for fetching YH Finance data)
-│       │   └── response/
-│       │       └── YhFinanceResponse.java      (command/DTO returned by port)
-│       └── alphavantage/
-│           ├── AlphaVantageClient.java          (PORT — interface for Alpha Vantage)
-│           ├── OverviewResponse.java            (DTO: company overview)
-│           ├── BalanceSheetResponse/Report.java (DTO: balance sheet)
-│           └── IncomeStatementResponse/Report.java (DTO: income statement)
-│
-└── domain/                     ← DOMAIN LAYER (pure business logic)
-    ├── entity/
-    │   ├── Stock.java              (Aggregate — ticker, sector, marketData; PanacheEntityBase)
-    │   ├── MonthlyReport.java      (entity — monthly data: P/S, PEG, upside, analystRatings)
-    │   └── QuarterlyReport.java    (entity — quarterly data: quickRatio, ICR, Altman Z-Score)
-    ├── kernel/
-    │   ├── CalculationResult.java  (sealed interface: Success | Failure | Skipped — monadic computation result)
-    │   ├── CalculationGuard.java   (fluent validator: require(), ensureNonZero(), validate())
-    │   ├── CalculationErrorType.java (enum: MISSING_DATA, DIVISION_BY_ZERO, NOT_APPLICABLE)
-    │   ├── MetricType.java         (enum: PS_RATIO, FORWARD_PEG, UPSIDE_POTENTIAL, QUICK_RATIO, INTEREST_COVERAGE_RATIO, ALTMAN_Z_SCORE)
-    │   └── ReportError.java        (record: metricType + errorType + reason)
-    ├── valueobject/
-    │   ├── AltmanZScore.java       (value object)
-    │   ├── AnalystRatings.java     (@Embeddable: strongBuy, buy, hold, sell, strongSell)
-    │   ├── FinancialMetric.java    (base interface/class for metrics)
-    │   ├── ForwardPeg.java         (VO with compute() → CalculationResult)
-    │   ├── InterestCoverageRatio.java (VO with compute())
-    │   ├── MarketData.java         (@Embeddable: marketCap, currentPrice)
-    │   ├── PsRatio.java            (VO with compute())
-    │   ├── QuickRatio.java         (VO with compute())
-    │   ├── ReportIntegrityStatus.java (enum: READY_FOR_ANALYSIS, PRICING_DATA_COLLECTED, FUNDAMENTALS_COLLECTED, MISSING_DATA)
-    │   ├── Sector.java             (enum: TECHNOLOGY, HEALTHCARE, ENERGY, MINING, etc.)
-    │   ├── UpsidePotential.java    (VO with compute())
-    │   └── snapshoot/
-    │       ├── FinancialDataSnapshot.java  (record/builder — snapshot for quarterly calculations)
-    │       └── MarketDataSnapshot.java     (record/builder — snapshot for monthly calculations)
-    └── service/
-        └── AltmanScoreCalculator.java  (domain service — computes Z-Score/Z''-Score based on sector)
+├── analyzer/                   ← ANALYSIS BOUNDED CONTEXT (scoring facade, currently minimal)
+│   └── application/
+│       ├── port/in/AnalyzeStockUseCase.java
+│       └── service/
+│           ├── StockAnalysisService.java
+│           └── AnalysisReport.java
+├── collector/                  ← COLLECTION BOUNDED CONTEXT (hexagonal)
+│   ├── adapter/
+│   │   ├── in/
+│   │   │   ├── web/            (manual triggers: MonthlyCollectorController, QuarterlyCollectorController)
+│   │   │   └── scheduler/      (MonthlyCollectorScheduler, QuarterlyCollectorScheduler)
+│   │   └── out/
+│   │       ├── file/           (FileTickerReaderAdapter)
+│   │       └── web/
+│   │           ├── yhfinance/  (YhFinanceApiClient, YhFinanceGateway, mapper, logs, exception/, model/)
+│   │           └── alphavantage/ (AlphaVantageApiClient, AlphaVantageGateway, mapper, logs, exception/, model/)
+│   ├── application/
+│   │   ├── port/
+│   │   │   ├── in/             (CollectMonthlyDataUseCase, CollectQuarterlyDataUseCase)
+│   │   │   └── out/            (alphavantage/, yhfinance/, file/)
+│   │   └── service/            (MonthlyDataCollectorService, QuarterlyDataCollectorService, StockDataMapper)
+│   └── domain/
+│       ├── entity/             (MonthlyReport, QuarterlyReport)
+│       ├── kernel/             (CalculationResult, CalculationGuard, MetricType, ReportError, ...)
+│       ├── valueobject/        (PsRatio, ForwardPeg, QuickRatio, ...)
+│       │   └── snapshot/       (FinancialDataSnapshot, MarketDataSnapshot)
+│       └── service/            (AltmanScoreCalculator)
+└── common/
+    └── Sector.java             (shared enum used by collector + analyzer)
 ```
 
 ---
@@ -114,9 +88,9 @@ Each report (Monthly/Quarterly) automatically updates its `integrityStatus` afte
 - `MISSING_DATA` — missing data
 
 ### 5. Persistence — Active Record (Panache)
-Entities extend `PanacheEntity` or `PanacheEntityBase`.
+Entities extend `PanacheEntity`.
 Operations: `entity.persist()`, `Entity.findById()`, `Entity.find("field", value)`.
-`Stock` uses `PanacheEntityBase` with custom `@Id` (ticker); reports use `PanacheEntity` with auto-generated IDs.
+Current domain entities (`MonthlyReport`, `QuarterlyReport`) use `PanacheEntity` with auto-generated IDs.
 
 ### 6. API Response Logging
 Both adapters (YhFinance, AlphaVantage) persist raw JSON responses in dedicated log tables — useful for debugging and data replay.
@@ -135,6 +109,8 @@ Both adapters (YhFinance, AlphaVantage) persist raw JSON responses in dedicated 
 | V4 | Additional indexes on `stock.ticker` |
 | V5 | Table `alpha_vantage_response_log` |
 | V6 | Table `yh_finance_response_log` |
+| V7 | Move `sector` to reports and remove `stock` table |
+| V8 | Add `revenueTTM` column to `quarterly_report` |
 
 **Naming strategy:** `CamelCaseToUnderscoresNamingStrategy` (Java camelCase → SQL snake_case).
 **Schema management:** Hibernate set to `validate` (does not generate schema — Flyway only).
@@ -149,25 +125,28 @@ Both adapters (YhFinance, AlphaVantage) persist raw JSON responses in dedicated 
 - REST Client config key: `yhfinance-api`
 
 ### Alpha Vantage
-- Functions: `OVERVIEW`, `BALANCE_SHEET`, `INCOME_STATEMENT`
+- Functions: `OVERVIEW`, `BALANCE_SHEET`, `INCOME_STATEMENT`, `CASH_FLOW`
 - Data: balance sheet, income statement, fundamental indicators
-- API key via env var `ALPHA_VANTAGE_API_KEY` (default: `demo`)
+- API key via env var `AV_API_KEY` (bound to `alphavantage.api.key`)
 - REST Client config key: `alphavantage-api`
 
 ---
 
 ## Tests
 
-Framework: JUnit 5 + AssertJ + REST Assured + ArchUnit
+Framework: JUnit 5 + AssertJ + REST Assured + ArchUnit + WireMock (integration tests)
 
-**Test coverage (15 test classes):**
+**Test coverage (unit + integration):**
 - **Domain VO:** `PsRatioTest`, `QuickRatioTest`, `ForwardPegTest`, `InterestCoverageRatioTest`, `UpsidePotentialTest`
 - **Domain Service:** `AltmanScoreCalculatorTest`
 - **Domain Entity:** `MonthlyReportTest`, `QuarterlyReportTest`
-- **Adapter deserialization:** `YhFinanceDtoDeserializationTest`, `AlphaVantageDtoDeserializationTest`
+- **Application mapping:** `StockDataMapperTest`
+- **Adapter deserialization:** `YhFinanceDtoDeserializationTest`, `AlphaVantageDtoDeserializationTest`, `AlphaVantageResponseMapperTest`
+- **Adapter file source:** `FileTickerReaderAdapterTest`
 - **Adapter logging:** `YhFinanceResponseLogTest`, `AlphaVantageResponseLogTest`
 - **Adapter mapping:** `YhFinanceClientMapperTest`
-- **Fixtures:** `FinancialDataSnapshotFixture`, `MarketDataSnapshotFixture`
+- **Integration:** `MonthlyReportCollectionIT` (+ WireMock helpers in `src/integrationTest/java/com/stock/screener/wiremock/`)
+- **Fixtures:** `FinancialDataSnapshotFixture`, `MarketDataSnapshotFixture`, `RawOverviewFixture`
 
 ---
 
@@ -200,9 +179,14 @@ Anomaly flags: `POSSIBLE_SPECULATION_BUBBLE`, `CASH_FLOW_LESS_THAN_NET_INCOME`, 
 # Build
 ./gradlew build
 
-# Tests
+# Unit tests
 ./gradlew test
+
+# Integration tests (WireMock)
+./gradlew integrationTest
 ```
+
+Default local config has `quarkus.scheduler.enabled=false` (manual collection via REST endpoints in `collector/adapter/in/web`).
 
 Requires: Java 25, PostgreSQL (configured in `application.yaml` or via Quarkus Dev Services).
 
@@ -215,13 +199,14 @@ Requires: Java 25, PostgreSQL (configured in `application.yaml` or via Quarkus D
 | `build.gradle` | Dependencies, Java 25 target |
 | `gradle.properties` | Quarkus version (3.30.5) |
 | `src/main/resources/application.yaml` | DB config, REST clients, API keys |
+| `src/integrationTest/resources/application.yaml` | Integration-test config (WireMock + scheduler disabled) |
 | `src/main/resources/config/currency-mapping.yaml` | Static exchange rates (USD, TWD, CNY, EUR, JPY, GBP) |
 | `work_plan.md` | Detailed scoring plan |
 | `data_collectedv2.md` | List of collected metrics + calculation formulas |
 
 ## Known TODOs / Open Issues
 
-1. **Merge API calls** — how to combine YH Finance and Alpha Vantage data for MonthlyReport without wasting API requests (comment in `Stock.java`)
-2. **totalRevenue in QuarterlyReport** — currently revenue from a single quarter, should be cumulative from 4 quarters (FIXME in `QuarterlyReport.java`)
+1. **Merge API calls** — how to combine YH Finance and Alpha Vantage data for MonthlyReport without wasting API requests (comment in `MonthlyReport.java`)
+2. **Rate limiting** — add robust rate limiting for YH Finance and Alpha Vantage (`TODO` in `YhFinanceApiClient.java`)
 3. **Scoring engine** — not yet implemented (described in `work_plan.md`)
-4. **No `adapter/web/in` layer** — no REST controllers (inbound endpoints) exposing data externally yet
+4. **Quarterly scheduling strategy** — improve trigger condition to use report freshness (`TODO` in `QuarterlyCollectorScheduler.java`)
