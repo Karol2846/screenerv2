@@ -6,6 +6,8 @@ import com.stock.screener.collector.adapter.out.web.alphavantage.model.BalanceSh
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.CashFlowResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.IncomeStatementResponse;
 import com.stock.screener.collector.adapter.out.web.alphavantage.model.OverviewResponse;
+import com.stock.screener.collector.adapter.out.web.resilience.ExternalApiCallExecutor;
+import com.stock.screener.collector.adapter.out.web.resilience.ExternalProvider;
 import com.stock.screener.collector.application.port.out.alphavantage.AlphaVantageClient;
 import com.stock.screener.collector.application.port.out.alphavantage.RawBalanceSheet;
 import com.stock.screener.collector.application.port.out.alphavantage.RawCashFlow;
@@ -29,39 +31,54 @@ class AlphaVantageGateway implements AlphaVantageClient {
 
     private final AlphaVantageApiClient client;
     private final ObjectMapper objectMapper;
+    private final ExternalApiCallExecutor externalApiCallExecutor;
 
     @Inject
     public AlphaVantageGateway(
             @RestClient AlphaVantageApiClient client,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            ExternalApiCallExecutor externalApiCallExecutor) {
         this.client = client;
         this.objectMapper = objectMapper;
+        this.externalApiCallExecutor = externalApiCallExecutor;
     }
 
     @Transactional
     public RawOverview fetchOverview(String ticker) {
-        OverviewResponse response = client.getOverview(OVERVIEW, ticker);
+        OverviewResponse response = externalApiCallExecutor.execute(
+                ExternalProvider.ALPHA_VANTAGE,
+                "fetchOverview:%s".formatted(ticker),
+                () -> client.getOverview(OVERVIEW, ticker));
         persistLog(ticker, OVERVIEW, response);
         return AlphaVantageResponseMapper.toRawOverview(response);
     }
 
     @Transactional
     public RawBalanceSheet fetchBalanceSheet(String ticker) {
-        BalanceSheetResponse response = client.getBalanceSheet(BALANCE_SHEET, ticker);
+        BalanceSheetResponse response = externalApiCallExecutor.execute(
+                ExternalProvider.ALPHA_VANTAGE,
+                "fetchBalanceSheet:%s".formatted(ticker),
+                () -> client.getBalanceSheet(BALANCE_SHEET, ticker));
         persistLog(ticker, BALANCE_SHEET, response);
         return AlphaVantageResponseMapper.toRawBalanceSheet(response);
     }
 
     @Transactional
     public RawIncomeStatement fetchIncomeStatement(String ticker) {
-        IncomeStatementResponse response = client.getIncomeStatement(INCOME_STATEMENT, ticker);
+        IncomeStatementResponse response = externalApiCallExecutor.execute(
+                ExternalProvider.ALPHA_VANTAGE,
+                "fetchIncomeStatement:%s".formatted(ticker),
+                () -> client.getIncomeStatement(INCOME_STATEMENT, ticker));
         persistLog(ticker, INCOME_STATEMENT, response);
         return AlphaVantageResponseMapper.toRawIncomeStatement(response);
     }
 
     @Transactional
     public RawCashFlow fetchCashFlow(String ticker) {
-        CashFlowResponse response = client.getCashFlow(CASH_FLOW, ticker);
+        CashFlowResponse response = externalApiCallExecutor.execute(
+                ExternalProvider.ALPHA_VANTAGE,
+                "fetchCashFlow:%s".formatted(ticker),
+                () -> client.getCashFlow(CASH_FLOW, ticker));
         persistLog(ticker, CASH_FLOW, response);
         return AlphaVantageResponseMapper.toRawCashFlow(response);
     }

@@ -34,3 +34,17 @@ yhfinance:
   api:
     key: test-yhfinance-key
     base-url: http://localhost:8089
+
+collector:
+  resilience:
+    yhfinance:
+      requests-per-window: 1000
+      window-seconds: 60
+    alphavantage:
+      requests-per-window: 1000
+      window-seconds: 60
+    retry:
+      max-attempts: 1
+      base-backoff-millis: 10
+      max-backoff-millis: 10
+      jitter-millis: 0

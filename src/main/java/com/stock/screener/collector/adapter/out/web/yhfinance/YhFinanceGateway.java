@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.stock.screener.collector.adapter.out.web.yhfinance.exception.ClientException;
 import com.stock.screener.collector.adapter.out.web.yhfinance.model.QuoteSummaryResponse;
 import com.stock.screener.collector.adapter.out.web.yhfinance.model.QuoteSummaryResult;
+import com.stock.screener.collector.adapter.out.web.resilience.ExternalApiCallExecutor;
+import com.stock.screener.collector.adapter.out.web.resilience.ExternalProvider;
 import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
 import com.stock.screener.collector.application.port.out.yhfinance.YahooFinanceClient;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,21 +24,28 @@ class YhFinanceGateway implements YahooFinanceClient {
 
     private final YhFinanceApiClient apiClient;
     private final ObjectMapper objectMapper;
+    private final ExternalApiCallExecutor externalApiCallExecutor;
 
     private static final String DEFAULT_MODULES = "earningsTrend,recommendationTrend,price";
     private static final String DEFAULT_LANG = "en";
     private static final String DEFAULT_REGION = "US";
 
     @Inject
-    public YhFinanceGateway(@RestClient YhFinanceApiClient apiClient, ObjectMapper objectMapper) {
+    public YhFinanceGateway(
+            @RestClient YhFinanceApiClient apiClient,
+            ObjectMapper objectMapper,
+            ExternalApiCallExecutor externalApiCallExecutor) {
         this.apiClient = apiClient;
         this.objectMapper = objectMapper;
+        this.externalApiCallExecutor = externalApiCallExecutor;
     }
 
     @Override
     public YhFinanceResponse getQuoteSummary(@NonNull String ticker) {
-        QuoteSummaryResponse response = apiClient.getQuoteSummary(ticker, DEFAULT_MODULES, DEFAULT_LANG,
-                DEFAULT_REGION);
+        QuoteSummaryResponse response = externalApiCallExecutor.execute(
+                ExternalProvider.YH_FINANCE,
+                "getQuoteSummary:%s".formatted(ticker),
+                () -> apiClient.getQuoteSummary(ticker, DEFAULT_MODULES, DEFAULT_LANG, DEFAULT_REGION));
         validateClientResponse(ticker, response);
         persistLog(ticker, response);
         List<QuoteSummaryResult> results = response.quoteSummary().result();

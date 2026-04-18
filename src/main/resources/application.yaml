@@ -53,3 +53,15 @@ collector:
       cron: "0 0 1 1 * ?"
     quarterly:
       cron: "0 0 2 1 1,4,7,10 ?"
+  resilience:
+    yhfinance:
+      requests-per-window: 300
+      window-seconds: 60
+    alphavantage:
+      requests-per-window: 5
+      window-seconds: 60
+    retry:
+      max-attempts: 2
+      base-backoff-millis: 5000
+      max-backoff-millis: 5000
+      jitter-millis: 250
