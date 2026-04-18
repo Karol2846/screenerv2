@@ -61,3 +61,25 @@ RULES:
 3. Perf: Use reactive patterns (Mutiny) or @RunOnVirtualThread for blocking I/O.
 4. Output Language: Polish.
 5. Tone: Technical, concise, no fluff.
+
+## Current Collector Context (important)
+- Manual collector endpoints are now asynchronous:
+  - `POST /api/collector/monthly/{ticker}`
+  - `POST /api/collector/monthly/all`
+  - `POST /api/collector/quarterly/{ticker}`
+  - `POST /api/collector/quarterly/all`
+  - return `202 Accepted` with `jobId` + `statusUrl`.
+- Job status endpoint:
+  - `GET /api/collector/jobs/{jobId}`.
+- Async orchestration is implemented in `ManualCollectionJobService` (in-memory job store + virtual threads).
+- Resilience layer is implemented under `collector.adapter.out.web.resilience`:
+  - in-memory rate limiter,
+  - retry/backoff contract based on `collector.resilience.retry.max-retries`
+  - compatibility fallback still supports legacy `max-attempts`.
+- Transaction boundaries were narrowed:
+  - external API calls are outside long DB transactions,
+  - report/log persistence moved to dedicated persistence services.
+
+## Next Quality Focus
+- Prefer adding tests around collector async jobs and quarterly async flow before extending features.
+- Prioritize stable tests over time-based/flaky assertions.

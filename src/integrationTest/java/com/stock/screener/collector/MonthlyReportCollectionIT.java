@@ -27,6 +27,8 @@ class MonthlyReportCollectionIT {
 
     private static final String TICKER = "META";
 
+    // TODO: Add equivalent async + resilience integration scenarios for quarterly collection endpoints.
+    // TODO: Extend tests with job polling edge-cases (timeout/cancel/interrupted polling) for collector review pass.
     @Inject
     EntityManager entityManager;
 

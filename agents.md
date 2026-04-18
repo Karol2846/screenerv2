@@ -29,18 +29,19 @@ com.stock.screener
 ├── collector/                  ← COLLECTION BOUNDED CONTEXT (hexagonal)
 │   ├── adapter/
 │   │   ├── in/
-│   │   │   ├── web/            (manual triggers: MonthlyCollectorController, QuarterlyCollectorController)
+│   │   │   ├── web/            (manual async triggers + job status: MonthlyCollectorController, QuarterlyCollectorController, CollectionJobController)
 │   │   │   └── scheduler/      (MonthlyCollectorScheduler, QuarterlyCollectorScheduler)
 │   │   └── out/
 │   │       ├── file/           (FileTickerReaderAdapter)
 │   │       └── web/
-│   │           ├── yhfinance/  (YhFinanceApiClient, YhFinanceGateway, mapper, logs, exception/, model/)
-│   │           └── alphavantage/ (AlphaVantageApiClient, AlphaVantageGateway, mapper, logs, exception/, model/)
+│   │           ├── yhfinance/  (YhFinanceApiClient, YhFinanceGateway, mapper, log persistence, exception/, model/)
+│   │           ├── alphavantage/ (AlphaVantageApiClient, AlphaVantageGateway, mapper, log persistence, exception/, model/)
+│   │           └── resilience/ (ExternalApiCallExecutor, InMemoryProviderRateLimiter, retry/rate policies)
 │   ├── application/
 │   │   ├── port/
-│   │   │   ├── in/             (CollectMonthlyDataUseCase, CollectQuarterlyDataUseCase)
+│   │   │   ├── in/             (CollectMonthlyDataUseCase, CollectQuarterlyDataUseCase, ManualCollectionJobUseCase + job status model)
 │   │   │   └── out/            (alphavantage/, yhfinance/, file/)
-│   │   └── service/            (MonthlyDataCollectorService, QuarterlyDataCollectorService, StockDataMapper)
+│   │   └── service/            (MonthlyDataCollectorService, QuarterlyDataCollectorService, ManualCollectionJobService, CollectorReportPersistenceService, StockDataMapper)
 │   └── domain/
 │       ├── entity/             (MonthlyReport, QuarterlyReport)
 │       ├── kernel/             (CalculationResult, CalculationGuard, MetricType, ReportError, ...)
@@ -95,6 +96,11 @@ Current domain entities (`MonthlyReport`, `QuarterlyReport`) use `PanacheEntity`
 ### 6. API Response Logging
 Both adapters (YhFinance, AlphaVantage) persist raw JSON responses in dedicated log tables — useful for debugging and data replay.
 
+### 7. Async Manual Collection API
+Manual collection endpoints return `202 Accepted` with a job ID and status URL.
+Job lifecycle/status is exposed via `GET /api/collector/jobs/{jobId}`.
+Current implementation stores jobs in-memory (`ManualCollectionJobService`) and executes collectors on virtual threads.
+
 ---
 
 ## Database
@@ -145,6 +151,7 @@ Framework: JUnit 5 + AssertJ + REST Assured + ArchUnit + WireMock (integration t
 - **Adapter file source:** `FileTickerReaderAdapterTest`
 - **Adapter logging:** `YhFinanceResponseLogTest`, `AlphaVantageResponseLogTest`
 - **Adapter mapping:** `YhFinanceClientMapperTest`
+- **Adapter async API contract:** `CollectorAsyncContractTest`
 - **Integration:** `MonthlyReportCollectionIT` (+ WireMock helpers in `src/integrationTest/java/com/stock/screener/wiremock/`)
 - **Fixtures:** `FinancialDataSnapshotFixture`, `MarketDataSnapshotFixture`, `RawOverviewFixture`
 
@@ -207,6 +214,7 @@ Requires: Java 25, PostgreSQL (configured in `application.yaml` or via Quarkus D
 ## Known TODOs / Open Issues
 
 1. **Merge API calls** — how to combine YH Finance and Alpha Vantage data for MonthlyReport without wasting API requests (comment in `MonthlyReport.java`)
-2. **Rate limiting** — add robust rate limiting for YH Finance and Alpha Vantage (`TODO` in `YhFinanceApiClient.java`)
-3. **Scoring engine** — not yet implemented (described in `work_plan.md`)
-4. **Quarterly scheduling strategy** — improve trigger condition to use report freshness (`TODO` in `QuarterlyCollectorScheduler.java`)
+2. **Collector code review pass** — do a deeper collector review for async job lifecycle, error propagation, and memory strategy of in-memory job state.
+3. **Collector test coverage increase** — add stronger unit coverage for `ManualCollectionJobService` (state transitions, partial failures, edge paths) and integration parity for quarterly async flow.
+4. **Scoring engine** — not yet implemented (described in `work_plan.md`)
+5. **Quarterly scheduling strategy** — improve trigger condition to use report freshness (`TODO` in `QuarterlyCollectorScheduler.java`)

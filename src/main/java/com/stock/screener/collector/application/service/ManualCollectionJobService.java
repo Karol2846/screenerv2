@@ -26,6 +26,8 @@ class ManualCollectionJobService implements ManualCollectionJobUseCase {
     private final CollectQuarterlyDataUseCase collectQuarterlyDataUseCase;
     private final TickerReaderPort tickerReaderPort;
 
+    // TODO: Review collector job retention/cleanup strategy; in-memory job map can grow without TTL/eviction.
+    // TODO: Increase unit coverage for async state transitions and partial-failure handling in ALL_TICKERS jobs.
     private final ExecutorService jobExecutor = Executors.newVirtualThreadPerTaskExecutor();
     private final ConcurrentMap<UUID, JobExecutionState> jobs = new ConcurrentHashMap<>();
 
