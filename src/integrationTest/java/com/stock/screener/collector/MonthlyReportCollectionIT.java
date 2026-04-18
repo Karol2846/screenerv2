@@ -61,9 +61,9 @@ class MonthlyReportCollectionIT {
         void shouldPersistCorrectSector() {
             MonthlyReport report = MonthlyReport.find("ticker", TICKER).firstResult();
 
-            // Overview stub has "COMMUNICATION SERVICES" — not mapped to a known Sector → OTHER
+            // Overview stub has "COMMUNICATION SERVICES" -> mapped to COMMUNICATION_SERVICES
             assertThat(report).isNotNull();
-            assertThat(report.sector).isEqualTo(Sector.OTHER);
+            assertThat(report.sector).isEqualTo(Sector.COMMUNICATION_SERVICES);
         }
 
         @Test

@@ -4,6 +4,7 @@ quarkus:
   datasource:
     devservices:
       enabled: true
+      reuse: false
   hibernate-orm:
     schema-management:
       strategy: validate
