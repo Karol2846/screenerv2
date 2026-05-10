@@ -253,6 +253,76 @@ These matter now because they affect data quality:
 
 ---
 
+## Confirmed financial decisions (verified against AlphaVantage + Yahoo APIs, AAPL 2026-Q2)
+
+The following decisions have been agreed with the user and verified empirically. Implement accordingly:
+
+### Domain semantics
+
+| Topic                          | Decision                                                                                                                                                                                        | Verification                                                                                                                    |
+|--------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| **`QuarterlyReport` storage**  | One row per `(ticker, fiscalDateEnding)` — accumulate full historical series. Needed for moving averages, P/S 4Y median, growth 3Y.                                                             | Design intent — current code overwrites (bug).                                                                                  |
+| **revenueTTM source of truth** | Sum of last 4 quarterly `totalRevenue` from `INCOME_STATEMENT`. AV's `OVERVIEW.RevenueTTM` is rejected as a source.                                                                             | AAPL: AV scalar = $451,442,016,000; sum-of-4-quarters = $451,442,000,000 (Δ=$16k, pure rounding).                               |
+| **marketCap source**           | `AlphaVantage.OVERVIEW.MarketCapitalization` is live (matches Yahoo's `price.marketCap` to within $480 on $4.3T). Acceptable for the planned >$3B filter.                                       | AAPL: AV=$4,308,095,468,000; YH=$4,308,095,467,520.                                                                             |
+| **Total debt formula**         | Keep current code (`shortLongTermDebtTotal` then `shortTermDebt + longTermDebt`). **Do NOT add `currentLongTermDebt`** — AV duplicates it inside `shortTermDebt`, so adding would double-count. | AAPL: `shortTermDebt`=`currentLongTermDebt`=$10.307B; `shortLongTermDebtTotal`=`shortTermDebt + longTermDebt`=$84.711B exactly. |
+| **Forward growth unit**        | Yahoo returns `growth.raw` as **decimal** (e.g. 0.0959 = 9.59%). The existing `multiply(100)` in `ForwardPeg` is correct.                                                                       | AAPL `+1y` growth raw = 0.0959, fmt = "9.59%".                                                                                  |
+
+### Altman Z-Score sector mapping (per Altman's published guidance)
+
+Authoritative thresholds and applicability:
+- **Original Z (1968)**: public manufacturing companies. Distress < 1.81, safe > 2.99.
+- **Z'' (1995)**: non-manufacturing & emerging markets, drops T5 (asset turnover). Distress < 1.1, safe > 2.6.
+- Altman explicitly **does not recommend** Z for: financials/banks, REITs, insurers (their leverage is structural, not risk).
+
+Correct mapping for `AltmanScoreCalculator`:
+
+| Sector                                                                                   | Formula                             | Why                                                                            |
+|------------------------------------------------------------------------------------------|-------------------------------------|--------------------------------------------------------------------------------|
+| `INDUSTRIALS` (to be added), `MINING`, `CONSUMER_CYCLICAL`†                              | Original Z                          | Classic manufacturing-like balance sheets, asset turnover meaningful.          |
+| `TECHNOLOGY`, `HEALTHCARE`, `CONSUMER_DISCRETIONARY`, `COMMUNICATION_SERVICES`, `ENERGY` | Z''                                 | Non-manufacturing; T5 distorted by asset-light or commodity-driven structures. |
+| `FINANCE`, `REAL_ESTATE`, `UTILITIES`                                                    | **Skip** (`CalculationResult.skip`) | Altman explicitly excludes these; regulated/depository capital structure.      |
+| `OTHER`                                                                                  | Skip                                | Cannot pick a formula without sector certainty.                                |
+
+† `CONSUMER_CYCLICAL` and `CONSUMER_DISCRETIONARY` are duplicates representing the same S&P sector (Yahoo vs. AlphaVantage naming). Merge into `CONSUMER_DISCRETIONARY` and map both API strings to it in `Sector.fromString`.
+
+### Calculation refinements
+
+| Metric                                  | Refinement                                                                                                                                                                                                 | Reason                                                                                                                                                                                                                   |
+|-----------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **EBIT fallback**                       | 3-tier: `ebit` → **`operatingIncome`** → `netIncome + interestExpense + incomeTaxExpense`. Currently the middle tier is missing.                                                                           | `operatingIncome` is the cleanest EBIT — excludes non-operating items (investment gains, special items). Critical for companies with large investment portfolios.                                                        |
+| **RetainedEarnings fallback**           | Full identity: `Equity − CommonStock − APIC + TreasuryStock − AOCI`. Current code subtracts only CS+APIC, which silently mis-attributes treasury & AOCI.                                                   | For AAPL (treasury ~$100B+) the error is in the tens of billions, distorting Altman T2. Verify AV returns `treasuryStock` and `accumulatedOtherComprehensiveIncome`; if not — drop the fallback and emit `MISSING_DATA`. |
+| **Quick Ratio**                         | Subtract `prepaidExpenses` in addition to `inventory`: `(currentAssets − inventory − prepaidExpenses) / currentLiabilities`.                                                                               | Standard acid-test. Material for retail / SaaS with significant prepayments. Verify AV returns the field; otherwise keep current.                                                                                        |
+| **Interest Coverage Ratio**             | Negative EBIT → emit `OPERATING_LOSS` flag, value = null. Very low / null `interestExpense` (debt-free) → emit positive `NO_DEBT` flag, value = null; **scoring must treat NO_DEBT as a positive signal**. | Negative ICR computed numerically is misleading; debt-free is a strength, not "missing data".                                                                                                                            |
+| **`forwardEpsGrowth` period selection** | `YhFinanceClientMapper:22` uses `getLast()` on `earningsTrend.trend`. Currently works only because Yahoo returns 4 trends and the last is `+1y`. Fragile — replace with explicit filter `period == "+1y"`. | Yahoo can return additional periods (`+5y`, `-5y trailing`); `getLast()` would silently return wrong data.                                                                                                               |
+
+### Open questions (to revisit when scoring engine is built)
+
+- **PEG methodology**: our 1-year forward PEG vs. Yahoo's 5-year PEG diverge meaningfully (AAPL: ours = 3.20, Yahoo's = 2.57). The `work_plan.md` threshold "PEG < 1.5 = +10 pts" likely assumes 5-year. Decide which to use during scoring engine design.
+- **AnalystRatings + numberOfAnalysts**: 1 analyst's bullish target ≠ 30 analysts' consensus. `MarketDataSnapshot` does not capture analyst count; consider adding before scoring.
+
+---
+
+## Confirmed bugs to fix (priority order)
+
+These are all in the collection layer and must be fixed before relying on the database for analysis:
+
+1. **`QuarterlyDataCollectorService` overwrites instead of appending history.** Find by `(ticker, fiscalDateEnding)`; insert if absent, update if present. Add `UNIQUE(ticker, fiscal_date_ending)` constraint via Flyway V9.
+2. **`Skipped` polluting `calculationErrors`** (`QuarterlyReport:151-154`). `recalculateAltmanZScore.onSkipped` adds to `calculationErrors`, then `updateIntegrityStatus` checks `calculationErrors.isEmpty()` → tech companies with legitimate Altman skip are flagged `MISSING_DATA`. Skipped is a valid state, not an error.
+3. **`AlphaVantageGateway` missing response validation** (vs. `YhFinanceGateway` which validates and throws `ClientException`). AV silently maps rate-limit responses (`{"Note": "..."}`) to all-null fields; collection "succeeds" with empty data.
+4. **Altman sector mapping wrong** — see table above.
+5. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
+6. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
+7. **Quick Ratio missing `prepaidExpenses`** — see table above.
+8. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
+9. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
+10. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
+11. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
+12. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
+13. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
+14. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
+
+---
+
 ## Key configuration files
 
 | File                                              | Purpose                                                                           |
@@ -268,11 +338,12 @@ These matter now because they affect data quality:
 
 ---
 
-## Known TODOs (current phase — collection layer)
+## Open infrastructure TODOs (not yet decided)
 
-1. **Rate limiting** — `TODO` in `YhFinanceApiClient`; also needed for Alpha Vantage.
-2. **Quarterly scheduler freshness** — `TODO` in `QuarterlyCollectorScheduler`: should query stocks where `updatedAt < 3 months` instead of iterating all tickers.
-3. **Monthly API merge** — comment in `MonthlyReport` about combining YH + AV calls without wasting quota.
-4. **TTL-based collection cache** — collectors always hit APIs; the `work_plan.md` freshness rules (90d / 1d / 30d) are not yet implemented.
+These are operational concerns separate from the bugs list above:
 
-*(Scoring engine, sector/marketCap filtering, and `ScoreBreakdown` are future-phase work — tracked in `work_plan.md`.)*
+1. **Quarterly scheduler freshness** — `TODO` in `QuarterlyCollectorScheduler`: query stocks where the latest `QuarterlyReport.fiscalDateEnding < 3 months ago`, instead of iterating every ticker every quarter.
+2. **Monthly API merge** — comment in `MonthlyReport` about combining YH + AV calls without wasting API quota across monthly + quarterly windows.
+3. **TTL-based collection cache** — `work_plan.md` freshness rules (fundamentals 90d / pricing 1d / analyst 30d) are not implemented; collectors always hit APIs.
+
+*(Scoring engine, sector/marketCap pre-filter, and `ScoreBreakdown` are future-phase work — tracked in `work_plan.md`.)*
