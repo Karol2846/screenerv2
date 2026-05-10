@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 @QuarkusTest
 @TestProfile(IntegrationTestProfile.class)
+@TestTransaction
 @DisplayName("Quarterly Report Collection — History Accumulation")
 class QuarterlyReportHistoryIT {
 
@@ -43,7 +44,6 @@ class QuarterlyReportHistoryIT {
     class MultipleFiscalQuarters {
 
         @Test
-        @TestTransaction
         @DisplayName("Two collections with different fiscalDateEnding create two separate rows")
         void shouldCreateSeparateRowPerFiscalQuarter() {
             // Given: AV returns Q4 2025 data on first call
@@ -76,7 +76,6 @@ class QuarterlyReportHistoryIT {
     class SameFiscalQuarter {
 
         @Test
-        @TestTransaction
         @DisplayName("Two collections with the same fiscalDateEnding upsert the existing row")
         void shouldUpsertWhenSameFiscalQuarter() {
             // Given: AV returns the same fiscal date on both calls
