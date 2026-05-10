@@ -363,7 +363,7 @@ class QuarterlyReportTest {
     class SectorSpecificBehavior {
 
         @Test
-        @DisplayName("FINANCE sector skips AltmanZScore calculation with NOT_APPLICABLE error")
+        @DisplayName("FINANCE sector skips AltmanZScore without adding a calculation error")
         void testFinanceSectorSkipsAltmanZScore() {
             // Given: Valid snapshot but FINANCE sector
             var snapshot = aFinancialDataSnapshot().build();
@@ -371,24 +371,20 @@ class QuarterlyReportTest {
             // When: Updating metrics for FINANCE sector
             quarterlyReport.updateMetrics(snapshot, Sector.FINANCE);
 
-            // Then: AltmanZScore should be null (skipped)
+            // Then: AltmanZScore should be null (legitimately skipped)
             assertThat(quarterlyReport.altmanZScore).isNull();
 
-            // And: Error should be tracked as NOT_APPLICABLE (skipped)
+            // And: No error should be recorded for ALTMAN_Z_SCORE — skipped is not a failure
             assertThat(quarterlyReport.calculationErrors)
-                    .anyMatch(error ->
-                            error.metric() == MetricType.ALTMAN_Z_SCORE &&
-                                    error.errorType() == CalculationErrorType.NOT_APPLICABLE &&
-                                    error.reason().contains("not applicable")
-                    );
+                    .noneMatch(error -> error.metric() == MetricType.ALTMAN_Z_SCORE);
 
-            // But: Other metrics should still be computed
+            // And: Other metrics should still be computed
             assertThat(quarterlyReport.quickRatio).isNotNull();
             assertThat(quarterlyReport.interestCoverageRatio).isNotNull();
         }
 
         @Test
-        @DisplayName("OTHER sector skips AltmanZScore calculation")
+        @DisplayName("OTHER sector skips AltmanZScore without adding a calculation error")
         void testOtherSectorSkipsAltmanZScore() {
             // Given: Valid snapshot but OTHER sector
             var snapshot = aFinancialDataSnapshot().build();
@@ -396,15 +392,12 @@ class QuarterlyReportTest {
             // When: Updating metrics for OTHER sector
             quarterlyReport.updateMetrics(snapshot, Sector.OTHER);
 
-            // Then: AltmanZScore should be null (skipped)
+            // Then: AltmanZScore should be null (legitimately skipped)
             assertThat(quarterlyReport.altmanZScore).isNull();
 
-            // And: Skipped error should be tracked
+            // And: No error should be recorded — skipped is not a failure
             assertThat(quarterlyReport.calculationErrors)
-                    .anyMatch(error ->
-                            error.metric() == MetricType.ALTMAN_Z_SCORE &&
-                                    error.errorType() == CalculationErrorType.NOT_APPLICABLE
-                    );
+                    .noneMatch(error -> error.metric() == MetricType.ALTMAN_Z_SCORE);
         }
 
         @Test
@@ -487,7 +480,7 @@ class QuarterlyReportTest {
         }
 
         @Test
-        @DisplayName("Skipped AltmanZScore (FINANCE sector) with valid other metrics results in MISSING_DATA")
+        @DisplayName("Skipped AltmanZScore (FINANCE sector) with valid other metrics reaches READY_FOR_ANALYSIS")
         void testSkippedAltmanWithValidOtherMetrics() {
             // Given: Valid snapshot but FINANCE sector (AltmanZScore will be skipped)
             var snapshot = aFinancialDataSnapshot().build();
@@ -499,10 +492,37 @@ class QuarterlyReportTest {
             assertThat(quarterlyReport.quickRatio).isNotNull();
             assertThat(quarterlyReport.interestCoverageRatio).isNotNull();
 
-            // But: AltmanZScore is skipped (counts as error)
+            // And: AltmanZScore is null but that's expected for this sector
             assertThat(quarterlyReport.altmanZScore).isNull();
 
-            // And: Status should be MISSING_DATA (because there are errors)
+            // And: calculationErrors must be empty — skip is not an error
+            assertThat(quarterlyReport.calculationErrors).isEmpty();
+
+            // And: Status must be READY_FOR_ANALYSIS — skip is a valid complete state
+            assertThat(quarterlyReport.integrityStatus)
+                    .isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
+        }
+
+        @Test
+        @DisplayName("Skip-eligible sector with a real metric failure still produces MISSING_DATA")
+        void testSkippedAltmanWithRealFailureProducesMissingData() {
+            // Given: FINANCE sector (Altman skipped) but QuickRatio will also fail
+            var snapshot = aFinancialDataSnapshot()
+                    .withNullTotalCurrentAssets()
+                    .build();
+
+            // When: Updating metrics
+            quarterlyReport.updateMetrics(snapshot, Sector.FINANCE);
+
+            // Then: QuickRatio failed → there is a real error
+            assertThat(quarterlyReport.calculationErrors)
+                    .anyMatch(error -> error.metric() == MetricType.QUICK_RATIO);
+
+            // And: No ALTMAN_Z_SCORE error (skip is not an error)
+            assertThat(quarterlyReport.calculationErrors)
+                    .noneMatch(error -> error.metric() == MetricType.ALTMAN_Z_SCORE);
+
+            // And: Status is MISSING_DATA because of the real QuickRatio failure
             assertThat(quarterlyReport.integrityStatus)
                     .isEqualTo(ReportIntegrityStatus.MISSING_DATA);
         }

@@ -135,10 +135,9 @@ class AltmanScoreCalculatorTest {
             // Then: Should skip with NOT_APPLICABLE
             assertThat(result).isInstanceOf(CalculationResult.Skipped.class);
 
-            result.onSkipped(skipped -> {
-                assertThat(skipped.type()).isEqualTo(CalculationErrorType.NOT_APPLICABLE);
-                assertThat(skipped.reason()).contains("not applicable");
-            });
+            result.onSkipped(skipped ->
+                assertThat(skipped.reason()).contains("not applicable")
+            );
         }
     }
 

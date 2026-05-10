@@ -23,7 +23,6 @@ import java.util.Set;
 
 import static com.stock.screener.collector.domain.kernel.MetricType.*;
 import static com.stock.screener.collector.domain.kernel.ReportError.fromFailure;
-import static com.stock.screener.collector.domain.kernel.ReportError.fromSkipped;
 
 @Entity
 @Table(name = "quarterly_report")
@@ -78,6 +77,7 @@ public class QuarterlyReport extends PanacheEntity {
     public LocalDateTime updatedAt;
 
     public void updateMetrics(FinancialDataSnapshot snapshot, Sector sector) {
+        this.sector = sector;
         this.calculationErrors.clear();
 
         FinancialDataSnapshot enrichedSnapshot = enrichWithEntityData(snapshot);
@@ -148,10 +148,7 @@ public class QuarterlyReport extends PanacheEntity {
                     this.altmanZScore = null;
                     this.calculationErrors.add(fromFailure(ALTMAN_Z_SCORE, failure));
                 })
-                .onSkipped(skipped -> {
-                    this.altmanZScore = null;
-                    this.calculationErrors.add(fromSkipped(ALTMAN_Z_SCORE, skipped));
-                });
+                .onSkipped(skipped -> this.altmanZScore = null);
     }
 
     private void updateIntegrityStatus() {
@@ -167,8 +164,9 @@ public class QuarterlyReport extends PanacheEntity {
     }
 
     private boolean isComplete() {
+        boolean altmanOk = altmanZScore != null || !AltmanScoreCalculator.isApplicable(this.sector);
         return quickRatio != null
                 && interestCoverageRatio != null
-                && altmanZScore != null;
+                && altmanOk;
     }
 }

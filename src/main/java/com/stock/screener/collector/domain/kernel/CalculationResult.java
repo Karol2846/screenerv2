@@ -18,8 +18,7 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
         }
 
         @Override
-        public CalculationResult<T> onSkipped(Consumer<Skipped<T>> action) {
-            return this;
+        public void onSkipped(Consumer<Skipped<T>> action) {
         }
     }
 
@@ -37,12 +36,11 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
         }
 
         @Override
-        public CalculationResult<T> onSkipped(Consumer<Skipped<T>> action) {
-            return this;
+        public void onSkipped(Consumer<Skipped<T>> action) {
         }
     }
 
-    record Skipped<T>(String reason, CalculationErrorType type) implements CalculationResult<T> {
+    record Skipped<T>(String reason) implements CalculationResult<T> {
 
         @Override
         public CalculationResult<T> onSuccess(Consumer<T> action) {
@@ -55,9 +53,8 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
         }
 
         @Override
-        public CalculationResult<T> onSkipped(Consumer<Skipped<T>> action) {
+        public void onSkipped(Consumer<Skipped<T>> action) {
             action.accept(this);
-            return this;
         }
     }
 
@@ -86,13 +83,13 @@ public sealed interface CalculationResult<T> permits CalculationResult.Success, 
     }
 
     static <T> CalculationResult<T> skip(String reason) {
-        return new Skipped<>(reason, CalculationErrorType.NOT_APPLICABLE);
+        return new Skipped<>(reason);
     }
 
     CalculationResult<T> onSuccess(Consumer<T> action);
 
     CalculationResult<T> onFailure(Consumer<Failure<T>> action);
 
-    CalculationResult<T> onSkipped(Consumer<Skipped<T>> action);
+    void onSkipped(Consumer<Skipped<T>> action);
 }
 

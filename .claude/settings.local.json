@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "PowerShell(Get-Content *)",
-      "Bash(./gradlew *)"
+      "Bash(./gradlew *)",
+      "Bash(xargs grep -l \"QuarterlyReport\")"
     ]
   }
 }

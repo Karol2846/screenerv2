@@ -17,14 +17,5 @@ public record ReportError(
                 LocalDateTime.now()
         );
     }
-
-    public static ReportError fromSkipped(MetricType metric, CalculationResult.Skipped<?> skipped) {
-        return new ReportError(
-                metric,
-                skipped.reason(),
-                skipped.type(),
-                LocalDateTime.now()
-        );
-    }
 }
 

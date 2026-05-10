@@ -234,12 +234,12 @@ Persona: **senior Java + DDD architect** — critical, no "yes-man", concrete an
 
 ### Future work (not to be touched now)
 
-| Item | `work_plan.md` target | Status |
-|---|---|---|
-| Scoring engine | 4 categories, 0–100 pts | Future — `StockAnalysisService` is a placeholder |
-| Sector pre-filter | Reject Financials, Real Estate, Energy, Utilities, Basic Materials | Future |
-| MarketCap filter | Reject < $3B USD | Future |
-| `ScoreBreakdown` on `AnalysisReport` | Required field | Future |
+| Item                                 | `work_plan.md` target                                              | Status                                           |
+|--------------------------------------|--------------------------------------------------------------------|--------------------------------------------------|
+| Scoring engine                       | 4 categories, 0–100 pts                                            | Future — `StockAnalysisService` is a placeholder |
+| Sector pre-filter                    | Reject Financials, Real Estate, Energy, Utilities, Basic Materials | Future                                           |
+| MarketCap filter                     | Reject < $3B USD                                                   | Future                                           |
+| `ScoreBreakdown` on `AnalysisReport` | Required field                                                     | Future                                           |
 
 ### Collection layer — known gaps vs. `work_plan.md`
 
@@ -307,19 +307,18 @@ Correct mapping for `AltmanScoreCalculator`:
 
 These are all in the collection layer and must be fixed before relying on the database for analysis:
 
-1. **`Skipped` polluting `calculationErrors`** (`QuarterlyReport:151-154`). `recalculateAltmanZScore.onSkipped` adds to `calculationErrors`, then `updateIntegrityStatus` checks `calculationErrors.isEmpty()` → tech companies with legitimate Altman skip are flagged `MISSING_DATA`. Skipped is a valid state, not an error.
-2. **`AlphaVantageGateway` missing response validation** (vs. `YhFinanceGateway` which validates and throws `ClientException`). AV silently maps rate-limit responses (`{"Note": "..."}`) to all-null fields; collection "succeeds" with empty data.
-3. **Altman sector mapping wrong** — see table above.
-4. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
-5. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
-6. **Quick Ratio missing `prepaidExpenses`** — see table above.
-7. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
-8. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
-9. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
-10. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
-11. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
-12. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
-13. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
+1. **`AlphaVantageGateway` missing response validation** (vs. `YhFinanceGateway` which validates and throws `ClientException`). AV silently maps rate-limit responses (`{"Note": "..."}`) to all-null fields; collection "succeeds" with empty data.
+2. **Altman sector mapping wrong** — see table above.
+3. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
+4. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
+5. **Quick Ratio missing `prepaidExpenses`** — see table above.
+6. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
+7. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
+8. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
+9. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
+10. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
+11. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
+12. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
 
 ---
 

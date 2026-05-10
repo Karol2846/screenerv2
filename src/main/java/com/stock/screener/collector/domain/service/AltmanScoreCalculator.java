@@ -38,18 +38,22 @@ public class AltmanScoreCalculator {
     private static final BigDecimal NON_MFG_COEF_C = new BigDecimal("6.72");
     private static final BigDecimal NON_MFG_COEF_D = new BigDecimal("1.05");
 
-    /**
-     * Calculates Altman Z-Score for the given financial snapshot and sector.
-     *
-     * @param snapshot financial data required for calculation
-     * @param sector   company sector determining which formula to use
-     * @return calculation result containing the Z-Score value or error information
-     */
+    public static boolean isApplicable(Sector sector) {
+        return switch (sector) {
+            case ENERGY, MINING, UTILITIES,
+                 TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE -> true;
+            default -> false;
+        };
+    }
+
     public static CalculationResult<AltmanZScore> calculate(FinancialDataSnapshot snapshot, Sector sector) {
+        if (!isApplicable(sector)) {
+            return CalculationResult.skip("Altman Z-Score not applicable for %s sector".formatted(sector));
+        }
         return switch (sector) {
             case ENERGY, MINING, UTILITIES -> calculateManufacturing(snapshot);
             case TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE -> calculateNonManufacturing(snapshot);
-            default -> CalculationResult.skip("Altman Z-Score not applicable for %s sector".formatted(sector));
+            default -> throw new IllegalStateException("isApplicable/calculate out of sync for sector: " + sector);
         };
     }
 
