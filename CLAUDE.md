@@ -138,6 +138,7 @@ PostgreSQL + Flyway. Hibernate is set to `validate` — Flyway owns the schema, 
 | V6        | `yh_finance_response_log` table                                            |
 | V7        | Drop `stock` table (sector moved into reports)                             |
 | V8        | `revenue_ttm` column on `quarterly_report`                                 |
+| V9        | `UNIQUE(ticker, fiscal_date_ending)` on `quarterly_report`                 |
 
 Dev/test relies on **Quarkus Dev Services** (auto-started Docker Postgres). No datasource URL is configured in `application.yaml` — do not add one for dev; let Dev Services handle it.
 
@@ -261,7 +262,7 @@ The following decisions have been agreed with the user and verified empirically.
 
 | Topic                          | Decision                                                                                                                                                                                        | Verification                                                                                                                    |
 |--------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
-| **`QuarterlyReport` storage**  | One row per `(ticker, fiscalDateEnding)` — accumulate full historical series. Needed for moving averages, P/S 4Y median, growth 3Y.                                                             | Design intent — current code overwrites (bug).                                                                                  |
+| **`QuarterlyReport` storage**  | One row per `(ticker, fiscalDateEnding)` — accumulate full historical series. Needed for moving averages, P/S 4Y median, growth 3Y.                                                             | Fixed — upsert by `(ticker, fiscalDateEnding)` in `QuarterlyDataCollectorService`; `UNIQUE` constraint added in V9.             |
 | **revenueTTM source of truth** | Sum of last 4 quarterly `totalRevenue` from `INCOME_STATEMENT`. AV's `OVERVIEW.RevenueTTM` is rejected as a source.                                                                             | AAPL: AV scalar = $451,442,016,000; sum-of-4-quarters = $451,442,000,000 (Δ=$16k, pure rounding).                               |
 | **marketCap source**           | `AlphaVantage.OVERVIEW.MarketCapitalization` is live (matches Yahoo's `price.marketCap` to within $480 on $4.3T). Acceptable for the planned >$3B filter.                                       | AAPL: AV=$4,308,095,468,000; YH=$4,308,095,467,520.                                                                             |
 | **Total debt formula**         | Keep current code (`shortLongTermDebtTotal` then `shortTermDebt + longTermDebt`). **Do NOT add `currentLongTermDebt`** — AV duplicates it inside `shortTermDebt`, so adding would double-count. | AAPL: `shortTermDebt`=`currentLongTermDebt`=$10.307B; `shortLongTermDebtTotal`=`shortTermDebt + longTermDebt`=$84.711B exactly. |
@@ -306,20 +307,19 @@ Correct mapping for `AltmanScoreCalculator`:
 
 These are all in the collection layer and must be fixed before relying on the database for analysis:
 
-1. **`QuarterlyDataCollectorService` overwrites instead of appending history.** Find by `(ticker, fiscalDateEnding)`; insert if absent, update if present. Add `UNIQUE(ticker, fiscal_date_ending)` constraint via Flyway V9.
-2. **`Skipped` polluting `calculationErrors`** (`QuarterlyReport:151-154`). `recalculateAltmanZScore.onSkipped` adds to `calculationErrors`, then `updateIntegrityStatus` checks `calculationErrors.isEmpty()` → tech companies with legitimate Altman skip are flagged `MISSING_DATA`. Skipped is a valid state, not an error.
-3. **`AlphaVantageGateway` missing response validation** (vs. `YhFinanceGateway` which validates and throws `ClientException`). AV silently maps rate-limit responses (`{"Note": "..."}`) to all-null fields; collection "succeeds" with empty data.
-4. **Altman sector mapping wrong** — see table above.
-5. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
-6. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
-7. **Quick Ratio missing `prepaidExpenses`** — see table above.
-8. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
-9. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
-10. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
-11. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
-12. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
-13. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
-14. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
+1. **`Skipped` polluting `calculationErrors`** (`QuarterlyReport:151-154`). `recalculateAltmanZScore.onSkipped` adds to `calculationErrors`, then `updateIntegrityStatus` checks `calculationErrors.isEmpty()` → tech companies with legitimate Altman skip are flagged `MISSING_DATA`. Skipped is a valid state, not an error.
+2. **`AlphaVantageGateway` missing response validation** (vs. `YhFinanceGateway` which validates and throws `ClientException`). AV silently maps rate-limit responses (`{"Note": "..."}`) to all-null fields; collection "succeeds" with empty data.
+3. **Altman sector mapping wrong** — see table above.
+4. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
+5. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
+6. **Quick Ratio missing `prepaidExpenses`** — see table above.
+7. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
+8. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
+9. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
+10. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
+11. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
+12. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
+13. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
 
 ---
 

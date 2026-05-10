@@ -33,12 +33,15 @@ class QuarterlyDataCollectorService implements CollectQuarterlyDataUseCase {
         var financialSnapshot = stockDataMapper.toFinancialDataSnapshot(rawBalance, rawIncome, rawCash);
 
         Sector sector = resolveSector(ticker);
+        LocalDate fiscalDate = resolveFiscalDate(rawBalance);
 
-        QuarterlyReport qReport = QuarterlyReport.find("ticker", ticker).firstResult();
+        QuarterlyReport qReport = QuarterlyReport
+                .find("ticker = ?1 and fiscalDateEnding = ?2", ticker, fiscalDate)
+                .firstResult();
         if (qReport == null) {
             qReport = new QuarterlyReport();
             qReport.ticker = ticker;
-            qReport.fiscalDateEnding = resolveFiscalDate(rawBalance);
+            qReport.fiscalDateEnding = fiscalDate;
         }
 
         qReport.sector = sector;
