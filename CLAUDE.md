@@ -275,16 +275,18 @@ Authoritative thresholds and applicability:
 - **Z'' (1995)**: non-manufacturing & emerging markets, drops T5 (asset turnover). Distress < 1.1, safe > 2.6.
 - Altman explicitly **does not recommend** Z for: financials/banks, REITs, insurers (their leverage is structural, not risk).
 
-Correct mapping for `AltmanScoreCalculator`:
+Implemented mapping in `AltmanScoreCalculator` (verified 2026-06-01 against live APIs):
 
-| Sector                                                                                   | Formula                             | Why                                                                            |
-|------------------------------------------------------------------------------------------|-------------------------------------|--------------------------------------------------------------------------------|
-| `INDUSTRIALS` (to be added), `MINING`, `CONSUMER_CYCLICAL`†                              | Original Z                          | Classic manufacturing-like balance sheets, asset turnover meaningful.          |
-| `TECHNOLOGY`, `HEALTHCARE`, `CONSUMER_DISCRETIONARY`, `COMMUNICATION_SERVICES`, `ENERGY` | Z''                                 | Non-manufacturing; T5 distorted by asset-light or commodity-driven structures. |
-| `FINANCE`, `REAL_ESTATE`, `UTILITIES`                                                    | **Skip** (`CalculationResult.skip`) | Altman explicitly excludes these; regulated/depository capital structure.      |
-| `OTHER`                                                                                  | Skip                                | Cannot pick a formula without sector certainty.                                |
+| Sector                                                                               | Formula                             | Why                                                                            |
+|--------------------------------------------------------------------------------------|-------------------------------------|--------------------------------------------------------------------------------|
+| `INDUSTRIALS`, `MINING`, `CONSUMER_DISCRETIONARY`                                    | Original Z                          | Manufacturing-like balance sheets; asset turnover (T5) meaningful.             |
+| `TECHNOLOGY`, `HEALTHCARE`, `ENERGY`, `COMMUNICATION_SERVICES`, `CONSUMER_DEFENSIVE` | Z''                                 | Non-manufacturing / asset-light; T5 distorted or not meaningful.               |
+| `FINANCE`, `REAL_ESTATE`, `UTILITIES`                                                | **Skip** (`CalculationResult.skip`) | Altman explicitly excludes these; regulated/depository capital structure.      |
+| `OTHER`                                                                              | Skip                                | Cannot pick a formula without sector certainty.                                |
 
-† `CONSUMER_CYCLICAL` and `CONSUMER_DISCRETIONARY` are duplicates representing the same S&P sector (Yahoo vs. AlphaVantage naming). Merge into `CONSUMER_DISCRETIONARY` and map both API strings to it in `Sector.fromString`.
+**Sector taxonomy:** both AlphaVantage (ALL CAPS) and Yahoo Finance (Title Case) use Morningstar taxonomy.
+`Sector.fromString` maps via case-insensitive aliases — e.g. `FINANCIAL SERVICES`→`FINANCE`, `BASIC MATERIALS`→`MINING`,
+`CONSUMER CYCLICAL`→`CONSUMER_DISCRETIONARY`. See `docs/api-samples/README.md` for full mapping and raw API responses.
 
 ### Calculation refinements
 
@@ -307,12 +309,12 @@ Correct mapping for `AltmanScoreCalculator`:
 
 These are all in the collection layer and must be fixed before relying on the database for analysis:
 
-1. **Altman sector mapping wrong** — see table above.
+1. ~~**Altman sector mapping wrong**~~ — **FIXED** (`AltmanScoreCalculator` + `Sector` enum, commit 57a44fd).
 2. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
 3. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
 4. **Quick Ratio missing `prepaidExpenses`** — see table above.
 5. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
-6. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
+6. ~~**`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`**~~ — **FIXED** (commit 57a44fd).
 7. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
 8. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
 9. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
