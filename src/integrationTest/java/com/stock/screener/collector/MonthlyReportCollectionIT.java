@@ -197,6 +197,7 @@ class MonthlyReportCollectionIT {
         private static final String AV_ERROR_TICKER = "AVFAIL";
         private static final String YH_ERROR_TICKER = "YHFAIL";
         private static final String BOTH_ERROR_TICKER = "BOTHFAIL";
+        private static final String AV_RATE_LIMIT_TICKER = "AVLIMIT";
 
         @BeforeAll
         static void stubErrors() {
@@ -208,6 +209,10 @@ class MonthlyReportCollectionIT {
 
             AlphaVantageWireMock.stubOverviewError(BOTH_ERROR_TICKER, 500);
             YhFinanceWireMock.stubQuoteSummaryError(BOTH_ERROR_TICKER, 500);
+
+            // Rate-limit: AV returns HTTP 200 with {"Information": "..."} — must NOT be treated as success
+            AlphaVantageWireMock.stubOverviewRateLimit(AV_RATE_LIMIT_TICKER);
+            YhFinanceWireMock.stubQuoteSummary(AV_RATE_LIMIT_TICKER);
         }
 
         @Test
@@ -274,6 +279,33 @@ class MonthlyReportCollectionIT {
                     .then();
 
             assertThat(MonthlyReport.count("ticker", BOTH_ERROR_TICKER)).isZero();
+        }
+
+        @Test
+        @DisplayName("Returns 500 when AlphaVantage rate-limits with HTTP 200 + Information body")
+        void shouldReturn500WhenAlphaVantageReturnsRateLimitBody() {
+            // Given: AV responds with HTTP 200 but body is {"Information": "...rate limit..."}
+            // When
+            String body = given()
+                    .post("/api/collector/monthly/{ticker}", AV_RATE_LIMIT_TICKER)
+                    .then()
+                    .statusCode(500)
+                    .extract().body().asString();
+
+            // Then: error is surfaced, not silently accepted
+            assertThat(body).isNotBlank();
+        }
+
+        @Test
+        @DisplayName("No report persisted when AlphaVantage rate-limits with HTTP 200 + Information body")
+        void shouldNotPersistReportWhenAlphaVantageReturnsRateLimitBody() {
+            // Given: AV returns rate-limit 200 response (should be treated as error, not as success)
+            given()
+                    .post("/api/collector/monthly/{ticker}", AV_RATE_LIMIT_TICKER)
+                    .then();
+
+            // Then: no report stored (would have been stored with all-null values before the fix)
+            assertThat(MonthlyReport.count("ticker", AV_RATE_LIMIT_TICKER)).isZero();
         }
     }
 }

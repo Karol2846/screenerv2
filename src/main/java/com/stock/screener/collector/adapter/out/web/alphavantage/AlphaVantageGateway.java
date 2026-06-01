@@ -41,6 +41,7 @@ class AlphaVantageGateway implements AlphaVantageClient {
     @Transactional
     public RawOverview fetchOverview(String ticker) {
         OverviewResponse response = client.getOverview(OVERVIEW, ticker);
+        AlphaVantageResponseValidator.validateOverview(ticker, response);
         persistLog(ticker, OVERVIEW, response);
         return AlphaVantageResponseMapper.toRawOverview(response);
     }
@@ -48,6 +49,7 @@ class AlphaVantageGateway implements AlphaVantageClient {
     @Transactional
     public RawBalanceSheet fetchBalanceSheet(String ticker) {
         BalanceSheetResponse response = client.getBalanceSheet(BALANCE_SHEET, ticker);
+        AlphaVantageResponseValidator.validateReports(ticker, BALANCE_SHEET, response);
         persistLog(ticker, BALANCE_SHEET, response);
         return AlphaVantageResponseMapper.toRawBalanceSheet(response);
     }
@@ -55,6 +57,7 @@ class AlphaVantageGateway implements AlphaVantageClient {
     @Transactional
     public RawIncomeStatement fetchIncomeStatement(String ticker) {
         IncomeStatementResponse response = client.getIncomeStatement(INCOME_STATEMENT, ticker);
+        AlphaVantageResponseValidator.validateReports(ticker, INCOME_STATEMENT, response);
         persistLog(ticker, INCOME_STATEMENT, response);
         return AlphaVantageResponseMapper.toRawIncomeStatement(response);
     }
@@ -62,6 +65,7 @@ class AlphaVantageGateway implements AlphaVantageClient {
     @Transactional
     public RawCashFlow fetchCashFlow(String ticker) {
         CashFlowResponse response = client.getCashFlow(CASH_FLOW, ticker);
+        AlphaVantageResponseValidator.validateReports(ticker, CASH_FLOW, response);
         persistLog(ticker, CASH_FLOW, response);
         return AlphaVantageResponseMapper.toRawCashFlow(response);
     }

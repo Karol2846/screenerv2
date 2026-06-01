@@ -61,6 +61,21 @@ public final class AlphaVantageWireMock {
         registerErrorStub(symbol, FUNCTION_CASH_FLOW, status);
     }
 
+    /**
+     * Stubs an Alpha Vantage rate-limit response: HTTP 200 with an "Information" body.
+     * This is how AV signals a daily quota exhaustion — not via HTTP 4xx but via a 200 JSON payload.
+     */
+    public static void stubOverviewRateLimit(String symbol) {
+        registerRateLimitStub(symbol, FUNCTION_OVERVIEW);
+    }
+
+    public static void stubAllRateLimits(String symbol) {
+        registerRateLimitStub(symbol, FUNCTION_OVERVIEW);
+        registerRateLimitStub(symbol, FUNCTION_BALANCE_SHEET);
+        registerRateLimitStub(symbol, FUNCTION_INCOME_STATEMENT);
+        registerRateLimitStub(symbol, FUNCTION_CASH_FLOW);
+    }
+
     private static void registerErrorStub(String symbol, String function, int status) {
         WireMockServer server = WireMockServerConfig.getServer();
 
@@ -74,6 +89,21 @@ public final class AlphaVantageWireMock {
                                         .withStatus(status)
                                         .withHeader("Content-Type", "application/json")
                                         .withBody("{\"error\":\"API error\"}")));
+    }
+
+    private static void registerRateLimitStub(String symbol, String function) {
+        WireMockServer server = WireMockServerConfig.getServer();
+
+        server.stubFor(
+                get(urlPathEqualTo(API_PATH))
+                        .withQueryParam(PARAM_FUNCTION, equalTo(function))
+                        .withQueryParam(PARAM_SYMBOL, equalTo(symbol))
+                        .withHeader(HEADER_API_KEY, matching(".+"))
+                        .willReturn(
+                                aResponse()
+                                        .withStatus(200)
+                                        .withHeader("Content-Type", "application/json")
+                                        .withBody("{\"Information\": \"Thank you for using Alpha Vantage! Our standard API call frequency is 25 requests per day. Please subscribe to a premium plan.\"}")));
     }
 
     private static void registerStub(String symbol, String function, String stubFile) {

@@ -43,6 +43,48 @@ class AlphaVantageDtoDeserializationTest {
 
             assertThat(response.symbol()).isEqualTo("AAPL");
         }
+
+        @Test
+        @DisplayName("Rate-limit response with 'Information' field deserializes with that field set and all data fields null")
+        void testDeserializesInformationRateLimitResponse() {
+            // Given / When
+            OverviewResponse response = JsonFixtureLoader.load("overview-rate-limit-information.json", OverviewResponse.class);
+
+            // Then
+            assertThat(response.information()).isNotBlank();
+            assertThat(response.information()).contains("25 requests per day");
+            assertThat(response.note()).isNull();
+            assertThat(response.errorMessage()).isNull();
+            assertThat(response.symbol()).isNull();
+        }
+
+        @Test
+        @DisplayName("Rate-limit response with 'Note' field deserializes with that field set and all data fields null")
+        void testDeserializesNoteRateLimitResponse() {
+            // Given / When
+            OverviewResponse response = JsonFixtureLoader.load("overview-rate-limit-note.json", OverviewResponse.class);
+
+            // Then
+            assertThat(response.note()).isNotBlank();
+            assertThat(response.note()).contains("5 calls per minute");
+            assertThat(response.information()).isNull();
+            assertThat(response.errorMessage()).isNull();
+            assertThat(response.symbol()).isNull();
+        }
+
+        @Test
+        @DisplayName("Invalid call response with 'Error Message' field deserializes with that field set and all data fields null")
+        void testDeserializesErrorMessageResponse() {
+            // Given / When
+            OverviewResponse response = JsonFixtureLoader.load("overview-error-message.json", OverviewResponse.class);
+
+            // Then
+            assertThat(response.errorMessage()).isNotBlank();
+            assertThat(response.errorMessage()).contains("Invalid API call");
+            assertThat(response.information()).isNull();
+            assertThat(response.note()).isNull();
+            assertThat(response.symbol()).isNull();
+        }
     }
 
     @Nested

@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record OverviewResponse(
         @JsonProperty("Symbol") String symbol,
+        @JsonProperty("Note") String note,
+        @JsonProperty("Information") String information,
+        @JsonProperty("Error Message") String errorMessage,
         @JsonProperty("AssetType") String assetType,
         @JsonProperty("Name") String name,
         @JsonProperty("Exchange") String exchange,
@@ -51,4 +54,4 @@ public record OverviewResponse(
         @JsonProperty("200DayMovingAverage") BigDecimal movingAverage200Day,
         @JsonProperty("SharesOutstanding") BigDecimal sharesOutstanding,
         @JsonProperty("FiscalYearEnd") String fiscalYearEnd
-) {}
+) implements AlphaVantageResponse {}

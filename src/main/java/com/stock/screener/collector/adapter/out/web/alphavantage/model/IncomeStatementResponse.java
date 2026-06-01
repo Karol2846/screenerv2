@@ -8,6 +8,9 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record IncomeStatementResponse(
         @JsonProperty("symbol") String symbol,
+        @JsonProperty("Note") String note,
+        @JsonProperty("Information") String information,
+        @JsonProperty("Error Message") String errorMessage,
         @JsonProperty("annualReports") List<IncomeStatementReport> annualReports,
         @JsonProperty("quarterlyReports") List<IncomeStatementReport> quarterlyReports
-) {}
+) implements AlphaVantageResponse {}

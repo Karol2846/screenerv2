@@ -75,7 +75,7 @@ class AlphaVantageResponseMapperTest {
         @Test
         @DisplayName("Handles null report lists")
         void handlesNullLists() {
-            var response = new BalanceSheetResponse("AAPL", null, null);
+            var response = new BalanceSheetResponse("AAPL", null, null, null, null, null);
 
             RawBalanceSheet result = AlphaVantageResponseMapper.toRawBalanceSheet(response);
 
@@ -109,7 +109,7 @@ class AlphaVantageResponseMapperTest {
         @Test
         @DisplayName("Handles null report lists")
         void handlesNullLists() {
-            var response = new IncomeStatementResponse("AAPL", null, null);
+            var response = new IncomeStatementResponse("AAPL", null, null, null, null, null);
 
             RawIncomeStatement result = AlphaVantageResponseMapper.toRawIncomeStatement(response);
 

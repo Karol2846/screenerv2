@@ -307,18 +307,17 @@ Correct mapping for `AltmanScoreCalculator`:
 
 These are all in the collection layer and must be fixed before relying on the database for analysis:
 
-1. **`AlphaVantageGateway` missing response validation** (vs. `YhFinanceGateway` which validates and throws `ClientException`). AV silently maps rate-limit responses (`{"Note": "..."}`) to all-null fields; collection "succeeds" with empty data.
-2. **Altman sector mapping wrong** — see table above.
-3. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
-4. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
-5. **Quick Ratio missing `prepaidExpenses`** — see table above.
-6. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
-7. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
-8. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
-9. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
-10. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
-11. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
-12. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
+1. **Altman sector mapping wrong** — see table above.
+2. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
+3. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
+4. **Quick Ratio missing `prepaidExpenses`** — see table above.
+5. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
+6. **`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`** — add `INDUSTRIALS`, merge cyclical→discretionary, fix `fromString`.
+7. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
+8. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
+9. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
+10. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
+11. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.
 
 ---
 
