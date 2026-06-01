@@ -1,0 +1,233 @@
+{
+    "quoteSummary": {
+        "result": [
+            {
+                "assetProfile": {
+                    "address1": "700 Universe Boulevard",
+                    "city": "Juno Beach",
+                    "state": "FL",
+                    "zip": "33408",
+                    "country": "United States",
+                    "phone": "561 694 4000",
+                    "website": "https://www.nexteraenergy.com",
+                    "industry": "Utilities - Regulated Electric",
+                    "industryKey": "utilities-regulated-electric",
+                    "industryDisp": "Utilities - Regulated Electric",
+                    "sector": "Utilities",
+                    "sectorKey": "utilities",
+                    "sectorDisp": "Utilities",
+                    "longBusinessSummary": "NextEra Energy, Inc., through its subsidiaries, generates, stores, transmits, distributes, and sells electric power to retail and wholesale customers in North America. It operates through Florida Power & Light Company (FPL) and NEER segments. The company generates electricity from wind, solar, nuclear, natural gas, and other clean energy assets. It also invests in generation, storage, transmission, and distribution facilities; owns, develops, constructs, manages, and operates generation facilities, including renewables, nuclear and natural gas, and battery storage facilities in the wholesale energy market in the United States and Canada, as well as electric and gas transmission assets, and natural gas pipelines; provides full energy and capacity requirement services; markets and trades in energy-related commodities; and participates in the production of natural gas, natural gas liquids, and oil. As of December 31, 2025, the company had approximately 35,963 megawatts of net generating capacity; approximately 93,000 circuit miles of transmission and distribution lines; and 932 substations. It serves approximately 12 million people through approximately 6 million customer accounts on the east and lower west coasts of Florida. The company was formerly known as FPL Group, Inc. and changed its name to NextEra Energy, Inc. in 2010. NextEra Energy, Inc. was founded in 1925 and is headquartered in Juno Beach, Florida.",
+                    "fullTimeEmployees": 17400,
+                    "companyOfficers": [
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. John W. Ketchum J.D.",
+                            "age": 54,
+                            "title": "President, CEO & Chairman",
+                            "yearBorn": 1971,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 7241427,
+                                "fmt": "7.24M",
+                                "longFmt": "7,241,427"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 20513980,
+                                "fmt": "20.51M",
+                                "longFmt": "20,513,980"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Michael H. Dunne",
+                            "age": 49,
+                            "title": "CFO & Executive VP of Finance",
+                            "yearBorn": 1976,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 2127377,
+                                "fmt": "2.13M",
+                                "longFmt": "2,127,377"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 569324,
+                                "fmt": "569.32k",
+                                "longFmt": "569,324"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Charles E. Sieving J.D.",
+                            "age": 52,
+                            "title": "Executive VP and Chief Legal, Environmental & Federal Regulatory Affairs Officer",
+                            "yearBorn": 1973,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 3666743,
+                                "fmt": "3.67M",
+                                "longFmt": "3,666,743"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 3579983,
+                                "fmt": "3.58M",
+                                "longFmt": "3,579,983"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Brian W. Bolster",
+                            "age": 52,
+                            "title": "President & CEO of NextEra Energy Resources",
+                            "yearBorn": 1973,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 2936842,
+                                "fmt": "2.94M",
+                                "longFmt": "2,936,842"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 132136,
+                                "fmt": "132.14k",
+                                "longFmt": "132,136"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. William John Gough",
+                            "age": 38,
+                            "title": "VP, Controller and Chief Accounting Officer",
+                            "yearBorn": 1987,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mark  Eidelman",
+                            "title": "Director of Investor Relations",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. David  Flechner",
+                            "title": "VP of Compliance & Corporate Secretary",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Mark E. Hickson",
+                            "age": 57,
+                            "title": "Executive Vice President of Corporate Development & Strategy",
+                            "yearBorn": 1968,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Nicole J. Daggs",
+                            "age": 50,
+                            "title": "Executive Vice President of Human Resources & Corporate Services",
+                            "yearBorn": 1975,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Ronald R. Reagan",
+                            "age": 56,
+                            "title": "Executive Vice President of Engineering, Construction & Integrated Supply Chain",
+                            "yearBorn": 1969,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        }
+                    ],
+                    "auditRisk": 4,
+                    "boardRisk": 5,
+                    "compensationRisk": 8,
+                    "shareHolderRightsRisk": 3,
+                    "overallRisk": 5,
+                    "governanceEpochDate": 1777593600,
+                    "compensationAsOfEpochDate": 1767139200,
+                    "executiveTeam": [],
+                    "maxAge": 86400
+                }
+            }
+        ],
+        "error": null
+    }
+}

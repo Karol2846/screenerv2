@@ -1,0 +1,241 @@
+{
+    "quoteSummary": {
+        "result": [
+            {
+                "assetProfile": {
+                    "address1": "One Johnson & Johnson Plaza",
+                    "city": "New Brunswick",
+                    "state": "NJ",
+                    "zip": "08933",
+                    "country": "United States",
+                    "phone": "732 524 0400",
+                    "website": "https://www.jnj.com",
+                    "industry": "Drug Manufacturers - General",
+                    "industryKey": "drug-manufacturers-general",
+                    "industryDisp": "Drug Manufacturers - General",
+                    "sector": "Healthcare",
+                    "sectorKey": "healthcare",
+                    "sectorDisp": "Healthcare",
+                    "longBusinessSummary": "Johnson & Johnson, together with its subsidiaries, engages in the research and development, manufacture, and sale of a range of products in the healthcare field worldwide. It operates in two segments, Innovative Medicine and MedTech. The Innovative Medicine segment offers products for various therapeutic areas, such as oncology, immunology, neuroscience, pulmonary hypertension, infectious diseases, and cardiovascular and metabolism distributed through retailers, wholesalers, distributors, hospitals, and healthcare professionals for prescription use. The MedTech segment provides a portfolio of products used in the surgery, orthopedic, cardiovascular, and vision fields distributed through wholesalers, hospitals and retailers, and used in the professional fields by physicians, nurses, hospitals, eye care professionals and clinics. This segment also offers products and enabling technologies that support joint reconstruction, trauma, spine, sports related injuries, and others, as well as open, laparoscopic, and robotic surgical procedures; instrumentation, energy devices, stapling systems, wound closure, biosurgery products, and digital and robotic technologies; breast aesthetics and reconstruction; contact lenses under the ACUVUE brand; intraocular lenses for cataract surgery, and other products used in cataract and refractive procedures under the TECNIS brand. The company was founded in 1886 and is based in New Brunswick, New Jersey.",
+                    "fullTimeEmployees": 138200,
+                    "companyOfficers": [
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Joaquin  Duato",
+                            "age": 62,
+                            "title": "CEO & Chairman",
+                            "yearBorn": 1963,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 6499931,
+                                "fmt": "6.5M",
+                                "longFmt": "6,499,931"
+                            },
+                            "exercisedValue": {
+                                "raw": 16436116,
+                                "fmt": "16.44M",
+                                "longFmt": "16,436,116"
+                            },
+                            "unexercisedValue": {
+                                "raw": 52665080,
+                                "fmt": "52.67M",
+                                "longFmt": "52,665,080"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Joseph James Wolk CPA",
+                            "age": 58,
+                            "title": "Executive VP & CFO",
+                            "yearBorn": 1967,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 3216428,
+                                "fmt": "3.22M",
+                                "longFmt": "3,216,428"
+                            },
+                            "exercisedValue": {
+                                "raw": 1962760,
+                                "fmt": "1.96M",
+                                "longFmt": "1,962,760"
+                            },
+                            "unexercisedValue": {
+                                "raw": 23708782,
+                                "fmt": "23.71M",
+                                "longFmt": "23,708,782"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Jennifer L. Taubert",
+                            "age": 61,
+                            "title": "Executive VP & Worldwide Chairman of Innovative Medicine",
+                            "yearBorn": 1964,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 3313021,
+                                "fmt": "3.31M",
+                                "longFmt": "3,313,021"
+                            },
+                            "exercisedValue": {
+                                "raw": 7392427,
+                                "fmt": "7.39M",
+                                "longFmt": "7,392,427"
+                            },
+                            "unexercisedValue": {
+                                "raw": 27728240,
+                                "fmt": "27.73M",
+                                "longFmt": "27,728,240"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Dr. John C. Reed M.D., Ph.D.",
+                            "age": 67,
+                            "title": "Executive Vice President of Innovative Medicine and R&D",
+                            "yearBorn": 1958,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 3165384,
+                                "fmt": "3.17M",
+                                "longFmt": "3,165,384"
+                            },
+                            "exercisedValue": {
+                                "raw": 755615,
+                                "fmt": "755.62k",
+                                "longFmt": "755,615"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Timothy  Schmid",
+                            "age": 55,
+                            "title": "Executive VP & Worldwide Chairman of MedTech",
+                            "yearBorn": 1970,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 2538167,
+                                "fmt": "2.54M",
+                                "longFmt": "2,538,167"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 8556005,
+                                "fmt": "8.56M",
+                                "longFmt": "8,556,005"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Robert J. Decker Jr.",
+                            "age": 52,
+                            "title": "Controller & Chief Accounting Officer",
+                            "yearBorn": 1973,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. James  Swanson",
+                            "age": 59,
+                            "title": "Executive VP & Chief Information Officer",
+                            "yearBorn": 1966,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Dirk  Brinckman",
+                            "title": "Chief Compliance Officer",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Elizabeth  Forminard J.D.",
+                            "age": 54,
+                            "title": "Executive VP & Chief Legal Officer",
+                            "yearBorn": 1971,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Kristen Blair Mulholland",
+                            "age": 58,
+                            "title": "Executive VP & Chief Human Resources Officer",
+                            "yearBorn": 1967,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        }
+                    ],
+                    "auditRisk": 4,
+                    "boardRisk": 7,
+                    "compensationRisk": 4,
+                    "shareHolderRightsRisk": 3,
+                    "overallRisk": 4,
+                    "governanceEpochDate": 1780272000,
+                    "compensationAsOfEpochDate": 1767139200,
+                    "irWebsite": "http://www.investor.jnj.com/investor-relations.cfm",
+                    "executiveTeam": [],
+                    "maxAge": 86400
+                }
+            }
+        ],
+        "error": null
+    }
+}

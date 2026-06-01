@@ -1,0 +1,256 @@
+{
+    "quoteSummary": {
+        "result": [
+            {
+                "assetProfile": {
+                    "address1": "270 Park Avenue",
+                    "city": "New York",
+                    "state": "NY",
+                    "zip": "10017",
+                    "country": "United States",
+                    "phone": "212 270 6000",
+                    "website": "https://www.jpmorganchase.com",
+                    "industry": "Banks - Diversified",
+                    "industryKey": "banks-diversified",
+                    "industryDisp": "Banks - Diversified",
+                    "sector": "Financial Services",
+                    "sectorKey": "financial-services",
+                    "sectorDisp": "Financial Services",
+                    "longBusinessSummary": "JPMorgan Chase & Co. operates as a bank and financial holding company in the United States, rest of North America, Europe, the Middle East, Africa, the Asia Pacific, Latin America, and the Caribbean. It operates in three segments: Consumer & Community Banking, Commercial & Investment Bank, and Asset & Wealth Management. The company offers deposit, investment and lending products, and cash management; mortgage origination and servicing activities; residential mortgages and home equity loans; and credit cards, payment solutions, travel services, merchant offers, lifestyle benefits, auto loans, and leases to consumers and small businesses through bank branches, ATMs, and digital and telephone banking. It also provides investment banking, market-making, financing, custody, and securities products and services; corporate strategy and structure advisory, equity and debt market capital-raising, and loan origination and syndication services; cash and derivative instruments, risk management solutions, prime brokerage, clearing, and research; and fund services, liquidity and trading services, and data solutions products for large corporations, financial institutions, merchants, start-ups, small and midsized companies, local governments, municipalities, nonprofits, and commercial real estate clients. In addition, the company offers multi-asset investment management solutions in equities, fixed income, alternatives, and money market funds to institutional clients and retail investors; retirement products and services, estate planning, lending, deposits, and investment management products to high-net-worth clients; and financial transaction processing. JPMorgan Chase & Co. was founded in 1799 and is headquartered in New York, New York.",
+                    "fullTimeEmployees": 320079,
+                    "companyOfficers": [
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. James  Dimon",
+                            "age": 69,
+                            "title": "Chairman & CEO",
+                            "yearBorn": 1956,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 8087852,
+                                "fmt": "8.09M",
+                                "longFmt": "8,087,852"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Jeremy  Barnum",
+                            "age": 52,
+                            "title": "Executive VP & CFO",
+                            "yearBorn": 1973,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 8400000,
+                                "fmt": "8.4M",
+                                "longFmt": "8,400,000"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Mary Callahan Erdoes",
+                            "age": 58,
+                            "title": "Chief Executive Officer of Asset & Wealth Management and Executive VP",
+                            "yearBorn": 1967,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 13000000,
+                                "fmt": "13M",
+                                "longFmt": "13,000,000"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Daniel Eduardo Pinto",
+                            "age": 62,
+                            "title": "Vice Chairman",
+                            "yearBorn": 1963,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 6616871,
+                                "fmt": "6.62M",
+                                "longFmt": "6,616,871"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Douglas B. Petno",
+                            "age": 59,
+                            "title": "Co-Chief Executive Officer of the Commercial & Investment Bank",
+                            "yearBorn": 1966,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 11631825,
+                                "fmt": "11.63M",
+                                "longFmt": "11,631,825"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Troy Larry Rohrbaugh",
+                            "age": 55,
+                            "title": "Co- CEO of Commercial & Investment Bank",
+                            "yearBorn": 1970,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 11608676,
+                                "fmt": "11.61M",
+                                "longFmt": "11,608,676"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Todd Anthony Combs M.B.A.",
+                            "age": 54,
+                            "title": "Head Strategic Investment Group of Security & Resiliency Initiative",
+                            "yearBorn": 1971,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 147717,
+                                "fmt": "147.72k",
+                                "longFmt": "147,717"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Eugene  Davy",
+                            "title": "Co-Founder & Head of Investment Banking of EMEA",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Jennifer A. Piepszak",
+                            "age": 54,
+                            "title": "Chief Operating Officer",
+                            "yearBorn": 1971,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 7855000,
+                                "fmt": "7.86M",
+                                "longFmt": "7,855,000"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Elena A. Korablina",
+                            "age": 51,
+                            "title": "MD, Firmwide Controller & Principal Accounting Officer",
+                            "yearBorn": 1974,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        }
+                    ],
+                    "auditRisk": 6,
+                    "boardRisk": 6,
+                    "compensationRisk": 4,
+                    "shareHolderRightsRisk": 3,
+                    "overallRisk": 3,
+                    "governanceEpochDate": 1780272000,
+                    "compensationAsOfEpochDate": 1767139200,
+                    "irWebsite": "http://investor.shareholder.com/jpmorganchase/",
+                    "executiveTeam": [],
+                    "maxAge": 86400
+                }
+            }
+        ],
+        "error": null
+    }
+}

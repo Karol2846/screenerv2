@@ -1,0 +1,235 @@
+{
+    "quoteSummary": {
+        "result": [
+            {
+                "assetProfile": {
+                    "address1": "Forge, 43 Church Street West",
+                    "city": "Woking",
+                    "zip": "GU21 6HT",
+                    "country": "United Kingdom",
+                    "phone": "44 14 8324 2200",
+                    "website": "https://www.linde.com",
+                    "industry": "Specialty Chemicals",
+                    "industryKey": "specialty-chemicals",
+                    "industryDisp": "Specialty Chemicals",
+                    "sector": "Basic Materials",
+                    "sectorKey": "basic-materials",
+                    "sectorDisp": "Basic Materials",
+                    "longBusinessSummary": "Linde plc operates as an industrial gas company worldwide. It offers atmospheric gases, including oxygen, nitrogen, argon, and rare gases; and process gases, such as hydrogen, helium, carbon dioxide, carbon monoxide, electronic gases, specialty gases, and acetylene. The company also engages in designing and constructing of turnkey process plants for third-party customers, as well as for the gas businesses in various locations comprising air separation, hydrogen, synthesis, olefin, and natural gas plants. It serves healthcare, chemicals and energy, manufacturing, metals and mining, food and beverage, and electronics industries. The company operates in the United States, Brazil, Mexico, Canada, Germany, the Unted Kingdom, Eastern Europe, China, Australia, South Korea, And India. Linde plc was founded in 1879 and is based in Woking, the United Kingdom.",
+                    "fullTimeEmployees": 65034,
+                    "companyOfficers": [
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Sanjiv  Lamba",
+                            "age": 61,
+                            "title": "CEO & Chairman of the Board",
+                            "yearBorn": 1964,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 4960158,
+                                "fmt": "4.96M",
+                                "longFmt": "4,960,158"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 31225560,
+                                "fmt": "31.23M",
+                                "longFmt": "31,225,560"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Matthew J. White C.F.A.",
+                            "age": 53,
+                            "title": "Executive VP & CFO",
+                            "yearBorn": 1972,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 2373314,
+                                "fmt": "2.37M",
+                                "longFmt": "2,373,314"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 73164592,
+                                "fmt": "73.16M",
+                                "longFmt": "73,164,592"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Sean F. Durbin",
+                            "age": 54,
+                            "title": "COO & EVP",
+                            "yearBorn": 1971,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 1914226,
+                                "fmt": "1.91M",
+                                "longFmt": "1,914,226"
+                            },
+                            "exercisedValue": {
+                                "raw": 2184081,
+                                "fmt": "2.18M",
+                                "longFmt": "2,184,081"
+                            },
+                            "unexercisedValue": {
+                                "raw": 7511608,
+                                "fmt": "7.51M",
+                                "longFmt": "7,511,608"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Guillermo  Bichara",
+                            "age": 50,
+                            "title": "Executive VP & Chief Legal Officer",
+                            "yearBorn": 1975,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 1894107,
+                                "fmt": "1.89M",
+                                "longFmt": "1,894,107"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 19582772,
+                                "fmt": "19.58M",
+                                "longFmt": "19,582,772"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Benjamin W. Glazer",
+                            "age": 51,
+                            "title": "Senior VP of Americas",
+                            "yearBorn": 1974,
+                            "fiscalYear": 2025,
+                            "totalPay": {
+                                "raw": 1495496,
+                                "fmt": "1.5M",
+                                "longFmt": "1,495,496"
+                            },
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 12038388,
+                                "fmt": "12.04M",
+                                "longFmt": "12,038,388"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Denny  Brown",
+                            "title": "Chief Accounting Officer",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Juan  Pelaez",
+                            "title": "Vice President of Investor Relations",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Karin  Griggel",
+                            "title": "Chief Compliance Officer",
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Ms. Desiree Co Bacher",
+                            "age": 54,
+                            "title": "Senior VP & Chief Human Resources Officer",
+                            "yearBorn": 1971,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        },
+                        {
+                            "maxAge": 1,
+                            "name": "Mr. Moloy  Banerjee",
+                            "age": 59,
+                            "title": "President of ASEAN & South Asia",
+                            "yearBorn": 1966,
+                            "fiscalYear": 2025,
+                            "exercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            },
+                            "unexercisedValue": {
+                                "raw": 0,
+                                "fmt": null,
+                                "longFmt": "0"
+                            }
+                        }
+                    ],
+                    "auditRisk": 10,
+                    "boardRisk": 8,
+                    "compensationRisk": 1,
+                    "shareHolderRightsRisk": 4,
+                    "overallRisk": 5,
+                    "governanceEpochDate": 1777593600,
+                    "compensationAsOfEpochDate": 1767139200,
+                    "executiveTeam": [],
+                    "maxAge": 86400
+                }
+            }
+        ],
+        "error": null
+    }
+}
