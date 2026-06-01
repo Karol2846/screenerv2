@@ -23,12 +23,12 @@ import static org.assertj.core.api.Assertions.within;
 class AltmanScoreCalculatorTest {
 
     @Nested
-    @DisplayName("Manufacturing Sectors (Original Z-Score Formula)")
+    @DisplayName("Manufacturing Sectors — Original Z-Score (5 factors, requires revenueTTM)")
     class ManufacturingSectors {
 
-        @ParameterizedTest(name = "Manufacturing sector {0} should compute Z-Score successfully")
+        @ParameterizedTest(name = "Manufacturing sector {0} should compute Original Z-Score successfully")
         @MethodSource("manufacturingSectorsProvider")
-        @DisplayName("Manufacturing sectors produce valid Z-Score")
+        @DisplayName("Manufacturing sectors produce valid Original Z-Score")
         void testManufacturingSectorsProduceValidScore(Sector sector, BigDecimal expectedScore) {
             // Given: Complete financial snapshot for manufacturing
             var snapshot = baseSnapshot().build();
@@ -46,13 +46,13 @@ class AltmanScoreCalculatorTest {
         @Test
         @DisplayName("Manufacturing sector with null revenueTTM should fail with MISSING_DATA")
         void testManufacturingWithNullRevenueShouldFail() {
-            // Given: Snapshot with null revenueTTM (required for manufacturing)
+            // Given: Snapshot with null revenueTTM (required for manufacturing Original Z)
             var snapshot = baseSnapshot()
                     .revenueTTM(null)
                     .build();
 
-            // When: Computing Z-Score for manufacturing sector
-            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.ENERGY);
+            // When: Computing Z-Score for a manufacturing sector (MINING is unambiguously Original Z)
+            CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.MINING);
 
             // Then: Should fail with MISSING_DATA
             assertThat(result).isInstanceOf(CalculationResult.Failure.class);
@@ -65,15 +65,15 @@ class AltmanScoreCalculatorTest {
 
         static Stream<Arguments> manufacturingSectorsProvider() {
             return Stream.of(
-                    Arguments.of(Sector.ENERGY, new BigDecimal("2.6000")),
+                    Arguments.of(Sector.INDUSTRIALS, new BigDecimal("2.6000")),
                     Arguments.of(Sector.MINING, new BigDecimal("2.6000")),
-                    Arguments.of(Sector.UTILITIES, new BigDecimal("2.6000"))
+                    Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("2.6000"))
             );
         }
     }
 
     @Nested
-    @DisplayName("Non-Manufacturing Sectors (Z''-Score Formula)")
+    @DisplayName("Non-Manufacturing Sectors — Z''-Score (4 factors, no revenueTTM)")
     class NonManufacturingSectors {
 
         @ParameterizedTest(name = "Non-Manufacturing sector {0} should compute Z''-Score successfully")
@@ -96,7 +96,7 @@ class AltmanScoreCalculatorTest {
         @Test
         @DisplayName("Non-Manufacturing sector with null revenueTTM should succeed (revenue not required)")
         void testNonManufacturingWithNullRevenueCanSucceed() {
-            // Given: Snapshot with null revenueTTM (NOT required for non-manufacturing)
+            // Given: Snapshot with null revenueTTM (NOT required for Z'' formula)
             var snapshot = baseSnapshot()
                     .revenueTTM(null)
                     .build();
@@ -104,7 +104,7 @@ class AltmanScoreCalculatorTest {
             // When: Computing Z''-Score for non-manufacturing sector
             CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, Sector.TECHNOLOGY);
 
-            // Then: Should succeed (revenueTTM is not required for non-manufacturing formula)
+            // Then: Should succeed (revenueTTM is not required for Z'' formula)
             assertThat(result).isInstanceOf(CalculationResult.Success.class);
         }
 
@@ -112,19 +112,20 @@ class AltmanScoreCalculatorTest {
             return Stream.of(
                     Arguments.of(Sector.TECHNOLOGY, new BigDecimal("4.7040")),
                     Arguments.of(Sector.HEALTHCARE, new BigDecimal("4.7040")),
-                    Arguments.of(Sector.CONSUMER_DISCRETIONARY, new BigDecimal("4.7040")),
-                    Arguments.of(Sector.REAL_ESTATE, new BigDecimal("4.7040"))
+                    Arguments.of(Sector.ENERGY, new BigDecimal("4.7040")),
+                    Arguments.of(Sector.COMMUNICATION_SERVICES, new BigDecimal("4.7040")),
+                    Arguments.of(Sector.CONSUMER_DEFENSIVE, new BigDecimal("4.7040"))
             );
         }
     }
 
     @Nested
-    @DisplayName("Not Applicable Sectors")
+    @DisplayName("Skipped Sectors — Altman not applicable")
     class NotApplicableSectors {
 
         @ParameterizedTest(name = "{0} sector should skip calculation (not applicable)")
-        @EnumSource(value = Sector.class, names = {"FINANCE", "OTHER"})
-        @DisplayName("FINANCE and OTHER sectors skip calculation")
+        @EnumSource(value = Sector.class, names = {"FINANCE", "REAL_ESTATE", "UTILITIES", "OTHER"})
+        @DisplayName("FINANCE, REAL_ESTATE, UTILITIES and OTHER sectors skip calculation")
         void testNotApplicableSectorsShouldSkip(Sector sector) {
             // Given: Valid snapshot but not applicable sector
             var snapshot = baseSnapshot().build();
@@ -132,7 +133,7 @@ class AltmanScoreCalculatorTest {
             // When: Computing Z-Score
             CalculationResult<AltmanZScore> result = AltmanScoreCalculator.calculate(snapshot, sector);
 
-            // Then: Should skip with NOT_APPLICABLE
+            // Then: Should skip with reason containing "not applicable"
             assertThat(result).isInstanceOf(CalculationResult.Skipped.class);
 
             result.onSkipped(skipped ->

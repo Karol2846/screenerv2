@@ -127,7 +127,7 @@ class QuarterlyReportTest {
         }
 
         @ParameterizedTest(name = "Manufacturing sector {0} should compute classic Altman Z-Score")
-        @EnumSource(value = Sector.class, names = {"ENERGY", "MINING", "UTILITIES"})
+        @EnumSource(value = Sector.class, names = {"INDUSTRIALS", "MINING", "CONSUMER_DISCRETIONARY"})
         @DisplayName("Manufacturing sectors produce valid classic Z-Score")
         void testManufacturingSectorsProduceValidScore(Sector sector) {
             // Given: Complete snapshot
@@ -143,7 +143,7 @@ class QuarterlyReportTest {
         }
 
         @ParameterizedTest(name = "Non-manufacturing sector {0} should compute Z''-Score")
-        @EnumSource(value = Sector.class, names = {"TECHNOLOGY", "HEALTHCARE", "CONSUMER_DISCRETIONARY", "REAL_ESTATE"})
+        @EnumSource(value = Sector.class, names = {"TECHNOLOGY", "HEALTHCARE", "ENERGY", "COMMUNICATION_SERVICES", "CONSUMER_DEFENSIVE"})
         @DisplayName("Non-manufacturing sectors produce valid Z''-Score")
         void testNonManufacturingSectorsProduceValidScore(Sector sector) {
             // Given: Complete snapshot
@@ -411,8 +411,8 @@ class QuarterlyReportTest {
             // And: Entity also has null revenueTTM
             quarterlyReport.revenueTTM = null;
 
-            // When: Updating metrics for manufacturing sector (ENERGY)
-            quarterlyReport.updateMetrics(snapshot, Sector.ENERGY);
+            // When: Updating metrics for manufacturing sector (MINING is unambiguously Original Z)
+            quarterlyReport.updateMetrics(snapshot, Sector.MINING);
 
             // Then: AltmanZScore should be null
             assertThat(quarterlyReport.altmanZScore).isNull();

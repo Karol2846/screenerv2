@@ -11,14 +11,20 @@ import java.math.RoundingMode;
 
 /**
  * Domain service responsible for calculating Altman Z-Score.
- * <p>
- * Supports two formulas:
+ *
+ * <p>Formula selection per Altman's published guidance (Morningstar sector taxonomy):
  * <ul>
- *   <li>Original Z-Score for manufacturing sectors (ENERGY, MINING, UTILITIES)</li>
- *   <li>Z''-Score for non-manufacturing sectors (TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE)</li>
+ *   <li><b>Original Z (1968)</b> — 5-factor, includes asset turnover (T5); requires {@code revenueTTM}.
+ *       Applied to manufacturing-like sectors: {@code INDUSTRIALS, MINING, CONSUMER_DISCRETIONARY}.</li>
+ *   <li><b>Z'' (1995)</b> — 4-factor, drops T5 (asset turnover); suitable for non-manufacturers
+ *       and asset-light businesses. Applied to: {@code TECHNOLOGY, HEALTHCARE, ENERGY,
+ *       COMMUNICATION_SERVICES, CONSUMER_DEFENSIVE}.</li>
+ *   <li><b>Skip</b> — Altman explicitly excludes regulated/depository capital structures:
+ *       {@code FINANCE, REAL_ESTATE, UTILITIES, OTHER}.</li>
  * </ul>
- * <p>
- * This calculator only computes the numerical value (a fact).
+ *
+ * <p>This calculator only computes the numerical value (a fact). Thresholds/interpretation
+ * are scoring-engine concerns (future work).
  */
 public class AltmanScoreCalculator {
 
@@ -40,8 +46,8 @@ public class AltmanScoreCalculator {
 
     public static boolean isApplicable(Sector sector) {
         return switch (sector) {
-            case ENERGY, MINING, UTILITIES,
-                 TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE -> true;
+            case INDUSTRIALS, MINING, CONSUMER_DISCRETIONARY,
+                 TECHNOLOGY, HEALTHCARE, ENERGY, COMMUNICATION_SERVICES, CONSUMER_DEFENSIVE -> true;
             default -> false;
         };
     }
@@ -51,8 +57,9 @@ public class AltmanScoreCalculator {
             return CalculationResult.skip("Altman Z-Score not applicable for %s sector".formatted(sector));
         }
         return switch (sector) {
-            case ENERGY, MINING, UTILITIES -> calculateManufacturing(snapshot);
-            case TECHNOLOGY, HEALTHCARE, CONSUMER_DISCRETIONARY, REAL_ESTATE -> calculateNonManufacturing(snapshot);
+            case INDUSTRIALS, MINING, CONSUMER_DISCRETIONARY -> calculateManufacturing(snapshot);
+            case TECHNOLOGY, HEALTHCARE, ENERGY, COMMUNICATION_SERVICES, CONSUMER_DEFENSIVE ->
+                    calculateNonManufacturing(snapshot);
             default -> throw new IllegalStateException("isApplicable/calculate out of sync for sector: " + sector);
         };
     }
