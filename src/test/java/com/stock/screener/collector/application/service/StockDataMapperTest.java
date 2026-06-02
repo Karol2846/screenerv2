@@ -392,11 +392,53 @@ class StockDataMapperTest {
         }
 
         @Test
+        @DisplayName("Falls back to operatingIncome when ebit is null")
+        void fallbackToOperatingIncome() {
+            // Given
+            var report = RawIncomeStatementFixture.aReport()
+                    .withNullEbit()
+                    .withOperatingIncome("100000000000")
+                    .withNetIncome("93736000000")
+                    .withInterestExpense("3200000000")
+                    .withIncomeTaxExpense("29749000000")
+                    .build();
+            var incomeStatement = aRawIncomeStatement().withQuarterlyReports(report).build();
+
+            // When
+            FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
+                    null, incomeStatement, null);
+
+            // Then — operatingIncome wins over the netIncome reconstruction (126685000000)
+            assertThat(result.ebit())
+                    .isEqualByComparingTo(new BigDecimal("100000000000"));
+        }
+
+        @Test
+        @DisplayName("Uses operatingIncome as-is when negative (operating loss)")
+        void fallbackToNegativeOperatingIncome() {
+            // Given
+            var report = RawIncomeStatementFixture.aReport()
+                    .withNullEbit()
+                    .withOperatingIncome("-5000000000")
+                    .build();
+            var incomeStatement = aRawIncomeStatement().withQuarterlyReports(report).build();
+
+            // When
+            FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
+                    null, incomeStatement, null);
+
+            // Then — a negative operating result is a valid EBIT and is propagated downstream
+            assertThat(result.ebit())
+                    .isEqualByComparingTo(new BigDecimal("-5000000000"));
+        }
+
+        @Test
         @DisplayName("Fallback: netIncome + interestExpense + incomeTaxExpense")
         void fallbackCalculation() {
             // Given
             var report = RawIncomeStatementFixture.aReport()
                     .withNullEbit()
+                    .withNullOperatingIncome()
                     .withNetIncome("93736000000")
                     .withInterestExpense("3200000000")
                     .withIncomeTaxExpense("29749000000")
@@ -418,6 +460,7 @@ class StockDataMapperTest {
             // Given
             var report = RawIncomeStatementFixture.aReport()
                     .withNullEbit()
+                    .withNullOperatingIncome()
                     .withNetIncome("50000")
                     .withNullInterestExpense()
                     .withNullIncomeTaxExpense()
@@ -433,11 +476,12 @@ class StockDataMapperTest {
         }
 
         @Test
-        @DisplayName("Returns null when both ebit and netIncome are null")
+        @DisplayName("Returns null when ebit, operatingIncome and netIncome are all null")
         void returnsNullWhenFallbackImpossible() {
             // Given
             var report = RawIncomeStatementFixture.aReport()
                     .withNullEbit()
+                    .withNullOperatingIncome()
                     .withNullNetIncome()
                     .build();
             var incomeStatement = aRawIncomeStatement().withQuarterlyReports(report).build();

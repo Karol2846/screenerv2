@@ -116,8 +116,10 @@ class StockDataMapper {
     }
 
     /**
-     * Resolves EBIT from the income statement.
-     * Fallback: netIncome + interestExpense + incomeTaxExpense (when ebit is null).
+     * Resolves EBIT from the income statement using a 3-tier fallback:
+     *   1. ebit (if present)
+     *   2. operatingIncome (cleanest EBIT proxy — excludes non-operating items)
+     *   3. netIncome + interestExpense + incomeTaxExpense
      */
     private BigDecimal resolveEbit(RawIncomeStatement.Report income) {
         if (income == null) {
@@ -125,6 +127,9 @@ class StockDataMapper {
         }
         if (income.ebit() != null) {
             return income.ebit();
+        }
+        if (income.operatingIncome() != null) {
+            return income.operatingIncome();
         }
         if (income.netIncome() != null) {
             BigDecimal tax = income.incomeTaxExpense() != null ? income.incomeTaxExpense() : BigDecimal.ZERO;
