@@ -94,25 +94,23 @@ class StockDataMapper {
 
     /**
      * Resolves retained earnings from the balance sheet.
-     * Fallback: totalShareholderEquity - (commonStock + additionalPaidInCapital).
-     * Per CSV spec row 22: "If None: totalShareholderEquity - (commonStock + additionalPaidInCapital)."
+     *
+     * <p>No fallback is applied. The only correct reconstruction is the full equity identity
+     * (totalShareholderEquity − commonStock − additionalPaidInCapital + treasuryStock
+     * − accumulatedOtherComprehensiveIncome), but AlphaVantage does not return
+     * accumulatedOtherComprehensiveIncome, so the identity cannot be computed. The previous
+     * partial fallback (equity − commonStock − APIC) silently mis-attributed treasury stock
+     * and AOCI, distorting Altman T2 by tens of billions for buyback-heavy issuers (e.g. AAPL).
+     *
+     * <p>When retainedEarnings is absent we therefore return {@code null}; the downstream
+     * Altman guard ({@code .require("retainedEarnings")}) flags the report as MISSING_DATA
+     * rather than scoring it on a wrong value.
      */
     private BigDecimal resolveRetainedEarnings(RawBalanceSheet.Report balance) {
         if (balance == null) {
             return null;
         }
-        if (balance.retainedEarnings() != null) {
-            return balance.retainedEarnings();
-        }
-        if (balance.totalShareholderEquity() != null && balance.commonStock() != null) {
-            BigDecimal apic = balance.additionalPaidInCapital() != null
-                    ? balance.additionalPaidInCapital()
-                    : BigDecimal.ZERO;
-            return balance.totalShareholderEquity()
-                    .subtract(balance.commonStock())
-                    .subtract(apic);
-        }
-        return null;
+        return balance.retainedEarnings();
     }
 
     /**

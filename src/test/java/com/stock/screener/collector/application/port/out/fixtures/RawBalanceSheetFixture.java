@@ -74,7 +74,6 @@ public final class RawBalanceSheetFixture {
         private BigDecimal longTermDebtNoncurrent = null;
         private BigDecimal shortLongTermDebtTotal = new BigDecimal("83897000000");
         private BigDecimal commonStockSharesOutstanding = new BigDecimal("2574000000");
-        private BigDecimal additionalPaidInCapital = null;
 
         private ReportFixture() {}
 
@@ -120,16 +119,6 @@ public final class RawBalanceSheetFixture {
 
         public ReportFixture withNullCommonStock() {
             this.commonStock = null;
-            return this;
-        }
-
-        public ReportFixture withAdditionalPaidInCapital(String value) {
-            this.additionalPaidInCapital = new BigDecimal(value);
-            return this;
-        }
-
-        public ReportFixture withNullAdditionalPaidInCapital() {
-            this.additionalPaidInCapital = null;
             return this;
         }
 
@@ -191,7 +180,6 @@ public final class RawBalanceSheetFixture {
                     .longTermDebtNoncurrent(longTermDebtNoncurrent)
                     .shortLongTermDebtTotal(shortLongTermDebtTotal)
                     .commonStockSharesOutstanding(commonStockSharesOutstanding)
-                    .additionalPaidInCapital(additionalPaidInCapital)
                     .build();
         }
     }

@@ -123,7 +123,6 @@ final class AlphaVantageResponseMapper {
                 .longTermDebtNoncurrent(r.longTermDebtNoncurrent())
                 .shortLongTermDebtTotal(r.shortLongTermDebtTotal())
                 .commonStockSharesOutstanding(r.commonStockSharesOutstanding())
-                .additionalPaidInCapital(r.additionalPaidInCapital())
                 .build();
     }
 

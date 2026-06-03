@@ -307,14 +307,15 @@ class StockDataMapperTest {
         }
 
         @Test
-        @DisplayName("Fallback: totalShareholderEquity - (commonStock + additionalPaidInCapital)")
-        void fallbackCalculation() {
-            // Given — retainedEarnings is null, but equity/commonStock/APIC are present
+        @DisplayName("Returns null when retainedEarnings is absent — no fallback is applied")
+        void returnsNullWhenAbsentDespiteEquityComponents() {
+            // Given — retainedEarnings is null even though equity components are present.
+            // AlphaVantage does not return AOCI or additionalPaidInCapital, so the full equity
+            // identity cannot be computed and the previous partial fallback was dropped.
             var report = RawBalanceSheetFixture.aReport()
                     .withNullRetainedEarnings()
                     .withTotalShareholderEquity("100000")
                     .withCommonStock("30000")
-                    .withAdditionalPaidInCapital("20000")
                     .build();
             var balanceSheet = aRawBalanceSheet().withQuarterlyReports(report).build();
 
@@ -322,47 +323,7 @@ class StockDataMapperTest {
             FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
                     balanceSheet, null, null);
 
-            // Then — 100000 - 30000 - 20000 = 50000
-            assertThat(result.retainedEarnings())
-                    .isEqualByComparingTo(new BigDecimal("50000"));
-        }
-
-        @Test
-        @DisplayName("Fallback with null additionalPaidInCapital treats it as zero")
-        void fallbackWithNullAPIC() {
-            // Given
-            var report = RawBalanceSheetFixture.aReport()
-                    .withNullRetainedEarnings()
-                    .withTotalShareholderEquity("100000")
-                    .withCommonStock("30000")
-                    .withNullAdditionalPaidInCapital()
-                    .build();
-            var balanceSheet = aRawBalanceSheet().withQuarterlyReports(report).build();
-
-            // When
-            FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
-                    balanceSheet, null, null);
-
-            // Then — 100000 - 30000 - 0 = 70000
-            assertThat(result.retainedEarnings())
-                    .isEqualByComparingTo(new BigDecimal("70000"));
-        }
-
-        @Test
-        @DisplayName("Returns null when retainedEarnings and commonStock both null")
-        void returnsNullWhenFallbackImpossible() {
-            // Given
-            var report = RawBalanceSheetFixture.aReport()
-                    .withNullRetainedEarnings()
-                    .withNullCommonStock()
-                    .build();
-            var balanceSheet = aRawBalanceSheet().withQuarterlyReports(report).build();
-
-            // When
-            FinancialDataSnapshot result = mapper.toFinancialDataSnapshot(
-                    balanceSheet, null, null);
-
-            // Then
+            // Then — no fallback: null propagates so the Altman guard flags MISSING_DATA
             assertThat(result.retainedEarnings()).isNull();
         }
     }
