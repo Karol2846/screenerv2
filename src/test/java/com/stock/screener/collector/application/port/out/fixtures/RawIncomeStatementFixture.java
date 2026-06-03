@@ -105,6 +105,16 @@ public final class RawIncomeStatementFixture {
             return this;
         }
 
+        public ReportFixture withOperatingIncome(String value) {
+            this.operatingIncome = new BigDecimal(value);
+            return this;
+        }
+
+        public ReportFixture withNullOperatingIncome() {
+            this.operatingIncome = null;
+            return this;
+        }
+
         public ReportFixture withInterestExpense(String value) {
             this.interestExpense = new BigDecimal(value);
             return this;

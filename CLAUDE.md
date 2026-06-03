@@ -310,7 +310,7 @@ Implemented mapping in `AltmanScoreCalculator` (verified 2026-06-01 against live
 These are all in the collection layer and must be fixed before relying on the database for analysis:
 
 1. ~~**Altman sector mapping wrong**~~ — **FIXED** (`AltmanScoreCalculator` + `Sector` enum, commit 57a44fd).
-2. **EBIT fallback missing `operatingIncome` middle tier** — see table above.
+2. ~~**EBIT fallback missing `operatingIncome` middle tier**~~ — **FIXED** (`StockDataMapper.resolveEbit` now 3-tier: `ebit` → `operatingIncome` → `netIncome + interestExpense + incomeTaxExpense`).
 3. **RetainedEarnings fallback ignores treasury & AOCI** — see table above.
 4. **Quick Ratio missing `prepaidExpenses`** — see table above.
 5. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
