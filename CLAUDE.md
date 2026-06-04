@@ -316,7 +316,7 @@ These are all in the collection layer and must be fixed before relying on the da
 5. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
 6. ~~**`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`**~~ — **FIXED** (commit 57a44fd).
 7. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
-8. **`YhFinanceClientMapper` uses `getLast()` on trend** — replace with explicit `+1y` filter.
+8. ~~**`YhFinanceClientMapper` uses `getLast()` on trend**~~ — **FIXED** — replaced with explicit `period == "+1y"` stream filter; when `+1y` is absent, `forwardEpsGrowth`/`forwardRevenueGrowth` remain null.
 9. **Rate limiting absent** for both APIs — required before any large-scale `/all` collection.
 10. **`calculateRevenueTTM` silently drops null quarters** — should null the result or flag if any of the 4 quarters is missing revenue.
 11. **`MonthlyReport.forecastDate` misnamed** — it's `@CreationTimestamp`, semantically `createdAt`.

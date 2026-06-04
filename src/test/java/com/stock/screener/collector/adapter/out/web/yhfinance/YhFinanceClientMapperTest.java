@@ -4,6 +4,7 @@ import com.stock.screener.collector.adapter.out.web.yhfinance.model.*;
 import com.stock.screener.collector.application.port.out.yhfinance.response.YhFinanceResponse;
 import com.stock.screener.collector.domain.valueobject.AnalystRatings;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -71,25 +72,50 @@ class YhFinanceClientMapperTest {
         assertThat(command.ticker()).isEqualTo("MSFT");
     }
 
-    @Test
-    @DisplayName("toCommand uses last trend item for forward estimates")
-    void testUsesLastTrendItemForForwardEstimates() {
-        // Given - two trend items, mapper should use the last one
-        EarningsTrendItem firstItem = buildTrendItem(0.05, 0.06);
-        EarningsTrendItem lastItem = buildTrendItem(0.25, 0.30);
-        RecommendationTrendItem recommendation = buildRecommendation(1, 1, 1, 1, 1);
+    @Nested
+    @DisplayName("Period selection for forward estimates")
+    class PeriodSelection {
 
-        QuoteSummaryResult result = QuoteSummaryResult.builder()
-                .earningsTrend(EarningsTrend.builder().trend(List.of(firstItem, lastItem)).build())
-                .recommendationTrend(RecommendationTrend.builder().trend(List.of(recommendation)).build())
-                .build();
+        @Test
+        @DisplayName("picks +1y period item regardless of list position")
+        void picksForwardEstimateByPlusOnePeriod() {
+            // Given - +1y is first, 0m is last (getLast() would pick wrong item)
+            EarningsTrendItem forwardItem = buildTrendItemWithPeriod("+1y", 0.25, 0.30);
+            EarningsTrendItem currentItem = buildTrendItemWithPeriod("0m", 0.05, 0.06);
+            RecommendationTrendItem recommendation = buildRecommendation(1, 1, 1, 1, 1);
 
-        // When
-        YhFinanceResponse command = YhFinanceClientMapper.toCommand("TSLA", result);
+            QuoteSummaryResult result = QuoteSummaryResult.builder()
+                    .earningsTrend(EarningsTrend.builder().trend(List.of(forwardItem, currentItem)).build())
+                    .recommendationTrend(RecommendationTrend.builder().trend(List.of(recommendation)).build())
+                    .build();
 
-        // Then
-        assertThat(command.forwardEpsGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.25));
-        assertThat(command.forwardRevenueGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.30));
+            // When
+            YhFinanceResponse command = YhFinanceClientMapper.toCommand("TSLA", result);
+
+            // Then
+            assertThat(command.forwardEpsGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.25));
+            assertThat(command.forwardRevenueGrowth()).isEqualByComparingTo(BigDecimal.valueOf(0.30));
+        }
+
+        @Test
+        @DisplayName("gdy brak okresu +1y — forwardEpsGrowth i forwardRevenueGrowth są null")
+        void whenNoForwardPeriodPresent_skipsGrowthFields() {
+            // Given - only "0m" period, no "+1y"
+            EarningsTrendItem currentItem = buildTrendItemWithPeriod("0m", 0.10, 0.10);
+            RecommendationTrendItem recommendation = buildRecommendation(1, 1, 1, 1, 1);
+
+            QuoteSummaryResult result = QuoteSummaryResult.builder()
+                    .earningsTrend(EarningsTrend.builder().trend(List.of(currentItem)).build())
+                    .recommendationTrend(RecommendationTrend.builder().trend(List.of(recommendation)).build())
+                    .build();
+
+            // When
+            YhFinanceResponse command = YhFinanceClientMapper.toCommand("TSLA", result);
+
+            // Then
+            assertThat(command.forwardEpsGrowth()).isNull();
+            assertThat(command.forwardRevenueGrowth()).isNull();
+        }
     }
 
     private static QuoteSummaryResult buildResult(double epsGrowth, double revenueGrowth,
@@ -104,8 +130,12 @@ class YhFinanceClientMapperTest {
     }
 
     private static EarningsTrendItem buildTrendItem(double epsGrowth, double revenueGrowth) {
+        return buildTrendItemWithPeriod("+1y", epsGrowth, revenueGrowth);
+    }
+
+    private static EarningsTrendItem buildTrendItemWithPeriod(String period, double epsGrowth, double revenueGrowth) {
         return EarningsTrendItem.builder()
-                .period("+1y")
+                .period(period)
                 .growth(RawFmtValue.builder().raw(epsGrowth).build())
                 .revenueEstimate(RevenueEstimate.builder()
                         .growth(RawFmtValue.builder().raw(revenueGrowth).build())

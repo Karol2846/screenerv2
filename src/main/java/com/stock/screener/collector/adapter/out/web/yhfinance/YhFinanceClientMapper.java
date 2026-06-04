@@ -19,11 +19,15 @@ class YhFinanceClientMapper {
 
         if (result.earningsTrend() != null && result.earningsTrend().trend() != null
                 && !result.earningsTrend().trend().isEmpty()) {
-            EarningsTrendItem forwardEstimates = result.earningsTrend().trend().getLast();
-            builder.forwardEpsGrowth(map(forwardEstimates.growth()));
-            if (forwardEstimates.revenueEstimate() != null) {
-                builder.forwardRevenueGrowth(map(forwardEstimates.revenueEstimate().growth()));
-            }
+            result.earningsTrend().trend().stream()
+                    .filter(t -> "+1y".equals(t.period()))
+                    .findFirst()
+                    .ifPresent(forwardEstimates -> {
+                        builder.forwardEpsGrowth(map(forwardEstimates.growth()));
+                        if (forwardEstimates.revenueEstimate() != null) {
+                            builder.forwardRevenueGrowth(map(forwardEstimates.revenueEstimate().growth()));
+                        }
+                    });
         }
 
         if (result.recommendationTrend() != null && result.recommendationTrend().trend() != null
