@@ -3,7 +3,14 @@
     "allow": [
       "PowerShell(Get-Content *)",
       "Bash(./gradlew *)",
-      "Bash(xargs grep -l \"QuarterlyReport\")"
+      "Bash(xargs grep -l \"QuarterlyReport\")",
+      "PowerShell($env:AV_API_KEY)",
+      "Bash(git add *)",
+      "Bash(git restore *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(xargs ls -lh)",
+      "PowerShell($json = Get-Content \"C:\\\\Users\\\\karol\\\\IdeaProjects\\\\screenerv2\\\\src\\\\test\\\\resources\\\\alphavantage\\\\balance-sheet-response.json\" -Raw | ConvertFrom-Json; $json.annualReports[0] | Get-Member -MemberType NoteProperty | Select-Object Name)"
     ]
   }
 }

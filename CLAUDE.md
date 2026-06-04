@@ -312,7 +312,7 @@ These are all in the collection layer and must be fixed before relying on the da
 1. ~~**Altman sector mapping wrong**~~ — **FIXED** (`AltmanScoreCalculator` + `Sector` enum, commit 57a44fd).
 2. ~~**EBIT fallback missing `operatingIncome` middle tier**~~ — **FIXED** (`StockDataMapper.resolveEbit` now 3-tier: `ebit` → `operatingIncome` → `netIncome + interestExpense + incomeTaxExpense`).
 3. ~~**RetainedEarnings fallback ignores treasury & AOCI**~~ — **FIXED** — fallback dropped (`StockDataMapper.resolveRetainedEarnings` returns the direct value or `null`); AV lacks AOCI so the full identity is uncomputable, and a missing value now flags `MISSING_DATA` instead of a distorted Altman T2.
-4. **Quick Ratio missing `prepaidExpenses`** — see table above.
+4. ~~**Quick Ratio missing `prepaidExpenses`**~~ — **N/A** — AV `BALANCE_SHEET` nie zwraca tego pola (zweryfikowano w fixtures + próbkach integracyjnych). Yahoo Finance nie dostarcza danych bilansowych w tym projekcie. Formuła pozostaje: `(currentAssets − inventory) / currentLiabilities`.
 5. **ICR no `OPERATING_LOSS` / `NO_DEBT` flagging** — see table above.
 6. ~~**`Sector` enum: missing `INDUSTRIALS`, duplicate `CONSUMER_*`**~~ — **FIXED** (commit 57a44fd).
 7. **`MonthlyReport.updateIntegrityStatus` edge case** — when pricing+fundamentals complete but ForwardPeg failed, status falls to `MISSING_DATA` (too harsh).
