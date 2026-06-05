@@ -58,7 +58,10 @@ public class QuarterlyReport extends PanacheEntity {
     public QuickRatio quickRatio;
 
     @Embedded
-    @AttributeOverride(name = "value", column = @Column(name = "interest_coverage_ratio"))
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "interest_coverage_ratio")),
+            @AttributeOverride(name = "status", column = @Column(name = "interest_coverage_status"))
+    })
     public InterestCoverageRatio interestCoverageRatio;
 
     @Embedded

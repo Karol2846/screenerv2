@@ -10,7 +10,8 @@
       "Bash(git commit -m ' *)",
       "Bash(git push *)",
       "Bash(xargs ls -lh)",
-      "PowerShell($json = Get-Content \"C:\\\\Users\\\\karol\\\\IdeaProjects\\\\screenerv2\\\\src\\\\test\\\\resources\\\\alphavantage\\\\balance-sheet-response.json\" -Raw | ConvertFrom-Json; $json.annualReports[0] | Get-Member -MemberType NoteProperty | Select-Object Name)"
+      "PowerShell($json = Get-Content \"C:\\\\Users\\\\karol\\\\IdeaProjects\\\\screenerv2\\\\src\\\\test\\\\resources\\\\alphavantage\\\\balance-sheet-response.json\" -Raw | ConvertFrom-Json; $json.annualReports[0] | Get-Member -MemberType NoteProperty | Select-Object Name)",
+      "PowerShell(if \\($env:AV_API_KEY\\) { \"AV_API_KEY present, length=$\\($env:AV_API_KEY.Length\\)\" } else { \"AV_API_KEY NOT set in env\" })"
     ]
   }
 }

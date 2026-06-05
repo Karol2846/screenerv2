@@ -232,9 +232,9 @@ class QuarterlyReportTest {
         }
 
         @Test
-        @DisplayName("Zero interestExpense causes InterestCoverageRatio to fail with DIVISION_BY_ZERO")
-        void testZeroInterestExpenseCausesInterestCoverageFailure() {
-            // Given: Snapshot with zero interest expense
+        @DisplayName("Zero interestExpense produces NO_DEBT status — not a DIVISION_BY_ZERO error")
+        void testZeroInterestExpenseYieldsNoDebtStatus() {
+            // Given: Snapshot with zero interest expense (no debt service obligations)
             var snapshot = aFinancialDataSnapshot()
                     .withInterestExpense("0")
                     .build();
@@ -242,15 +242,15 @@ class QuarterlyReportTest {
             // When: Updating metrics
             quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
 
-            // Then: InterestCoverageRatio should be null
-            assertThat(quarterlyReport.interestCoverageRatio).isNull();
+            // Then: ICR should be set (NO_DEBT is a Success, not a Failure)
+            assertThat(quarterlyReport.interestCoverageRatio).isNotNull();
+            assertThat(quarterlyReport.interestCoverageRatio.status())
+                    .isEqualTo(com.stock.screener.collector.domain.valueobject.InterestCoverageStatus.NO_DEBT);
+            assertThat(quarterlyReport.interestCoverageRatio.value()).isNull();
 
-            // And: Error should be tracked as DIVISION_BY_ZERO
+            // And: No error should be tracked for ICR — NO_DEBT is a positive signal
             assertThat(quarterlyReport.calculationErrors)
-                    .anyMatch(error ->
-                            error.metric() == MetricType.INTEREST_COVERAGE_RATIO &&
-                                    error.errorType() == CalculationErrorType.DIVISION_BY_ZERO
-                    );
+                    .noneMatch(error -> error.metric() == MetricType.INTEREST_COVERAGE_RATIO);
         }
 
         @Test
@@ -525,6 +525,33 @@ class QuarterlyReportTest {
             // And: Status is MISSING_DATA because of the real QuickRatio failure
             assertThat(quarterlyReport.integrityStatus)
                     .isEqualTo(ReportIntegrityStatus.MISSING_DATA);
+        }
+
+        @Test
+        @DisplayName("Negative EBIT with positive interest yields OPERATING_LOSS — report still READY_FOR_ANALYSIS")
+        void testOperatingLossYieldsReadyForAnalysis() {
+            // Given: Snapshot with negative EBIT (operating loss, like RIVN) but with interest expense
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("-881000000")
+                    .withInterestExpense("65000000")
+                    .build();
+
+            // When: Updating metrics
+            quarterlyReport.updateMetrics(snapshot, Sector.TECHNOLOGY);
+
+            // Then: ICR should be set with OPERATING_LOSS status (determined state, not missing data)
+            assertThat(quarterlyReport.interestCoverageRatio).isNotNull();
+            assertThat(quarterlyReport.interestCoverageRatio.status())
+                    .isEqualTo(com.stock.screener.collector.domain.valueobject.InterestCoverageStatus.OPERATING_LOSS);
+            assertThat(quarterlyReport.interestCoverageRatio.value()).isNull();
+
+            // And: No ICR error — OPERATING_LOSS is a resolved state, not missing data
+            assertThat(quarterlyReport.calculationErrors)
+                    .noneMatch(error -> error.metric() == MetricType.INTEREST_COVERAGE_RATIO);
+
+            // And: Report can still reach READY_FOR_ANALYSIS (OPERATING_LOSS is not fatal)
+            assertThat(quarterlyReport.integrityStatus)
+                    .isEqualTo(ReportIntegrityStatus.READY_FOR_ANALYSIS);
         }
 
         @Test

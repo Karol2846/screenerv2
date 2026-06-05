@@ -3,10 +3,12 @@ package com.stock.screener.collector.domain.valueobject;
 import com.stock.screener.collector.domain.kernel.CalculationErrorType;
 import com.stock.screener.collector.domain.kernel.CalculationResult;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
+import static com.stock.screener.collector.domain.valueobject.InterestCoverageStatus.*;
 import static com.stock.screener.collector.domain.valueobject.fixtures.FinancialDataSnapshotFixture.aFinancialDataSnapshot;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -14,212 +16,325 @@ import static org.assertj.core.api.Assertions.within;
 @DisplayName("InterestCoverageRatio Value Object Tests")
 class InterestCoverageRatioTest {
 
-    @Test
-    @DisplayName("Valid EBIT and interestExpense should compute ratio correctly")
-    void testValidDataComputesInterestCoverageRatio() {
-        // Given: Snapshot with valid EBIT and interest expense
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("1000000")
-                .withInterestExpense("100000")
-                .build();
+    @Nested
+    @DisplayName("COVERED — EBIT ≥ 0 and interest expense > 0")
+    class CoveredCases {
 
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+        @Test
+        @DisplayName("Valid EBIT and interestExpense should compute ratio with COVERED status")
+        void testValidDataComputesInterestCoverageRatio() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("1000000")
+                    .withInterestExpense("100000")
+                    .build();
 
-        // Then: Result should be successful (1000000 / 100000 = 10.0)
-        assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
-        result.onSuccess(ratio -> assertThat(ratio.value())
-                .isCloseTo(new BigDecimal("10.0000"), within(new BigDecimal("0.0001"))));
+            // Then
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(COVERED);
+                assertThat(ratio.value())
+                        .isCloseTo(new BigDecimal("10.0000"), within(new BigDecimal("0.0001")));
+            });
+        }
+
+        @Test
+        @DisplayName("Different EBIT values produce different COVERED ratios")
+        void testDifferentEbitProducesDifferentRatios() {
+            // Given
+            var snapshot1 = aFinancialDataSnapshot()
+                    .withEbit("500000")
+                    .withInterestExpense("100000")
+                    .build();
+
+            var snapshot2 = aFinancialDataSnapshot()
+                    .withEbit("2000000")
+                    .withInterestExpense("100000")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result1 = InterestCoverageRatio.compute(snapshot1);
+            CalculationResult<InterestCoverageRatio> result2 = InterestCoverageRatio.compute(snapshot2);
+
+            // Then
+            assertThat(result1).isInstanceOf(CalculationResult.Success.class);
+            assertThat(result2).isInstanceOf(CalculationResult.Success.class);
+
+            BigDecimal[] ratio1 = new BigDecimal[1];
+            BigDecimal[] ratio2 = new BigDecimal[1];
+
+            result1.onSuccess(r -> ratio1[0] = r.value());
+            result2.onSuccess(r -> ratio2[0] = r.value());
+
+            assertThat(ratio1[0]).isCloseTo(new BigDecimal("5.0000"), within(new BigDecimal("0.0001")));
+            assertThat(ratio2[0]).isCloseTo(new BigDecimal("20.0000"), within(new BigDecimal("0.0001")));
+        }
+
+        @Test
+        @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
+        void testResultPrecision() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("1000000")
+                    .withInterestExpense("333333")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(COVERED);
+                assertThat(ratio.value().scale()).isEqualTo(4);
+            });
+        }
+
+        @Test
+        @DisplayName("High EBIT relative to interest produces high COVERED ratio")
+        void testHighCoverageRatio() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("10000000")
+                    .withInterestExpense("100000")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then: 100x ratio — strong debt service
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(COVERED);
+                assertThat(ratio.value())
+                        .isCloseTo(new BigDecimal("100.0000"), within(new BigDecimal("0.0001")));
+            });
+        }
+
+        @Test
+        @DisplayName("Low EBIT relative to interest produces sub-2 COVERED ratio — dangerous territory")
+        void testLowCoverageRatio() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("150000")
+                    .withInterestExpense("100000")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then: 1.5x — barely covers interest
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(COVERED);
+                assertThat(ratio.value())
+                        .isCloseTo(new BigDecimal("1.5000"), within(new BigDecimal("0.0001")));
+            });
+        }
+
+        @Test
+        @DisplayName("EBIT less than interest expense produces sub-one COVERED ratio")
+        void testEbitLessThanInterestProducesSubOneRatio() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("50000")
+                    .withInterestExpense("100000")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then: 0.5 — cannot cover interest from operations
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(COVERED);
+                assertThat(ratio.value())
+                        .isCloseTo(new BigDecimal("0.5000"), within(new BigDecimal("0.0001")));
+            });
+        }
+
+        @Test
+        @DisplayName("Debt-free company with lease interest: small positive interestExpense still yields COVERED (not NO_DEBT)")
+        void testCompanyWithLeaseInterestYieldsCovered() {
+            // Given: company with no financial debt but paying lease interest (like MNST)
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("729958000")
+                    .withInterestExpense("600000")   // small lease interest
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then: ratio is ~1216x — valid and meaningful, NOT NO_DEBT
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(COVERED);
+                assertThat(ratio.value()).isNotNull();
+                assertThat(ratio.value()).isGreaterThan(new BigDecimal("1000"));
+            });
+        }
     }
 
-    @Test
-    @DisplayName("Different EBIT values produce different coverage ratios")
-    void testDifferentEbitProducesDifferentRatios() {
-        // Given: Two snapshots with different EBIT values
-        var snapshot1 = aFinancialDataSnapshot()
-                .withEbit("500000")
-                .withInterestExpense("100000")
-                .build();
+    @Nested
+    @DisplayName("OPERATING_LOSS — EBIT < 0 with positive interest expense")
+    class OperatingLossCases {
 
-        var snapshot2 = aFinancialDataSnapshot()
-                .withEbit("2000000")
-                .withInterestExpense("100000")
-                .build();
+        @Test
+        @DisplayName("Negative EBIT with positive interestExpense produces OPERATING_LOSS, not a negative ratio")
+        void testNegativeEbitProducesOperatingLoss() {
+            // Given: operating loss (like RIVN)
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("-500000")
+                    .withInterestExpense("100000")
+                    .build();
 
-        // When: Computing ratios for both
-        CalculationResult<InterestCoverageRatio> result1 = InterestCoverageRatio.compute(snapshot1);
-        CalculationResult<InterestCoverageRatio> result2 = InterestCoverageRatio.compute(snapshot2);
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
-        // Then: Ratios should be different
-        assertThat(result1).isInstanceOf(CalculationResult.Success.class);
-        assertThat(result2).isInstanceOf(CalculationResult.Success.class);
+            // Then: Success but with OPERATING_LOSS flag, value is null (ratio would be misleading)
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(OPERATING_LOSS);
+                assertThat(ratio.value()).isNull();
+            });
+        }
 
-        BigDecimal[] ratio1 = new BigDecimal[1];
-        BigDecimal[] ratio2 = new BigDecimal[1];
+        @Test
+        @DisplayName("Large operating loss with significant interest also yields OPERATING_LOSS")
+        void testLargeOperatingLoss() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("-881000000")   // RIVN Q1 2026
+                    .withInterestExpense("65000000")
+                    .build();
 
-        result1.onSuccess(r -> ratio1[0] = r.value());
-        result2.onSuccess(r -> ratio2[0] = r.value());
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
-        assertThat(ratio1[0]).isCloseTo(new BigDecimal("5.0000"), within(new BigDecimal("0.0001")));
-        assertThat(ratio2[0]).isCloseTo(new BigDecimal("20.0000"), within(new BigDecimal("0.0001")));
+            // Then
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(OPERATING_LOSS);
+                assertThat(ratio.value()).isNull();
+            });
+        }
     }
 
-    @Test
-    @DisplayName("Null EBIT should fail with MISSING_DATA")
-    void testNullEbitShouldFail() {
-        // Given: Snapshot with null EBIT
-        var snapshot = aFinancialDataSnapshot()
-                .withNullEbit()
-                .withInterestExpense("100000")
-                .build();
+    @Nested
+    @DisplayName("NO_DEBT — interest expense is zero or null")
+    class NoDebtCases {
 
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+        @Test
+        @DisplayName("Null interestExpense yields NO_DEBT — not a missing-data error")
+        void testNullInterestExpenseYieldsNoDebt() {
+            // Given: company with no interest obligations
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("1000000")
+                    .withNullInterestExpense()
+                    .build();
 
-        // Then: Should fail with MISSING_DATA
-        assertThat(result).isInstanceOf(CalculationResult.Failure.class);
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
-        result.onFailure(failure -> {
-            assertThat(failure.type()).isEqualTo(CalculationErrorType.MISSING_DATA);
-            assertThat(failure.reason()).contains("ebit");
-        });
+            // Then: Success, positive NO_DEBT signal, value null (nothing to cover)
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(NO_DEBT);
+                assertThat(ratio.value()).isNull();
+            });
+        }
+
+        @Test
+        @DisplayName("Zero interestExpense yields NO_DEBT — not DIVISION_BY_ZERO error")
+        void testZeroInterestExpenseYieldsNoDebt() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("1000000")
+                    .withInterestExpense("0")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then: Success, NO_DEBT, not an error
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(NO_DEBT);
+                assertThat(ratio.value()).isNull();
+            });
+        }
     }
 
-    @Test
-    @DisplayName("Null interestExpense should fail with MISSING_DATA")
-    void testNullInterestExpenseShouldFail() {
-        // Given: Snapshot with null interestExpense
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("1000000")
-                .withNullInterestExpense()
-                .build();
+    @Nested
+    @DisplayName("Precedence — NO_DEBT beats OPERATING_LOSS when both conditions hold")
+    class PrecedenceCases {
 
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+        @Test
+        @DisplayName("Negative EBIT AND null interestExpense → NO_DEBT wins (nothing to cover anyway)")
+        void testNegativeEbitAndNullInterestYieldsNoDebt() {
+            // Given: early-stage biotech — operating loss but zero debt
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("-200000")
+                    .withNullInterestExpense()
+                    .build();
 
-        // Then: Should fail with MISSING_DATA
-        assertThat(result).isInstanceOf(CalculationResult.Failure.class);
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
-        result.onFailure(failure -> {
-            assertThat(failure.type()).isEqualTo(CalculationErrorType.MISSING_DATA);
-            assertThat(failure.reason()).contains("interestExpense");
-        });
+            // Then: NO_DEBT takes precedence — debt coverage question is moot
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(NO_DEBT);
+                assertThat(ratio.value()).isNull();
+            });
+        }
+
+        @Test
+        @DisplayName("Negative EBIT AND zero interestExpense → NO_DEBT wins")
+        void testNegativeEbitAndZeroInterestYieldsNoDebt() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withEbit("-200000")
+                    .withInterestExpense("0")
+                    .build();
+
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+
+            // Then
+            assertThat(result).isInstanceOf(CalculationResult.Success.class);
+            result.onSuccess(ratio -> {
+                assertThat(ratio.status()).isEqualTo(NO_DEBT);
+                assertThat(ratio.value()).isNull();
+            });
+        }
     }
 
-    @Test
-    @DisplayName("Zero interestExpense should fail with DIVISION_BY_ZERO")
-    void testZeroInterestExpenseShouldFail() {
-        // Given: Snapshot with zero interestExpense
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("1000000")
-                .withInterestExpense("0")
-                .build();
+    @Nested
+    @DisplayName("MISSING_DATA — null EBIT is the only true error")
+    class MissingDataCases {
 
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
+        @Test
+        @DisplayName("Null EBIT should fail with MISSING_DATA — cannot determine any status")
+        void testNullEbitShouldFail() {
+            // Given
+            var snapshot = aFinancialDataSnapshot()
+                    .withNullEbit()
+                    .withInterestExpense("100000")
+                    .build();
 
-        // Then: Should fail with DIVISION_BY_ZERO
-        assertThat(result).isInstanceOf(CalculationResult.Failure.class);
+            // When
+            CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
 
-        result.onFailure(failure -> {
-            assertThat(failure.type()).isEqualTo(CalculationErrorType.DIVISION_BY_ZERO);
-            assertThat(failure.reason()).contains("interestExpense");
-        });
-    }
-
-    @Test
-    @DisplayName("Result should have exactly 4 decimal places (SCALE = 4)")
-    void testResultPrecision() {
-        // Given: Complete snapshot with values producing non-round result
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("1000000")
-                .withInterestExpense("333333")
-                .build();
-
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
-
-        // Then: Result should have scale of 4
-        assertThat(result).isInstanceOf(CalculationResult.Success.class);
-
-        result.onSuccess(ratio -> assertThat(ratio.value().scale()).isEqualTo(4));
-    }
-
-    @Test
-    @DisplayName("High coverage ratio indicates strong debt servicing ability")
-    void testHighCoverageRatio() {
-        // Given: EBIT significantly higher than interest expense
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("10000000")
-                .withInterestExpense("100000")
-                .build();
-
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
-
-        // Then: Ratio should be very high (100x)
-        assertThat(result).isInstanceOf(CalculationResult.Success.class);
-
-        result.onSuccess(ratio -> assertThat(ratio.value())
-                .isCloseTo(new BigDecimal("100.0000"), within(new BigDecimal("0.0001"))));
-    }
-
-    @Test
-    @DisplayName("Low coverage ratio indicates weak debt servicing ability")
-    void testLowCoverageRatio() {
-        // Given: EBIT barely covers interest expense
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("150000")
-                .withInterestExpense("100000")
-                .build();
-
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
-
-        // Then: Ratio should be low (1.5x - dangerous territory)
-        assertThat(result).isInstanceOf(CalculationResult.Success.class);
-
-        result.onSuccess(ratio -> assertThat(ratio.value())
-                .isCloseTo(new BigDecimal("1.5000"), within(new BigDecimal("0.0001"))));
-    }
-
-    @Test
-    @DisplayName("Negative EBIT produces negative coverage ratio")
-    void testNegativeEbitProducesNegativeRatio() {
-        // Given: Negative EBIT (operating loss)
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("-500000")
-                .withInterestExpense("100000")
-                .build();
-
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
-
-        // Then: Ratio should be negative (company cannot cover interest)
-        assertThat(result).isInstanceOf(CalculationResult.Success.class);
-
-        result.onSuccess(ratio -> assertThat(ratio.value())
-                .isCloseTo(new BigDecimal("-5.0000"), within(new BigDecimal("0.0001"))));
-    }
-
-    @Test
-    @DisplayName("EBIT less than interest expense produces ratio below 1")
-    void testEbitLessThanInterestProducesSubOneRatio() {
-        // Given: EBIT less than interest expense
-        var snapshot = aFinancialDataSnapshot()
-                .withEbit("50000")
-                .withInterestExpense("100000")
-                .build();
-
-        // When: Computing InterestCoverageRatio
-        CalculationResult<InterestCoverageRatio> result = InterestCoverageRatio.compute(snapshot);
-
-        // Then: Ratio should be below 1 (0.5)
-        assertThat(result).isInstanceOf(CalculationResult.Success.class);
-
-        result.onSuccess(ratio -> assertThat(ratio.value())
-                .isCloseTo(new BigDecimal("0.5000"), within(new BigDecimal("0.0001"))));
+            // Then: Failure — we cannot classify without EBIT
+            assertThat(result).isInstanceOf(CalculationResult.Failure.class);
+            result.onFailure(failure -> {
+                assertThat(failure.type()).isEqualTo(CalculationErrorType.MISSING_DATA);
+                assertThat(failure.reason()).contains("ebit");
+            });
+        }
     }
 }
-
